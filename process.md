@@ -13,7 +13,7 @@ back, and what I decided myself.
 - [ ] Trading terminal — dense, dark, monospaced
 - [ ] Consulting exhibit — one chart per screen, "so what" headlines
 - [ ] Magazine long-read — "The great sweater migration"
-- [ ] Container stack — sections as shipping containers
+- [x] Container stack — 1 container = 1%, crane moves the shift (v03)
 - [ ] Brutalist manifesto — "STOP SOURCING BLIND."
 - [ ] Win95 app — "Shiftmap.exe"
 - [ ] Calm single column — one number, one sentence
@@ -42,4 +42,16 @@ back, and what I decided myself.
   and the shift is drawn as arrows CN→VN (+12) and CN→KH (+8). Below, three pie
   (donut) charts compare the mixes; "why" became three big numbers; "how it works" is
   three short steps. Country colors were checked for color-blind safety.
+- **My take:** _to fill after review_
+
+### Round — rule + v03–v05 (2026-10-10)
+- **Claude proposed:** turn my v01 feedback into a rule for every version: the mix and
+  the shift must be visual (map or chart), with minimal copy. Then three visual-first
+  directions: container stack, departure board, consulting exhibit.
+- **I decided:** adopt the rule (added to AGENTS.md) and go with all three.
+
+### v03 — Container yard
+- **Claude built:** a port yard. 100 containers (1 = 1% of units) stacked by origin;
+  "Run the shift" lifts 20 boxes off China with a crane path and lands 12 in Vietnam,
+  8 in Cambodia, recoloring them on arrival. Industry view re-stacks the same 100.
 - **My take:** _to fill after review_

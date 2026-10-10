@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v03 · Container Yard</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --concrete: #e6e3dc;
+    --concrete-2: #d9d5cc;
+    --ink: #1b1b1b;
+    --ink-2: #45433e;
+    --safety: #f2c200;
+    --cn: #c4482b;   /* China: rust */
+    --vn: #1f8a5f;   /* Vietnam: green */
+    --bd: #2c4f9e;   /* Bangladesh: navy */
+    --kh: #d39a1c;   /* Cambodia: mustard */
+    --ot: #8d8a83;   /* Other: gray */
+    --stencil: "Stencil", "Stencil Std", Impact, "Arial Black", sans-serif;
+    --din: "DIN Alternate", "DIN Condensed", Bahnschrift, "Arial Narrow", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; color: var(--ink); font: 17px/1.45 var(--din);
+    background: var(--concrete);
+    background-image: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1.2px), radial-gradient(rgba(255,255,255,.35) 1px, transparent 1.2px);
+    background-size: 7px 7px, 11px 11px;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  .top { display: flex; align-items: center; gap: 18px; padding: 18px 0; border-bottom: 3px solid var(--ink); }
+  .back { font: 700 13px/1 var(--din); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; border: 2px solid var(--ink); padding: 8px 10px; }
+  .back:hover, .back:focus-visible { background: var(--ink); color: var(--concrete); }
+  .mark { font: 400 24px/1 var(--stencil); letter-spacing: .06em; }
+  .mark small { font: 700 12px var(--din); letter-spacing: .16em; margin-left: 10px; color: var(--ink-2); }
+  .top .btn { margin-left: auto; }
+  .btn {
+    display: inline-block; font: 700 15px/1 var(--din); letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+    background: var(--ink); color: var(--safety); padding: 14px 18px; border: 2px solid var(--ink);
+  }
+  .btn:hover, .btn:focus-visible { background: var(--safety); color: var(--ink); }
+
+  .hero { padding: 40px 0 0; }
+  .tag { font: 700 13px var(--din); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 14px; }
+  h1 { font: 400 clamp(38px, 6.4vw, 84px)/.98 var(--stencil); letter-spacing: .01em; margin: 0 0 14px; max-width: 16ch; min-height: 2em; }
+  .key { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 22px; font-size: 15px; color: var(--ink-2); }
+  .key i { width: 30px; height: 13px; background: var(--ot); border: 1px solid rgba(0,0,0,.4);
+    background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 1px, transparent 1px 4px); }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
+  .controls button {
+    font: 700 14px/1 var(--din); letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+    padding: 12px 16px; background: transparent; color: var(--ink); border: 2px solid var(--ink);
+  }
+  .controls button:hover { background: rgba(0,0,0,.08); }
+  .controls button:focus-visible { outline: 3px solid var(--safety); outline-offset: 2px; }
+  .controls button[aria-pressed="true"] { background: var(--ink); color: var(--concrete); }
+  .controls button.run { background: var(--safety); border-color: var(--ink); }
+  .controls button.run[aria-pressed="true"] { background: var(--ink); color: var(--safety); }
+
+  .yard { position: relative; padding: 18px 0 0; }
+  .gantry { position: absolute; left: 0; right: 0; top: 0; height: 10px;
+    background: repeating-linear-gradient(-45deg, var(--safety) 0 12px, var(--ink) 12px 24px); }
+  .stage { position: relative; margin-top: 18px; }
+  .box {
+    position: absolute; left: 0; top: 0; border: 1px solid rgba(0,0,0,.45); border-radius: 1px;
+    background-color: var(--ot);
+    background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 1px, transparent 1px 4px);
+    transition: background-color .5s ease;
+  }
+  .instant .box, .instant .labels em { transition: none !important; }
+  .ground { height: 14px; background: var(--ink); }
+  .labels { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 10px; }
+  .labels div { text-align: left; }
+  .labels b { display: block; font: 400 clamp(22px, 3.4vw, 40px)/1 var(--stencil); }
+  .labels span { font-size: 14px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .1em; }
+  .labels em { display: inline-block; margin-left: 6px; font: 700 13px var(--din); font-style: normal; padding: 2px 6px; background: var(--ink); color: var(--safety); vertical-align: 6px; opacity: 0; transition: opacity .4s; }
+  .labels em.on { opacity: 1; }
+  .cap { font: 700 clamp(18px, 2vw, 22px)/1.3 var(--din); margin: 22px 0 0; min-height: 2.6em; max-width: 46ch; }
+
+  section.block { padding: 64px 0; }
+  h2 { font: 400 clamp(28px, 3.6vw, 44px)/1 var(--stencil); margin: 0 0 26px; }
+
+  .doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .door {
+    position: relative; padding: 26px 22px 22px; min-height: 210px; color: #f4f1ea;
+    background-color: var(--bd);
+    background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.2) 0 2px, transparent 2px 12px);
+    border: 3px solid var(--ink);
+  }
+  .door:nth-child(2) { background-color: var(--vn); }
+  .door:nth-child(3) { background-color: var(--cn); }
+  .door::before, .door::after { content: ""; position: absolute; top: 12px; bottom: 12px; width: 6px; background: rgba(0,0,0,.4); border-radius: 3px; }
+  .door::before { right: 34px; } .door::after { right: 18px; }
+  .door b { display: block; font: 400 clamp(52px, 6vw, 76px)/1 var(--stencil); margin-bottom: 12px; }
+  .door p { margin: 0; max-width: 22ch; font-weight: 700; }
+
+  .gates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 3px solid var(--ink); list-style: none; margin: 0; padding: 0; }
+  .gates li { padding: 20px 22px; border-right: 3px solid var(--ink); }
+  .gates li:last-child { border-right: 0; }
+  .gates small { font: 700 12px var(--din); letter-spacing: .16em; color: var(--ink-2); }
+  .gates b { display: block; font: 400 30px/1.1 var(--stencil); margin: 4px 0 6px; }
+
+  .cta { margin-top: 48px; padding: 14px; background: repeating-linear-gradient(-45deg, var(--safety) 0 16px, var(--ink) 16px 32px); }
+  .cta div { background: var(--concrete); padding: 34px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .cta p { margin: 0; font: 400 clamp(30px, 4vw, 52px)/1 var(--stencil); }
+  footer { padding: 26px 0 44px; font-size: 13px; color: var(--ink-2); }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 16px; }
+    .top .btn { display: none; }
+    .mark small { display: none; }
+    .doors, .gates { grid-template-columns: 1fr; }
+    .gates li { border-right: 0; border-bottom: 3px solid var(--ink); }
+    .gates li:last-child { border-bottom: 0; }
+    .labels span { font-size: 12px; letter-spacing: .06em; }
+    .labels .nm { display: none; }
+    .labels em { display: block; width: max-content; margin: 4px 0 0; vertical-align: 0; }
+    .cta div { padding: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="back" href="../">← Gallery · v03</a>
+    <div class="mark">SHIFTMAP<small>TERMINAL 01</small></div>
+    <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report</a>
+  </header>
+
+  <section class="hero" aria-labelledby="headline">
+    <p class="tag">Northfold · women's knit sweaters · last 12 months</p>
+    <h1 id="headline">52 of every 100 sweaters ship from China.</h1>
+    <p class="key"><i aria-hidden="true"></i>1 container = 1% of units</p>
+    <div class="controls" role="group" aria-label="Yard view">
+      <button type="button" data-state="today" aria-pressed="true">Northfold today</button>
+      <button type="button" data-state="industry" aria-pressed="false">Industry</button>
+      <button type="button" data-state="after" class="run" aria-pressed="false">▶ Run the shift</button>
+    </div>
+
+    <div class="yard">
+      <div class="gantry" aria-hidden="true"></div>
+      <div class="stage" id="stage" role="img" aria-label="100 containers stacked by country of origin"></div>
+      <div class="ground" aria-hidden="true"></div>
+      <div class="labels" id="labels"></div>
+    </div>
+    <p class="cap" id="cap" aria-live="polite"></p>
+  </section>
+
+  <section class="block" aria-labelledby="why-h">
+    <h2 id="why-h">Why move the boxes</h2>
+    <div class="doors">
+      <div class="door"><b>31%</b><p>of US imports for this code come from Vietnam, the #1 origin.</p></div>
+      <div class="door"><b>14</b><p>vendors in Vietnam and Cambodia already ship it to US brands.</p></div>
+      <div class="door"><b>−5%</b><p>estimated landed cost per unit after the shift.</p></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="how-h" style="padding-top:0">
+    <h2 id="how-h">Three gates</h2>
+    <ol class="gates">
+      <li><small>GATE 1</small><b>Ask</b>One question, in plain language.</li>
+      <li><small>GATE 2</small><b>Match</b>Your sourcing against industry imports.</li>
+      <li><small>GATE 3</small><b>Ship</b>The map, the gap and the vendors to call.</li>
+    </ol>
+    <div class="cta">
+      <div>
+        <p>Load your category.</p>
+        <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report →</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>Shiftmap, Northfold and every figure on this page are fictional · v03 of a design exercise for MPCS 51238.</footer>
+</div>
+
+<script>
+  const ORDER = ["CN", "VN", "BD", "KH", "OT"];
+  const NAMES = { CN: "China", VN: "Vietnam", BD: "Bangladesh", KH: "Cambodia", OT: "Other" };
+  const DATA = {
+    today:    { CN: 52, VN: 18, BD: 12, KH: 8,  OT: 10 },
+    industry: { CN: 27, VN: 31, BD: 16, KH: 12, OT: 14 },
+    after:    { CN: 32, VN: 30, BD: 12, KH: 16, OT: 10 },
+  };
+  const DELTA = { CN: "−20", VN: "+12", KH: "+8" };
+  const HEAD = {
+    today: "52 of every 100 sweaters ship from China.",
+    industry: "The industry ships 31 of every 100 from Vietnam.",
+    after: "Move 20 containers. Close most of the gap.",
+  };
+  const CAP = {
+    today: "Northfold's China stack is nearly twice the industry's. Press Run the shift.",
+    industry: "Same 100 boxes, the industry's way: Vietnam is the tallest stack.",
+    after: "20 containers leave China: 12 land in Vietnam, 8 in Cambodia.",
+  };
+  const PER_ROW = 4, MAX_ROWS = 13;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const stage = document.getElementById("stage");
+  const labels = document.getElementById("labels");
+  const headline = document.getElementById("headline");
+  const cap = document.getElementById("cap");
+  const buttons = document.querySelectorAll(".controls button");
+
+  // 100 containers; each knows its stack and slot.
+  const boxes = [];
+  let k = 0;
+  ORDER.forEach((c) => { for (let i = 0; i < DATA.today[c]; i++) boxes.push({ id: k++, stack: c, slot: i }); });
+  boxes.forEach((b) => {
+    b.el = document.createElement("div");
+    b.el.className = "box";
+    b.el.style.backgroundColor = `var(--${b.stack.toLowerCase()})`;
+    stage.appendChild(b.el);
+  });
+
+  labels.innerHTML = ORDER.map((c) => `<div><b data-c="${c}">${DATA.today[c]}</b><span>${c}<span class="nm"> · ${NAMES[c]}</span></span>${DELTA[c] ? `<em data-c="${c}">${DELTA[c]}</em>` : ""}</div>`).join("");
+
+  let geo;
+  function measure() {
+    const S = stage.clientWidth, gap = 2;
+    const colW = S / 5;                                   // one column per origin, aligned with labels
+    const bw = Math.min(46, (colW * 0.8 - gap * (PER_ROW - 1)) / PER_ROW);
+    const bh = Math.max(6, bw * 0.45);
+    geo = { colW, bw, bh, gap, H: MAX_ROWS * (bh + gap) };
+    stage.style.height = geo.H + "px";
+  }
+  function pos(stack, slot) {
+    const i = ORDER.indexOf(stack), row = Math.floor(slot / PER_ROW), col = slot % PER_ROW;
+    return [i * geo.colW + col * (geo.bw + geo.gap), geo.H - (row + 1) * (geo.bh + geo.gap)];
+  }
+  function place(b) {
+    const [x, y] = pos(b.stack, b.slot);
+    Object.assign(b.el.style, { width: geo.bw + "px", height: geo.bh + "px", transform: `translate(${x}px, ${y}px)` });
+  }
+
+  function countTo(el, to, animate) {
+    const from = +el.textContent;
+    if (!animate || reduce || from === to) { el.textContent = to; return; }
+    const t0 = performance.now(), dur = 900;
+    (function tick(t) {
+      const p = Math.min(1, (t - t0) / dur);
+      el.textContent = Math.round(from + (to - from) * p);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  let state = "today";
+  function goTo(next, animate = true) {
+    state = next;
+    if (!animate) document.body.classList.add("instant");
+    const target = DATA[next];
+    // Keep the bottom boxes of each stack; surplus from the top moves to stacks that are short.
+    const pool = [];
+    ORDER.forEach((c) => {
+      const members = boxes.filter((b) => b.stack === c).sort((a, b) => a.slot - b.slot);
+      members.slice(target[c]).reverse().forEach((b) => pool.push(b));
+    });
+    let delay = 0;
+    ORDER.forEach((c) => {
+      let have = boxes.filter((b) => b.stack === c).length - Math.max(0, boxes.filter((b) => b.stack === c).length - target[c]);
+      while (have < target[c]) {
+        const b = pool.shift();
+        const [fx, fy] = pos(b.stack, b.slot);
+        b.stack = c; b.slot = have++;
+        const [tx, ty] = pos(b.stack, b.slot);
+        b.el.style.transform = `translate(${tx}px, ${ty}px)`;
+        if (animate && !reduce) {
+          // Crane path: lift, travel, lower.
+          b.el.animate([
+            { transform: `translate(${fx}px, ${fy}px)` },
+            { transform: `translate(${fx}px, ${-geo.bh * 2}px)`, offset: 0.3 },
+            { transform: `translate(${tx}px, ${-geo.bh * 2}px)`, offset: 0.7 },
+            { transform: `translate(${tx}px, ${ty}px)` },
+          ], { duration: 1300, delay, easing: "ease-in-out", fill: "backwards" });
+          b.el.style.transitionDelay = delay + 900 + "ms";
+          delay += 45;
+        } else {
+          b.el.style.transitionDelay = "0ms";
+        }
+        b.el.style.backgroundColor = `var(--${c.toLowerCase()})`;
+      }
+    });
+    // Re-pack slots so each stack fills from the bottom.
+    ORDER.forEach((c) => boxes.filter((b) => b.stack === c).sort((a, b) => a.slot - b.slot).forEach((b, i) => { if (b.slot !== i) { b.slot = i; place(b); } }));
+
+    labels.querySelectorAll("b").forEach((el) => countTo(el, target[el.dataset.c], animate));
+    labels.querySelectorAll("em").forEach((el) => el.classList.toggle("on", next === "after"));
+    headline.textContent = HEAD[next];
+    cap.textContent = CAP[next];
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === next)));
+    if (!animate) requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("instant")));
+  }
+
+  buttons.forEach((b) => b.addEventListener("click", () => { if (b.dataset.state !== state) goTo(b.dataset.state); }));
+  addEventListener("resize", () => { measure(); boxes.forEach(place); });
+
+  measure();
+  boxes.forEach(place);
+  cap.textContent = CAP.today;
+  const fromHash = location.hash.slice(1);
+  if (DATA[fromHash] && fromHash !== "today") goTo(fromHash, false);
+</script>
+</body>
+</html>

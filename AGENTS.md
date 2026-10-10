@@ -47,6 +47,8 @@ brands; est. landed cost per unit about −5%.
 
 ## How we work
 - The user directs. One version per round; never batch-generate versions.
+- Every version shows the COO mix and the shift **visually** (map or chart) and keeps
+  copy minimal: a business reader should get it at a glance (user feedback on v01).
 - v01–v12: each a radically different direction (layout, metaphor, era, tone,
   audience). Color or font swaps don't count. Prefer trade/apparel-specific
   metaphors over generic SaaS looks — 20+ designs must be unique across the class.
