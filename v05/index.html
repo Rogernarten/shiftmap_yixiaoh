@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v05 · Exhibit Deck</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --paper: #fdfcf9;
+    --ink: #1d1d1b;
+    --ink-2: #4c4b46;
+    --ink-3: #6b6a64;
+    --rule: #dcd9d1;
+    --grid: #ebe8e1;
+    --nf: #2b5797;     /* Northfold */
+    --vn: #14866d;     /* Vietnam */
+    --kh: #c98500;     /* Cambodia */
+    --ctx: #b9b6ad;    /* context / industry */
+    --serif: "Iowan Old Style", Charter, "Palatino Linotype", Georgia, serif;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-snap-type: y proximity; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--sans); }
+  a { color: inherit; }
+
+  .slide { min-height: 100vh; scroll-snap-align: start; display: flex; flex-direction: column; padding: 28px 0; border-bottom: 1px solid var(--rule); }
+  .frame { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 40px; flex: 1; display: flex; flex-direction: column; }
+  .bar-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+  .bar-top .back { text-transform: none; letter-spacing: 0; font-size: 13px; text-decoration: none; color: var(--ink-2); }
+  .bar-top .back:hover, .bar-top .back:focus-visible { color: var(--ink); text-decoration: underline; }
+  .content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 36px 0; }
+  .label { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--nf); font-weight: 700; margin: 0 0 10px; }
+  h2 { font: 400 clamp(26px, 3.4vw, 40px)/1.15 var(--serif); margin: 0 0 30px; max-width: 30ch; letter-spacing: -.01em; }
+  .src { margin-top: 28px; font-size: 12px; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 10px; display: flex; justify-content: space-between; gap: 16px; }
+  .next { text-decoration: none; color: var(--nf); font-weight: 700; white-space: nowrap; }
+  .next:hover, .next:focus-visible { text-decoration: underline; }
+
+  /* Cover */
+  .cover h1 { font: 400 clamp(44px, 7vw, 88px)/1.02 var(--serif); letter-spacing: -.02em; margin: 0 0 18px; }
+  .cover .meta { font-size: 15px; color: var(--ink-2); margin: 0 0 40px; }
+  .answer { border-left: 4px solid var(--nf); padding: 6px 0 6px 20px; max-width: 40ch; }
+  .answer small { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .answer p { margin: 0; font: 400 clamp(22px, 2.6vw, 30px)/1.25 var(--serif); }
+  .answer b { color: var(--nf); font-weight: 600; }
+  .cover .content { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+  .mini { border: 1px solid var(--rule); background: #fff; padding: 22px 22px 18px; }
+  .mini .label { margin-bottom: 4px; }
+  .mini h3 { font: 400 20px/1.25 var(--serif); margin: 0 0 18px; }
+  .mini .rowlbl { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px; }
+  .stack { display: flex; gap: 2px; height: 40px; margin-bottom: 16px; }
+  .stack div { display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; min-width: 0; transform-origin: left; transition: flex-grow .9s cubic-bezier(.2,.8,.2,1); }
+  .stack div:first-child { border-radius: 4px 0 0 4px; } .stack div:last-child { border-radius: 0 4px 4px 0; }
+  .stack .o { background: var(--ctx); color: var(--ink); }
+  .stack .k { color: var(--ink); }
+  .mini .legend { margin: 4px 0 0; font-size: 12px; gap: 14px; }
+  .actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px; align-items: center; }
+  .btn { display: inline-block; background: var(--nf); color: #fff; text-decoration: none; padding: 13px 20px; font-weight: 700; font-size: 15px; border-radius: 2px; }
+  .btn:hover, .btn:focus-visible { background: #1f4278; }
+  .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .btn.ghost:hover, .btn.ghost:focus-visible { background: var(--ink); color: var(--paper); }
+
+  /* Shared chart bits */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin: -10px 0 20px; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* Exhibit 1: dumbbell */
+  .db { display: grid; grid-template-columns: 120px 1fr 90px; gap: 0 18px; align-items: center; }
+  .db .h { font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; padding-bottom: 8px; }
+  .db .name { font-weight: 600; padding: 14px 0; }
+  .db .track { position: relative; height: 44px; background-image: linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: calc(100% / 3) 100%; border-right: 1px solid var(--grid); }
+  .db .link { position: absolute; top: 50%; height: 3px; margin-top: -1.5px; background: var(--ctx); border-radius: 2px; transform-origin: left; }
+  .db .pt { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 2px solid var(--paper); }
+  .db .pt.nf { background: var(--nf); }
+  .db .pt.ind { background: var(--ctx); }
+  .db .pt span { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .db .pt.ind span { color: var(--ink-3); font-weight: 600; bottom: auto; top: 18px; }
+  .db .gap { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .db .gap small { display: block; font-weight: 400; font-size: 12px; color: var(--ink-3); }
+  .db .axisrow { grid-column: 2; padding-top: 6px; }
+
+  /* Exhibit 2 & 4: horizontal bars */
+  .hb { display: grid; grid-template-columns: minmax(120px, 210px) 1fr; gap: 10px 18px; align-items: center; }
+  .hb .name { font-weight: 600; }
+  .hb .name small { display: block; font-weight: 400; font-size: 12px; color: var(--ink-3); }
+  .hb .track { position: relative; height: 24px; display: flex; align-items: center; gap: 10px; }
+  .hb .fill { height: 22px; border-radius: 0 4px 4px 0; background: var(--ctx); transform-origin: left; }
+  .hb .fill.vn { background: var(--vn); }
+  .hb .fill.kh { background: var(--kh); }
+  .hb .val { font-size: 14px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .hb .val small { font-weight: 400; color: var(--ink-3); }
+  .hb .more { grid-column: 1 / -1; font-size: 14px; color: var(--ink-3); border-top: 1px dashed var(--rule); padding-top: 10px; }
+
+  /* Exhibit 3: waterfall */
+  .wf { position: relative; height: 320px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-bottom: 1.5px solid var(--ink); background-image: linear-gradient(var(--grid) 1px, transparent 1px); background-size: 100% calc(100% / 3); }
+  .wf .col { position: relative; }
+  .wf .blk { position: absolute; left: 18%; right: 18%; border-radius: 4px 4px 0 0; transform-origin: bottom; }
+  .wf .blk.float { border-radius: 4px; }
+  .wf .blk span { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 6px); font-weight: 700; font-size: 18px; white-space: nowrap; }
+  .wf .ref { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--ink-3); }
+  .wf .ref span { position: absolute; left: 27%; top: 6px; font-size: 12px; color: var(--ink-2); background: var(--paper); padding: 0 4px; }
+  .wf-x { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 10px; font-size: 14px; text-align: center; color: var(--ink-2); }
+  .wf-x b { display: block; color: var(--ink); }
+
+  /* Recommendation */
+  .recs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 2px solid var(--ink); }
+  .recs li { padding: 20px 20px 22px 0; border-right: 1px solid var(--rule); margin-right: 20px; }
+  .recs li:last-child { border-right: 0; margin-right: 0; }
+  .recs b { display: block; font: 400 44px/1 var(--serif); color: var(--nf); margin-bottom: 10px; }
+  .recs p { margin: 0; font-size: 17px; }
+  .how { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 34px; font-size: 14px; color: var(--ink-2); }
+  .how span { border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; background: #fff; }
+  .how i { font-style: normal; color: var(--ink-3); }
+  .fineprint { font-size: 12px; color: var(--ink-3); margin-top: 26px; }
+
+  /* Side progress dots */
+  .dots { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+  .dots a { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink-3); display: block; }
+  .dots a.on { background: var(--nf); border-color: var(--nf); }
+  .dots a:focus-visible { outline: 2px solid var(--nf); outline-offset: 3px; }
+
+  /* Grow-in animation, only once JS confirms it's running */
+  .js .pre .fill, .js .pre .link { transform: scaleX(0); }
+  .js .pre .blk { transform: scaleY(0); }
+  .js .pre .pt { opacity: 0; }
+  .fill, .link { transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+  .blk { transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+  .pt { transition: opacity .4s ease .5s; }
+  @media (prefers-reduced-motion: reduce) { .fill, .link, .blk, .pt { transition: none; } }
+
+  @media (max-width: 760px) {
+    .frame { padding: 0 16px; }
+    .cover .content { grid-template-columns: 1fr; gap: 28px; }
+    .slide { min-height: auto; padding: 18px 0 8px; }
+    .dots { display: none; }
+    .db { grid-template-columns: 88px 1fr 46px; gap: 0 10px; }
+    .db .name { font-size: 14px; }
+    .db .gap small { display: none; }
+    .hb { grid-template-columns: 1fr; gap: 4px; }
+    .hb .track { margin-bottom: 10px; }
+    .wf { height: 240px; gap: 10px; }
+    .wf-x { gap: 10px; font-size: 12px; }
+    .wf .blk span { font-size: 15px; }
+    .recs { grid-template-columns: 1fr; }
+    .recs li { border-right: 0; margin-right: 0; border-bottom: 1px solid var(--rule); padding-right: 0; }
+    .src { flex-direction: column; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<nav class="dots" aria-label="Exhibits">
+  <a href="#cover" aria-label="Cover"></a><a href="#ex1" aria-label="Exhibit 1"></a><a href="#ex2" aria-label="Exhibit 2"></a><a href="#ex3" aria-label="Exhibit 3"></a><a href="#ex4" aria-label="Exhibit 4"></a><a href="#rec" aria-label="Recommendation"></a>
+</nav>
+
+<section class="slide cover" id="cover">
+  <div class="frame">
+    <div class="bar-top"><a class="back" href="../">← Gallery · v05</a><span>Shiftmap · Landscape report</span></div>
+    <div class="content">
+      <div>
+      <p class="label">Country-of-origin landscape</p>
+      <h1>Women's knit sweaters</h1>
+      <p class="meta">Northfold · US · last 12 months · prepared October 2026</p>
+      <div class="answer">
+        <small>The answer</small>
+        <p>Move <b>20 pts</b> of volume out of China: <b>+12</b> to Vietnam, <b>+8</b> to Cambodia.</p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report for your category</a>
+        <a class="btn ghost" href="#ex1">See the exhibits ↓</a>
+      </div>
+      </div>
+      <figure class="mini" aria-label="Origin mix today and after the shift">
+        <p class="label">At a glance</p>
+        <h3>China's share falls from 52% to 32%.</h3>
+        <p class="rowlbl">Today</p>
+        <div class="stack"><div style="flex-grow:52;background:var(--nf)">CN 52</div><div style="flex-grow:18;background:var(--vn)">VN 18</div><div class="k" style="flex-grow:8;background:var(--kh)">8</div><div class="o" style="flex-grow:22">22</div></div>
+        <p class="rowlbl">After shift</p>
+        <div class="stack"><div style="flex-grow:32;background:var(--nf)">CN 32</div><div style="flex-grow:30;background:var(--vn)">VN 30</div><div class="k" style="flex-grow:16;background:var(--kh)">KH 16</div><div class="o" style="flex-grow:22">22</div></div>
+        <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--nf)"></i>China</span><span><i class="dot" style="background:var(--vn)"></i>Vietnam</span><span><i class="dot" style="background:var(--kh)"></i>Cambodia</span><span><i class="dot" style="background:var(--ctx)"></i>Bangladesh + other</span></div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex1" aria-labelledby="ex1-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 1 of 4 · Where it's made</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 1</p>
+      <h2 id="ex1-h">Northfold buys 52% from China, almost twice the industry's 27%.</h2>
+      <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--nf)"></i>Northfold</span><span><i class="dot" style="background:var(--ctx)"></i>Industry imports</span></div>
+      <div class="db" aria-label="Share of units by origin, Northfold vs industry">
+        <div class="h">Origin</div><div class="h">Share of units</div><div class="h" style="text-align:right">Gap</div>
+      </div>
+      <div class="src"><span>Source: Northfold sourcing records and US import records, HTS 6110.20, Oct 2025–Sep 2026. Figures fictional.</span><a class="next" href="#ex2">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex2" aria-labelledby="ex2-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 2 of 4 · The industry</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 2</p>
+      <h2 id="ex2-h">The industry has already moved: Vietnam is the #1 origin for this code.</h2>
+      <div class="hb">
+        <div class="name">Vietnam</div><div class="track"><div class="fill vn" style="width:72%"></div><span class="val">$1.30B <small>· 31%</small></span></div>
+        <div class="name">China</div><div class="track"><div class="fill" style="width:62.8%"></div><span class="val">$1.13B <small>· 27%</small></span></div>
+        <div class="name">Bangladesh</div><div class="track"><div class="fill" style="width:37.2%"></div><span class="val">$0.67B <small>· 16%</small></span></div>
+        <div class="name">Other</div><div class="track"><div class="fill" style="width:32.8%"></div><span class="val">$0.59B <small>· 14%</small></span></div>
+        <div class="name">Cambodia</div><div class="track"><div class="fill" style="width:27.8%"></div><span class="val">$0.50B <small>· 12%</small></span></div>
+      </div>
+      <div class="src"><span>US imports of HTS 6110.20 by origin, last 12 months, $4.2B total. Figures fictional.</span><a class="next" href="#ex3">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex3" aria-labelledby="ex3-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 3 of 4 · The shift</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 3</p>
+      <h2 id="ex3-h">Moving 20 pts out of China closes most of the gap with the industry.</h2>
+      <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--nf)"></i>Northfold China share</span><span><i class="dot" style="background:var(--vn)"></i>To Vietnam</span><span><i class="dot" style="background:var(--kh)"></i>To Cambodia</span></div>
+      <div class="wf" role="img" aria-label="Northfold's China share: 52% today, minus 12 points to Vietnam, minus 8 points to Cambodia, 32% after. Industry is 27%.">
+        <div class="col"><div class="blk" style="bottom:0;height:86.7%;background:var(--nf)"><span>52%</span></div></div>
+        <div class="col"><div class="blk float" style="bottom:66.7%;height:20%;background:var(--vn)"><span>−12</span></div></div>
+        <div class="col"><div class="blk float" style="bottom:53.3%;height:13.3%;background:var(--kh)"><span>−8</span></div></div>
+        <div class="col"><div class="blk" style="bottom:0;height:53.3%;background:var(--nf)"><span>32%</span></div></div>
+        <div class="ref" style="bottom:45%"><span>Industry 27%</span></div>
+      </div>
+      <div class="wf-x"><div><b>Today</b>China share</div><div><b>→ Vietnam</b>12 pts</div><div><b>→ Cambodia</b>8 pts</div><div><b>After</b>China share</div></div>
+      <div class="src"><span>Gap with the industry falls from 25 pts to 5 pts. Estimated landed cost per unit: about −5%. Figures fictional.</span><a class="next" href="#ex4">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex4" aria-labelledby="ex4-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 4 of 4 · Who can take it</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 4</p>
+      <h2 id="ex4-h">The capacity exists: 14 vendors in Vietnam and Cambodia already ship this code to US brands.</h2>
+      <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--vn)"></i>Vietnam</span><span><i class="dot" style="background:var(--kh)"></i>Cambodia</span></div>
+      <div class="hb">
+        <div class="name">Red River Garment Co.<small>VN · 412 shipments · 9 US clients</small></div><div class="track"><div class="fill vn" style="width:78%"></div><span class="val">$86M</span></div>
+        <div class="name">Saigon Pine Knit<small>VN · 268 shipments · 6 US clients</small></div><div class="track"><div class="fill vn" style="width:49%"></div><span class="val">$54M</span></div>
+        <div class="name">Mekong Stitch Works<small>KH · 190 shipments · 4 US clients</small></div><div class="track"><div class="fill kh" style="width:34.5%"></div><span class="val">$38M</span></div>
+        <div class="more">+ 11 more vendors in the full report, including current suppliers Lotus Bay Knitwear (VN) and Angkor Thread Ltd. (KH).</div>
+      </div>
+      <div class="src"><span>US exports of HTS 6110.20 by vendor, last 12 months, from shipment records. Leads must be verified before outreach. Names and figures fictional.</span><a class="next" href="#rec">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="rec" aria-labelledby="rec-h">
+  <div class="frame">
+    <div class="bar-top"><span>Recommendation</span><span>Shiftmap</span></div>
+    <div class="content">
+      <p class="label">Recommendation</p>
+      <h2 id="rec-h">Rebalance this season, starting with three vendor calls.</h2>
+      <ol class="recs">
+        <li><b>12 pts</b><p>China → Vietnam</p></li>
+        <li><b>8 pts</b><p>China → Cambodia</p></li>
+        <li><b>−5%</b><p>Estimated landed cost per unit</p></li>
+      </ol>
+      <div class="actions">
+        <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report for your category</a>
+      </div>
+      <div class="how" aria-label="How it works"><span>1 · Ask one question</span><i>→</i><span>2 · Match to industry imports</span><i>→</i><span>3 · Get this deck</span></div>
+      <p class="fineprint">Shiftmap, Northfold and every figure on this page are fictional · v05 of a design exercise for MPCS 51238.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.documentElement.classList.add("js");
+
+  // Exhibit 1 rows, built from one table of numbers (scale 0–60%).
+  const ROWS = [["China", 52, 27], ["Vietnam", 18, 31], ["Bangladesh", 12, 16], ["Cambodia", 8, 12], ["Other", 10, 14]];
+  const LABELLED = ["China", "Vietnam"];
+  const pct = (v) => (v / 60) * 100;
+  const db = document.querySelector(".db");
+  db.insertAdjacentHTML("beforeend", ROWS.map(([n, nf, ind]) => {
+    const lo = Math.min(nf, ind), hi = Math.max(nf, ind), gap = nf - ind;
+    const show = LABELLED.includes(n);
+    return `<div class="name">${n}</div>
+      <div class="track" title="${n}: Northfold ${nf}%, industry ${ind}%">
+        <div class="link" style="left:${pct(lo)}%;width:${pct(hi) - pct(lo)}%"></div>
+        <div class="pt ind" style="left:${pct(ind)}%">${show ? `<span>${ind}%</span>` : ""}</div>
+        <div class="pt nf" style="left:${pct(nf)}%">${show ? `<span>${nf}%</span>` : ""}</div>
+      </div>
+      <div class="gap">${gap > 0 ? "+" : "−"}${Math.abs(gap)}<small>pts ${gap > 0 ? "over" : "under"}</small></div>`;
+  }).join("") + `<div class="axisrow"><div class="axis"><span>0%</span><span>20%</span><span>40%</span><span>60%</span></div></div>`);
+
+  // Grow charts as each exhibit scrolls in; light up the matching dot.
+  const dots = [...document.querySelectorAll(".dots a")];
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.querySelector(".chart")?.classList.remove("pre");
+    dots.forEach((d) => d.classList.toggle("on", d.getAttribute("href") === "#" + e.target.id));
+  }), { threshold: 0.35 });
+  document.querySelectorAll(".slide").forEach((s) => io.observe(s));
+</script>
+</body>
+</html>

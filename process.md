@@ -11,7 +11,7 @@ back, and what I decided myself.
 - [ ] Care label — "Made in ___" garment tags
 - [ ] Passport — each country a visa stamp
 - [ ] Trading terminal — dense, dark, monospaced
-- [ ] Consulting exhibit — one chart per screen, "so what" headlines
+- [x] Consulting exhibit — answer-first cover + 4 exhibits (v05)
 - [ ] Magazine long-read — "The great sweater migration"
 - [x] Container stack — 1 container = 1%, crane moves the shift (v03)
 - [ ] Brutalist manifesto — "STOP SOURCING BLIND."
@@ -60,4 +60,11 @@ back, and what I decided myself.
 - **Claude built:** a dark split-flap departures board. Each origin is a row with its
   share, a tile bar (1 tile = 4%) and an action/status column; the three views re-flip
   the board (ACTION → VS NORTHFOLD → STATUS: DEPARTED 20 / ARRIVED +12).
+- **My take:** _to fill after review_
+
+### v05 — Exhibit deck
+- **Claude built:** a consulting-style deck on one scrolling page. The cover states the
+  answer with a today-vs-after stacked bar; then Exhibit 1 dumbbell (Northfold vs
+  industry), Exhibit 2 ranked industry bars, Exhibit 3 waterfall of China's share
+  (52 → 32), Exhibit 4 vendor capacity bars; a recommendation slide closes it.
 - **My take:** _to fill after review_
