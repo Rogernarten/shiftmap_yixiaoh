@@ -136,3 +136,7 @@ back, and what I decided myself.
 ### v14 — Deck + map + label
 - **Claude built:** v13 plus a full-width 'Made in' composition ribbon under the cover: each origin's % in serif numerals, small caps name, a navy bar and an industry tick; it re-weaves with the map toggle. On phones the names become ISO codes.
 - **My take:** _to fill after review_
+
+### v15 — Deck + comparisons
+- **Claude built:** v14 plus: Exhibit 1 gets a 'The numbers' table (Northfold / industry / gap / after shift, plus freight/u and net margin vs peers); Exhibit 3's waterfall is replaced by v10's slope chart in the deck palette (China navy, Vietnam teal, Cambodia amber, others gray), animating in when the slide is seen, with a today-vs after/industry toggle and hover-to-isolate.
+- **My take:** _to fill after review_
