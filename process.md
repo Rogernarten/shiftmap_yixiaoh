@@ -112,3 +112,7 @@ back, and what I decided myself.
 ### v10 — Front page
 - **Claude built:** a fictional broadsheet front page (The Sourcing Ledger): lead story with a slope chart of each origin's share, today → after shift or → industry (toggle, animated; hover isolates a line); right rail with industry bars, a market-data table and a 'Vendors wanted' classified; three below-the-fold number stories.
 - **My take:** _to fill after review_
+
+### v11 — Product window
+- **Claude built:** a product-marketing page whose hero is a live app mock: sidebar history, scope chips, category tabs (sweaters / leggings / tees / jackets, all from the brief's sample data), KPI tiles, origin bars with industry ticks, a recommendation badge (Rebalance / Renegotiate freight / Add origin) and vendors. The ask box fakes the report steps and routes English or Chinese questions to a category.
+- **My take:** _to fill after review_
