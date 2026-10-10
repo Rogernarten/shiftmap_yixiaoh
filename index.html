@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap Gallery</title>
+<meta name="description" content="One idea, 25 landing pages: from wide exploration to a final choice.">
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --ink: #16150f;
+    --ink-2: #55524a;
+    --ink-3: #6f6b61;
+    --line: #dedad0;
+    --accent: #2f55b0;
+    --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14130f;
+      --surface: #1d1c18;
+      --ink: #f0ede4;
+      --ink-2: #b5b0a3;
+      --ink-3: #9a9588;
+      --line: #34322b;
+      --accent: #8fb0ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); }
+  a { color: inherit; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  header.top { padding: 56px 0 28px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 18px; }
+  h1 { font: 400 clamp(40px, 7vw, 84px)/1 var(--serif); letter-spacing: -.02em; margin: 0 0 18px; }
+  h1 em { font-style: italic; color: var(--ink-2); }
+  .lede { font-size: 19px; max-width: 60ch; color: var(--ink-2); margin: 0; }
+
+  .brief { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 28px 0 40px; }
+  .brief h2 { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 8px; font-weight: 600; }
+  .brief p, .brief ol { margin: 0; font-size: 15px; }
+  .brief ol { padding-left: 1.2em; }
+
+  .final { border: 1px dashed var(--line); border-radius: 12px; padding: 28px; margin-bottom: 56px; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; }
+  .final h2 { font: 400 28px/1.1 var(--serif); margin: 0; }
+  .final p { margin: 0; color: var(--ink-3); }
+
+  section.phase { margin-bottom: 64px; }
+  .phase-head { display: grid; grid-template-columns: 120px 1fr; gap: 0 24px; align-items: baseline; border-top: 1px solid var(--ink); padding-top: 16px; margin-bottom: 24px; }
+  .phase-num { font: 400 44px/1 var(--serif); }
+  .phase-head h2 { font: 400 30px/1.1 var(--serif); margin: 0 0 6px; }
+  .phase-head h2 span { font: 13px var(--sans); color: var(--ink-3); margin-left: 8px; }
+  .phase-head p { margin: 0; color: var(--ink-2); max-width: 64ch; }
+
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 32px 24px; }
+  .thumb { display: block; position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); }
+  .thumb iframe { position: absolute; top: 0; left: 0; width: 1280px; height: 800px; border: 0; transform-origin: 0 0; pointer-events: none; }
+  a.thumb:hover, a.thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .card .row { display: flex; justify-content: space-between; gap: 12px; margin: 12px 0 2px; font-size: 12px; color: var(--ink-3); letter-spacing: .04em; }
+  .card .num { font-weight: 700; color: var(--ink); }
+  .card h3 { font: 400 22px/1.2 var(--serif); margin: 0 0 6px; }
+  .card h3 a { text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .card p { margin: 0; font-size: 14px; color: var(--ink-2); }
+
+  .slot .thumb { display: grid; place-items: center; border-style: dashed; background: transparent; color: var(--ink-3); font: 400 28px var(--serif); }
+  .slot p { color: var(--ink-3); margin-top: 10px; }
+
+  footer { border-top: 1px solid var(--line); padding: 24px 0 48px; font-size: 13px; color: var(--ink-3); }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 16px; }
+    .brief { grid-template-columns: 1fr; }
+    .phase-head { grid-template-columns: 1fr; }
+    .phase-num { font-size: 32px; margin-bottom: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Design, Build, Ship · MPCS 51238 · Assignment 1</p>
+    <h1>Shiftmap, <em>twenty-five ways</em></h1>
+    <p class="lede">One idea, designed 25 times: a country-of-origin research tool for sourcing teams. The page moves from wide exploration to a single final choice.</p>
+  </header>
+
+  <section class="brief" aria-label="The brief">
+    <div>
+      <h2>The product</h2>
+      <p>Shiftmap answers one plain-language question by lining up a brand's sourcing records with industry import records. It returns a landscape report for a category.</p>
+    </div>
+    <div>
+      <h2>Who it's for</h2>
+      <p>Sourcing and category managers at apparel and consumer-goods brands who decide which countries and vendors to buy from.</p>
+    </div>
+    <div>
+      <h2>A visitor should leave knowing</h2>
+      <ol>
+        <li>where the sample category is made today,</li>
+        <li>how that compares with the industry,</li>
+        <li>which way to shift volume, and why.</li>
+      </ol>
+    </div>
+  </section>
+
+  <aside class="final" aria-label="Final choice">
+    <h2>Final choice</h2>
+    <p>v25 will be pinned here once the process converges.</p>
+  </aside>
+
+  <section class="phase" aria-labelledby="p1">
+    <div class="phase-head">
+      <div class="phase-num">01</div>
+      <div>
+        <h2 id="p1">Go wide <span>v01–v12</span></h2>
+        <p>Radically different directions: layout, metaphor, era and tone. The same facts appear in every version, so only the design changes.</p>
+      </div>
+    </div>
+    <ol class="grid">
+      <li class="card">
+        <a class="thumb" href="v01/" aria-label="Open v01, Bill of lading"><iframe src="v01/" title="Preview of v01" loading="lazy" tabindex="-1" scrolling="no"></iframe></a>
+        <div class="row"><span class="num">v01</span><span>shipping document · typewriter</span></div>
+        <h3><a href="v01/">Bill of lading</a></h3>
+        <p>First direction. The page is the document sourcing managers already read every week: the origin mix is the cargo manifest, the recommendation is an amendment stamp, and "how it works" is the terms of carriage.</p>
+      </li>
+      <li class="card slot"><div class="thumb">v02</div><p>Next direction.</p></li>
+      <li class="card slot"><div class="thumb">v03</div></li>
+      <li class="card slot"><div class="thumb">v04</div></li>
+      <li class="card slot"><div class="thumb">v05</div></li>
+      <li class="card slot"><div class="thumb">v06</div></li>
+      <li class="card slot"><div class="thumb">v07</div></li>
+      <li class="card slot"><div class="thumb">v08</div></li>
+      <li class="card slot"><div class="thumb">v09</div></li>
+      <li class="card slot"><div class="thumb">v10</div></li>
+      <li class="card slot"><div class="thumb">v11</div></li>
+      <li class="card slot"><div class="thumb">v12</div></li>
+    </ol>
+  </section>
+
+  <section class="phase" aria-labelledby="p2">
+    <div class="phase-head">
+      <div class="phase-num">02</div>
+      <div>
+        <h2 id="p2">Narrow down <span>v13–v19</span></h2>
+        <p>Keep the directions that work for a sourcing manager, then combine and deepen them.</p>
+      </div>
+    </div>
+    <ol class="grid" start="13">
+      <li class="card slot"><div class="thumb">v13</div></li>
+      <li class="card slot"><div class="thumb">v14</div></li>
+      <li class="card slot"><div class="thumb">v15</div></li>
+      <li class="card slot"><div class="thumb">v16</div></li>
+      <li class="card slot"><div class="thumb">v17</div></li>
+      <li class="card slot"><div class="thumb">v18</div></li>
+      <li class="card slot"><div class="thumb">v19</div></li>
+    </ol>
+  </section>
+
+  <section class="phase" aria-labelledby="p3">
+    <div class="phase-head">
+      <div class="phase-num">03</div>
+      <div>
+        <h2 id="p3">Converge <span>v20–v25</span></h2>
+        <p>One direction, refined until it feels right.</p>
+      </div>
+    </div>
+    <ol class="grid" start="20">
+      <li class="card slot"><div class="thumb">v20</div></li>
+      <li class="card slot"><div class="thumb">v21</div></li>
+      <li class="card slot"><div class="thumb">v22</div></li>
+      <li class="card slot"><div class="thumb">v23</div></li>
+      <li class="card slot"><div class="thumb">v24</div></li>
+      <li class="card slot"><div class="thumb">v25</div></li>
+    </ol>
+  </section>
+
+  <footer>Shiftmap, Northfold and every figure in these pages are fictional. Plain HTML and CSS, no frameworks.</footer>
+</div>
+
+<script>
+  // Scale each 1280×800 live preview down to its thumbnail box.
+  const fit = () => document.querySelectorAll('.thumb iframe').forEach((f) => {
+    f.style.transform = `scale(${f.parentElement.clientWidth / 1280})`;
+  });
+  new ResizeObserver(fit).observe(document.body);
+  fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v01 · Bill of Lading</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --desk: #c8bea8;
+    --paper: #f3eee2;
+    --paper-2: #ebe4d3;
+    --ink: #1f1c17;
+    --ink-2: #4a453b;
+    --ink-3: #6f685a;
+    --ours: #c0392b;      /* typewriter ribbon red: Northfold mix */
+    --industry: #2f55b0;  /* carbon-copy blue: industry import mix */
+    --stamp: #5b3a8e;
+    --typed: "American Typewriter", "Courier New", Courier, monospace;
+    --label: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --script: "Snell Roundhand", "Brush Script MT", cursive;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--desk);
+    background-image: radial-gradient(rgba(0,0,0,.05) 1px, transparent 1px);
+    background-size: 4px 4px;
+    color: var(--ink);
+    font-family: var(--typed);
+    line-height: 1.45;
+  }
+
+  .back {
+    position: absolute; top: 16px; left: 16px;
+    display: inline-flex; gap: .7em; align-items: center;
+    font: 600 12px/1 var(--label); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink); background: var(--paper);
+    border: 1.5px solid var(--ink); padding: 9px 12px; text-decoration: none;
+  }
+  .back:hover, .back:focus-visible { background: var(--ink); color: var(--paper); }
+  .back span { opacity: .6; }
+
+  /* The document: a grid of ruled cells (1px gaps over an ink background). */
+  .doc {
+    max-width: 1120px; margin: 68px auto 20px;
+    background: var(--ink); border: 2px solid var(--ink);
+    display: flex; flex-direction: column; gap: 1px;
+    box-shadow: 0 30px 60px -24px rgba(40,30,10,.5);
+  }
+  .row { display: grid; gap: 1px; background: var(--ink); }
+  .cell { background: var(--paper); padding: 14px 18px 18px; position: relative; min-width: 0; }
+  .lbl {
+    display: block; margin-bottom: 10px;
+    font: 600 10px/1.25 var(--label); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  p { margin: 0; }
+
+  /* Header */
+  .head { grid-template-columns: 1.1fr 2fr 1fr; }
+  .logo { font: 800 30px/1 var(--label); letter-spacing: .06em; }
+  .logo b { font-weight: 300; }
+  .tagline { margin-top: 8px; font: 12px/1.4 var(--label); color: var(--ink-2); }
+  .title { display: flex; flex-direction: column; justify-content: center; text-align: center; background: var(--paper-2); }
+  .bol { font: 800 clamp(26px, 4vw, 44px)/1 var(--label); letter-spacing: .18em; text-transform: uppercase; }
+  .bol-sub { margin-top: 10px; font: 600 11px/1.3 var(--label); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .meta dl { margin: 0; display: grid; gap: 8px; }
+  .meta dt { font: 600 10px/1 var(--label); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .meta dd { margin: 2px 0 0; font-size: 15px; }
+
+  /* Hero */
+  .hero { grid-template-columns: 2.2fr 1fr; }
+  h1 { margin: 0 0 16px; font: 400 clamp(28px, 4.2vw, 50px)/1.12 var(--typed); letter-spacing: -.01em; max-width: 19ch; }
+  .lede { font-size: 16px; max-width: 58ch; color: var(--ink-2); }
+  .cta-cell { display: flex; flex-direction: column; gap: 14px; }
+  .cta-cell p { font-size: 15px; }
+  .btn {
+    align-self: flex-start;
+    display: inline-block; padding: 12px 16px;
+    font: 700 13px/1 var(--label); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--paper); background: var(--ink); text-decoration: none;
+    border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--stamp);
+  }
+  .btn:hover, .btn:focus-visible { background: var(--stamp); border-color: var(--stamp); box-shadow: 3px 3px 0 var(--ink); }
+  .fine { font: 12px/1.4 var(--label); color: var(--ink-3); }
+
+  /* Parties */
+  .parties { grid-template-columns: repeat(4, 1fr); }
+  .parties p { font-size: 15px; }
+
+  /* Manifest: the COO chart, as a table */
+  .manifest .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 14px; font: 13px/1 var(--label); color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .sw { display: inline-block; width: 18px; height: 12px; border-radius: 0 3px 3px 0; }
+  .sw.ours, .bar.ours { background: var(--ours); }
+  .sw.ind, .bar.ind {
+    background: repeating-linear-gradient(135deg, var(--industry) 0 3px, rgba(47,85,176,.4) 3px 5px);
+  }
+  table.mix { width: 100%; border-collapse: collapse; }
+  .mix th, .mix td { text-align: left; vertical-align: middle; padding: 9px 8px; border-top: 1px dashed rgba(31,28,23,.35); }
+  .mix thead th { font: 600 10px/1.2 var(--label); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); border-top: 0; padding-top: 0; }
+  .mix tbody th { width: 150px; font-weight: 400; font-size: 15px; white-space: nowrap; }
+  .mix tbody th b { display: inline-block; width: 2.4em; font-weight: 700; }
+  .mix .gap { width: 120px; text-align: right; white-space: nowrap; }
+  .mix td.gap { font-size: 15px; }
+  .mix .gap small { font: 11px var(--label); color: var(--ink-3); }
+  .mix tbody tr:hover { background: rgba(31,28,23,.05); }
+  .pair { display: grid; gap: 2px; }
+  .track { position: relative; height: 14px; }
+  .bar { position: absolute; left: 0; top: 0; height: 14px; width: calc(var(--v) / 65 * 100%); border-radius: 0 3px 3px 0; }
+  .val { position: absolute; top: -1px; left: calc(var(--v) / 65 * 100% + 7px); font: 12px/16px var(--typed); color: var(--ink); white-space: nowrap; }
+  .mix tfoot td { font: 12px/1.4 var(--label); color: var(--ink-3); padding-top: 12px; }
+
+  /* Amendment */
+  .amend { grid-template-columns: 1.3fr 1fr; }
+  .amend .cell { padding-bottom: 22px; }
+  .stamp {
+    position: absolute; top: 18px; right: 18px;
+    padding: 8px 14px; border: 3px double var(--stamp); border-radius: 4px;
+    color: var(--stamp); font: 800 15px/1.1 var(--label); letter-spacing: .14em; text-transform: uppercase; text-align: center;
+    transform: rotate(-7deg); opacity: .85; mix-blend-mode: multiply;
+  }
+  .stamp small { display: block; margin-top: 4px; font: 600 9px/1 var(--label); letter-spacing: .16em; }
+  .big { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.2; margin: 6px 0 16px; max-width: 18ch; }
+  .big u { text-decoration-color: var(--stamp); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+  .routes { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .routes li { border: 1.5px solid var(--ink); padding: 6px 10px; font-size: 15px; }
+  table.ba { border-collapse: collapse; font-size: 14px; }
+  .ba th, .ba td { padding: 5px 16px 5px 0; text-align: left; border-bottom: 1px dashed rgba(31,28,23,.35); }
+  .ba thead th { font: 600 10px/1.2 var(--label); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .ba .up { font-weight: 700; }
+  .reasons { margin: 0; padding-left: 1.6em; display: grid; gap: 12px; font-size: 15px; }
+  .reasons li::marker { font-weight: 700; }
+
+  /* Terms */
+  .terms { grid-template-columns: repeat(3, 1fr); }
+  .terms .cell { background: var(--paper-2); }
+  .terms h2 { margin: 0 0 6px; font: 700 12px/1.2 var(--label); letter-spacing: .1em; text-transform: uppercase; }
+  .terms p { font-size: 13.5px; color: var(--ink-2); }
+  .terms q { color: var(--ink); }
+  .terms-head { grid-column: 1 / -1; padding-bottom: 6px; }
+  .terms-head .lbl { margin: 0; }
+
+  /* Signatures */
+  .sign { grid-template-columns: 1.3fr 1fr 1.2fr; }
+  .sig { font: 34px/1 var(--script); color: var(--industry); border-bottom: 1px solid var(--ink); padding: 4px 0 6px; transform: rotate(-2deg); transform-origin: left; width: max-content; }
+  .sign .fine { margin-top: 10px; }
+  .sign p { font-size: 15px; }
+  .sign .btn { margin-top: 10px; }
+
+  .disclaimer { max-width: 1120px; margin: 0 auto 48px; padding: 0 4px; font: 12px/1.4 var(--label); color: var(--ink-2); }
+
+  @media (max-width: 1160px) { .doc, .disclaimer { margin-left: 16px; margin-right: 16px; } }
+  @media (max-width: 860px) {
+    .head { grid-template-columns: 1fr 1fr; }
+    .title { grid-column: 1 / -1; grid-row: 1; padding: 22px 16px; }
+    .hero, .amend { grid-template-columns: 1fr; }
+    .parties { grid-template-columns: 1fr 1fr; }
+    .terms { grid-template-columns: 1fr; }
+    .sign { grid-template-columns: 1fr 1fr; }
+    .sign .cell:last-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 560px) {
+    .head, .parties, .sign { grid-template-columns: 1fr; }
+    .stamp { position: static; display: inline-block; margin: 0 0 14px; }
+    .mix tbody th { width: 92px; font-size: 13px; }
+    .mix tbody th span { display: block; font-size: 11px; color: var(--ink-3); }
+    .mix .gap { width: 56px; }
+    .mix td.gap { font-size: 13px; }
+    .mix .gap small { display: none; }
+  }
+</style>
+</head>
+<body>
+<a class="back" href="../">← Gallery <span>v01</span></a>
+
+<main class="doc">
+  <header class="row head">
+    <div class="cell">
+      <span class="lbl">Carrier</span>
+      <div class="logo">SHIFT<b>MAP</b></div>
+      <p class="tagline">Country-of-origin intelligence<br>for sourcing teams</p>
+    </div>
+    <div class="cell title">
+      <p class="bol">Bill of Lading</p>
+      <p class="bol-sub">Country-of-origin landscape · Non-negotiable · Original</p>
+    </div>
+    <div class="cell meta">
+      <dl>
+        <div><dt>B/L No.</dt><dd>SM-0001-NF</dd></div>
+        <div><dt>Date of issue</dt><dd>09 OCT 2026</dd></div>
+        <div><dt>Period covered</dt><dd>Last 12 months</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <section class="row hero">
+    <div class="cell">
+      <span class="lbl">5 · Description of goods</span>
+      <h1>See where your category is made&nbsp;— and where it should move next.</h1>
+      <p class="lede">Shiftmap reads your sourcing records next to the industry's import records and issues one document: where your units come from, how that compares with everyone else, and the shift worth making.</p>
+    </div>
+    <div class="cell cta-cell">
+      <span class="lbl">Freight &amp; charges</span>
+      <p>Run the same landscape for your own category. One question in, one document out.</p>
+      <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report →</a>
+      <p class="fine">Sample on this page: Northfold Apparel, women's knit sweaters.</p>
+    </div>
+  </section>
+
+  <section class="row parties" aria-label="Report details">
+    <div class="cell"><span class="lbl">1 · Shipper (where the data comes from)</span><p>Your sourcing ledger: units, cost and vendor, by country</p></div>
+    <div class="cell"><span class="lbl">2 · Consignee (who reads it)</span><p>Sourcing and category managers choosing where to buy next season</p></div>
+    <div class="cell"><span class="lbl">3 · Notify party (sample)</span><p>Northfold Apparel* — women's knit sweaters</p></div>
+    <div class="cell"><span class="lbl">4 · Commodity code</span><p>HTS 6110.20 — sweaters &amp; pullovers, of cotton</p></div>
+  </section>
+
+  <section class="row" aria-labelledby="manifest-title">
+    <div class="cell manifest">
+      <span class="lbl" id="manifest-title">6 · Particulars furnished by shipper — where the units come from (share of units)</span>
+      <div class="legend" aria-hidden="true">
+        <span><i class="sw ours"></i>Northfold mix</span>
+        <span><i class="sw ind"></i>Industry import mix, same code</span>
+      </div>
+      <table class="mix">
+        <thead>
+          <tr><th scope="col">Origin</th><th scope="col">Northfold vs industry</th><th scope="col" class="gap">Gap</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><b>CN</b><span>China</span></th>
+            <td><div class="pair">
+              <div class="track" title="China · Northfold 52%"><i class="bar ours" style="--v:52"></i><span class="val" style="--v:52">52%</span></div>
+              <div class="track" title="China · Industry 27%"><i class="bar ind" style="--v:27"></i><span class="val" style="--v:27">27%</span></div>
+            </div></td>
+            <td class="gap">+25 <small>pts over</small></td>
+          </tr>
+          <tr>
+            <th scope="row"><b>VN</b><span>Vietnam</span></th>
+            <td><div class="pair">
+              <div class="track" title="Vietnam · Northfold 18%"><i class="bar ours" style="--v:18"></i><span class="val" style="--v:18">18%</span></div>
+              <div class="track" title="Vietnam · Industry 31%"><i class="bar ind" style="--v:31"></i><span class="val" style="--v:31">31%</span></div>
+            </div></td>
+            <td class="gap">−13 <small>pts under</small></td>
+          </tr>
+          <tr>
+            <th scope="row"><b>BD</b><span>Bangladesh</span></th>
+            <td><div class="pair">
+              <div class="track" title="Bangladesh · Northfold 12%"><i class="bar ours" style="--v:12"></i><span class="val" style="--v:12">12%</span></div>
+              <div class="track" title="Bangladesh · Industry 16%"><i class="bar ind" style="--v:16"></i><span class="val" style="--v:16">16%</span></div>
+            </div></td>
+            <td class="gap">−4 <small>pts under</small></td>
+          </tr>
+          <tr>
+            <th scope="row"><b>KH</b><span>Cambodia</span></th>
+            <td><div class="pair">
+              <div class="track" title="Cambodia · Northfold 8%"><i class="bar ours" style="--v:8"></i><span class="val" style="--v:8">8%</span></div>
+              <div class="track" title="Cambodia · Industry 12%"><i class="bar ind" style="--v:12"></i><span class="val" style="--v:12">12%</span></div>
+            </div></td>
+            <td class="gap">−4 <small>pts under</small></td>
+          </tr>
+          <tr>
+            <th scope="row"><b>—</b><span>Other</span></th>
+            <td><div class="pair">
+              <div class="track" title="Other · Northfold 10%"><i class="bar ours" style="--v:10"></i><span class="val" style="--v:10">10%</span></div>
+              <div class="track" title="Other · Industry 14%"><i class="bar ind" style="--v:14"></i><span class="val" style="--v:14">14%</span></div>
+            </div></td>
+            <td class="gap">−4 <small>pts under</small></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="3">Top bar in each row: Northfold. Bottom bar: industry import records (bills of lading) for HTS 6110.20 over the same 12 months.</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="row amend" aria-labelledby="amend-title">
+    <div class="cell">
+      <span class="lbl" id="amend-title">7 · Amendment — recommended shift</span>
+      <div class="stamp" aria-hidden="true">Reroute advised<small>Shiftmap · 09 Oct 2026</small></div>
+      <p class="big">Move <u>20 pts</u> of volume out of China.</p>
+      <ul class="routes">
+        <li><b>CN → VN</b> 12 pts</li>
+        <li><b>CN → KH</b> 8 pts</li>
+      </ul>
+      <table class="ba">
+        <thead><tr><th scope="col">Origin</th><th scope="col">Today</th><th scope="col">After shift</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">China</th><td>52%</td><td>32%</td></tr>
+          <tr><th scope="row">Vietnam</th><td>18%</td><td class="up">30%</td></tr>
+          <tr><th scope="row">Cambodia</th><td>8%</td><td class="up">16%</td></tr>
+          <tr><th scope="row">Bangladesh</th><td>12%</td><td>12%</td></tr>
+          <tr><th scope="row">Other</th><td>10%</td><td>10%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cell">
+      <span class="lbl">8 · Reasons on file</span>
+      <ol class="reasons">
+        <li><b>The industry already moved.</b> Vietnam is now the #1 origin for this code at 31%. Northfold buys 18% there.</li>
+        <li><b>The capacity exists.</b> 14 vendors in Vietnam and Cambodia already ship this code to US brands.</li>
+        <li><b>It pays.</b> Estimated landed cost per unit falls by about 5% after the shift.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="row terms" aria-label="How Shiftmap works">
+    <div class="cell terms-head"><span class="lbl">Terms &amp; conditions of carriage — how Shiftmap works</span></div>
+    <div class="cell">
+      <h2>Clause 1 · Ask</h2>
+      <p>You type one question in plain English or Chinese: <q>Where are our women's sweaters made, and where should they move?</q></p>
+    </div>
+    <div class="cell">
+      <h2>Clause 2 · Match</h2>
+      <p>Shiftmap lines up your sourcing ledger with industry import records by commodity code and country of origin.</p>
+    </div>
+    <div class="cell">
+      <h2>Clause 3 · Deliver</h2>
+      <p>You receive the landscape: origin mix, vendors by country, the gap against the industry, and the shifts worth a call.</p>
+    </div>
+  </section>
+
+  <footer class="row sign">
+    <div class="cell">
+      <span class="lbl">Signed for the carrier</span>
+      <div class="sig" aria-hidden="true">Shiftmap</div>
+      <p class="fine">Findings issued without liability for tariff changes after the date of issue.</p>
+    </div>
+    <div class="cell">
+      <span class="lbl">Place and date of issue</span>
+      <p>Chicago, IL<br>09 OCT 2026</p>
+    </div>
+    <div class="cell">
+      <span class="lbl">Number of originals</span>
+      <p>One. The next one is for your category.</p>
+      <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report →</a>
+    </div>
+  </footer>
+</main>
+
+<p class="disclaimer">* Shiftmap, Northfold and every figure on this page are fictional — v01 of a design exercise for MPCS 51238.</p>
+</body>
+</html>
