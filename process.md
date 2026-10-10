@@ -5,6 +5,7 @@ back, and what I decided myself.
 
 ## Direction backlog (go wide, v01–v12)
 - [x] Bill of lading — the page is a shipping document (v01)
+- [x] Flow map — bubbles on a real map + pie charts (v02, from v01 feedback)
 - [ ] Antique atlas / nautical chart — shift drawn as sea routes
 - [ ] Departure board — origins as departures, shift targets as destinations
 - [ ] Care label — "Made in ___" garment tags
@@ -31,4 +32,14 @@ back, and what I decided myself.
 - **Claude built:** the whole page as a bill of lading. COO mix is the cargo
   manifest (red ribbon = Northfold, blue carbon = industry), the recommendation is
   an amendment stamp, "how it works" is the terms of carriage.
+- **My take:** looks good, but it isn't intuitive for business readers. I want a map
+  or pie charts, and there is too much text.
+
+### v02 — Flow map
+- **Asked:** a visual-first page: map and pie charts, far less text.
+- **Claude built:** a map-first page. Bubbles on a real map of South and Southeast
+  Asia are sized by share; a toggle switches Northfold today / Industry / After shift,
+  and the shift is drawn as arrows CN→VN (+12) and CN→KH (+8). Below, three pie
+  (donut) charts compare the mixes; "why" became three big numbers; "how it works" is
+  three short steps. Country colors were checked for color-blind safety.
 - **My take:** _to fill after review_
