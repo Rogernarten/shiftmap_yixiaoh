@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v12 · One-Page Brief</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --paper: #ffffff;
+    --desk: #ecebe8;
+    --ink: #111111;
+    --ink-2: #4d4d4d;
+    --ink-3: #6e6e6e;
+    --rule: #111111;
+    --hair: #dedede;
+    --red: #d0021b;    /* China */
+    --g1: #111111;     /* Vietnam */
+    --g2: #6e6e6e;     /* Cambodia */
+    --g3: #c9c9c9;     /* Bangladesh + other */
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--desk); color: var(--ink); font: 16px/1.5 var(--sans); }
+  a { color: inherit; }
+  .tools { max-width: 760px; margin: 0 auto; padding: 16px 24px 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; }
+  .tools a { text-decoration: none; border-bottom: 1px solid var(--ink-3); }
+  .tools a:hover, .tools a:focus-visible { color: var(--red); border-color: var(--red); }
+  .tools button { font: 600 13px var(--sans); background: var(--paper); border: 1px solid var(--ink); padding: 7px 12px; cursor: pointer; }
+  .tools button:hover { background: var(--ink); color: var(--paper); }
+  .tools button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+  .sheet { max-width: 760px; margin: 0 auto 40px; background: var(--paper); padding: 48px 56px 40px; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 20px 40px -24px rgba(0,0,0,.25); }
+  .head { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; border-top: 8px solid var(--red); padding-top: 14px; }
+  .head .logo { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .head .doc { font-size: 12px; color: var(--ink-3); text-align: right; letter-spacing: .06em; text-transform: uppercase; }
+  dl.memo { display: grid; grid-template-columns: 64px 1fr; gap: 2px 12px; font-size: 14px; margin: 18px 0 26px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+  dl.memo dt { font-weight: 700; font-size: 11px; letter-spacing: .1em; color: var(--ink-3); padding-top: 3px; }
+  dl.memo dd { margin: 0; }
+
+  section { display: grid; grid-template-columns: 52px 1fr; gap: 0 16px; padding: 18px 0 20px; border-bottom: 1px solid var(--hair); }
+  section:last-of-type { border-bottom: 0; }
+  .n { font-weight: 700; font-size: 13px; color: var(--red); padding-top: 4px; letter-spacing: .04em; }
+  h2 { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 4px 0 10px; }
+  .answer { font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; letter-spacing: -.02em; font-weight: 700; margin: 0; }
+  .answer span { color: var(--red); }
+
+  /* 02 small multiples */
+  .sm { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .sm figure { margin: 0; }
+  .sm .plot { height: 120px; display: flex; align-items: flex-end; gap: 6px; border-bottom: 1.5px solid var(--ink); padding: 0 6px; position: relative; }
+  .sm .b { flex: 1; position: relative; }
+  .sm .b.nf { background: var(--ink); }
+  .sm .b.ind { background: var(--g3); }
+  .sm .b span { position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .sm .b.ind span { color: var(--ink-2); font-weight: 400; }
+  .sm figure.hot .b.nf { background: var(--red); }
+  .sm figcaption { font-size: 13px; font-weight: 700; margin-top: 6px; }
+  .key { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); margin-top: 10px; flex-wrap: wrap; }
+  .key i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+
+  /* 03 stacked bars */
+  .stk { display: grid; grid-template-columns: 78px 1fr; gap: 8px 12px; align-items: center; }
+  .stk .lbl { font-size: 13px; font-weight: 700; }
+  .stk .bar { display: flex; height: 30px; gap: 2px; }
+  .stk .bar div { display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .stk .bar .bd, .stk .bar .ot { color: var(--ink); }
+  .stk .ind-row { display: none; }
+  .stk.with-ind span.ind-row { display: block; }
+  .stk.with-ind .bar.ind-row { display: flex; }
+  .opt { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 12px; cursor: pointer; }
+  .opt input { width: 16px; height: 16px; accent-color: var(--ink); margin: 0; }
+  .opt input:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+  .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .why b { display: block; font-size: 38px; line-height: 1; letter-spacing: -.03em; margin-bottom: 6px; }
+  .why p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+  table.v { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .v th, .v td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--hair); }
+  .v th { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; border-bottom: 1px solid var(--rule); }
+  .v td.r, .v th.r { text-align: right; padding-right: 0; }
+  .v caption { caption-side: bottom; text-align: left; font-size: 12px; color: var(--ink-3); padding-top: 8px; }
+  .next { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .next p { margin: 0; font-size: 15px; flex: 1 1 260px; }
+  .btn { display: inline-block; background: var(--red); color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 11px 16px; }
+  .btn:hover, .btn:focus-visible { background: #a80016; }
+  .foot { margin-top: 22px; padding-top: 10px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: var(--ink-3); flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .tools { padding: 12px 16px 8px; }
+    .sheet { padding: 28px 18px 24px; margin: 0 0 24px; }
+    section { grid-template-columns: 1fr; }
+    .n { padding-top: 0; }
+    .sm { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+    .sm .plot { height: 96px; gap: 3px; padding: 0 2px; }
+    .sm .b span { font-size: 10px; }
+    .sm figcaption { font-size: 11px; }
+    .why { grid-template-columns: 1fr; gap: 10px; }
+    .stk { grid-template-columns: 58px 1fr; }
+  }
+  @media print {
+    body { background: #fff; }
+    .tools, .opt { display: none; }
+    .sheet { box-shadow: none; margin: 0; max-width: none; padding: 0; }
+    .btn { color: var(--red); background: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="tools">
+  <a href="../">← Gallery · v12</a>
+  <button type="button" id="print">Print / save as PDF</button>
+</div>
+
+<article class="sheet" aria-labelledby="ans">
+  <div class="head">
+    <div class="logo">Shiftmap</div>
+    <div class="doc">One-page brief<br>No. SM-0001</div>
+  </div>
+  <dl class="memo">
+    <dt>TO</dt><dd>Sourcing team, Northfold Women</dd>
+    <dt>FROM</dt><dd>Shiftmap</dd>
+    <dt>RE</dt><dd>Women's knit sweaters (HTS 6110.20): country of origin, last 12 months</dd>
+    <dt>DATE</dt><dd>10 October 2026</dd>
+  </dl>
+
+  <section>
+    <div class="n">01</div>
+    <div><h2>The answer</h2><p class="answer" id="ans">Move 20 points of volume out of China: <span>12 to Vietnam, 8 to Cambodia.</span></p></div>
+  </section>
+
+  <section>
+    <div class="n">02</div>
+    <div>
+      <h2>Today vs. the industry · share of units</h2>
+      <div class="sm" id="sm"></div>
+      <div class="key" aria-hidden="true"><span><i style="background:var(--ink)"></i>Northfold</span><span><i style="background:var(--g3)"></i>Industry imports</span><span><i style="background:var(--red)"></i>Over-weight</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="n">03</div>
+    <div>
+      <h2>The shift</h2>
+      <div class="stk" id="stk">
+        <span class="lbl">Today</span>
+        <div class="bar"><div style="flex:52;background:var(--red)">CN 52</div><div style="flex:18;background:var(--g1)">VN 18</div><div style="flex:8;background:var(--g2)">8</div><div class="bd" style="flex:22;background:var(--g3)">Other 22</div></div>
+        <span class="lbl">After</span>
+        <div class="bar"><div style="flex:32;background:var(--red)">CN 32</div><div style="flex:30;background:var(--g1)">VN 30</div><div style="flex:16;background:var(--g2)">KH 16</div><div class="bd" style="flex:22;background:var(--g3)">Other 22</div></div>
+        <span class="lbl ind-row">Industry</span>
+        <div class="bar ind-row"><div style="flex:27;background:var(--red)">CN 27</div><div style="flex:31;background:var(--g1)">VN 31</div><div style="flex:12;background:var(--g2)">KH 12</div><div class="bd" style="flex:30;background:var(--g3)">Other 30</div></div>
+      </div>
+      <div class="key" aria-hidden="true"><span><i style="background:var(--red)"></i>China</span><span><i style="background:var(--g1)"></i>Vietnam</span><span><i style="background:var(--g2)"></i>Cambodia</span><span><i style="background:var(--g3)"></i>Bangladesh + other</span></div>
+      <label class="opt"><input type="checkbox" id="showind"> Add the industry for reference</label>
+    </div>
+  </section>
+
+  <section>
+    <div class="n">04</div>
+    <div>
+      <h2>Why</h2>
+      <div class="why">
+        <div><b>31%</b><p>of US imports for this code come from Vietnam, the #1 origin.</p></div>
+        <div><b>14</b><p>vendors in Vietnam and Cambodia already ship it to US brands.</p></div>
+        <div><b>−5%</b><p>estimated landed cost per unit after the shift.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="n">05</div>
+    <div>
+      <h2>Who to call first</h2>
+      <table class="v">
+        <thead><tr><th>Vendor</th><th>Origin</th><th class="r">US exports, 12 mo</th><th class="r">US clients</th></tr></thead>
+        <tbody>
+          <tr><td>Red River Garment Co.</td><td>Vietnam</td><td class="r">$86M</td><td class="r">9</td></tr>
+          <tr><td>Saigon Pine Knit</td><td>Vietnam</td><td class="r">$54M</td><td class="r">6</td></tr>
+          <tr><td>Mekong Stitch Works</td><td>Cambodia</td><td class="r">$38M</td><td class="r">4</td></tr>
+        </tbody>
+        <caption>11 more in the full report. Leads from shipment records; verify before outreach.</caption>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="n">06</div>
+    <div>
+      <h2>Next step</h2>
+      <div class="next">
+        <p>Shiftmap writes this brief for any category from one question: it matches your sourcing to US import records and returns the mix, the gap and the move.</p>
+        <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a brief</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot"><span>Source: Northfold sourcing records; US import records, HTS 6110.20, Oct 2025–Sep 2026.</span><span>Shiftmap, Northfold and all figures are fictional · v12, MPCS 51238</span></div>
+</article>
+
+<script>
+  const ROWS = [["China", 52, 27], ["Vietnam", 18, 31], ["Bangladesh", 12, 16], ["Cambodia", 8, 12], ["Other", 10, 14]];
+  const MAX = 64;
+  document.getElementById("sm").innerHTML = ROWS.map(([n, nf, ind]) => `
+    <figure class="${nf > ind ? "hot" : ""}" aria-label="${n}: Northfold ${nf}%, industry ${ind}%">
+      <div class="plot"><div class="b nf" style="height:${nf / MAX * 100}%"><span>${nf}</span></div><div class="b ind" style="height:${ind / MAX * 100}%"><span>${ind}</span></div></div>
+      <figcaption>${n}</figcaption>
+    </figure>`).join("");
+  document.getElementById("showind").addEventListener("change", (e) => document.getElementById("stk").classList.toggle("with-ind", e.target.checked));
+  document.getElementById("print").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>

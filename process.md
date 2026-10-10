@@ -16,7 +16,7 @@ back, and what I decided myself.
 - [x] Container stack — 1 container = 1%, crane moves the shift (v03)
 - [x] Brutalist type-as-chart — font size = share (v08)
 - [ ] Win95 app — "Shiftmap.exe"
-- [ ] Calm single column — one number, one sentence
+- [x] One-page brief — calm single column, print-ready (v12)
 
 ## Log
 
@@ -115,4 +115,8 @@ back, and what I decided myself.
 
 ### v11 — Product window
 - **Claude built:** a product-marketing page whose hero is a live app mock: sidebar history, scope chips, category tabs (sweaters / leggings / tees / jackets, all from the brief's sample data), KPI tiles, origin bars with industry ticks, a recommendation badge (Rebalance / Renegotiate freight / Add origin) and vendors. The ask box fakes the report steps and routes English or Chinese questions to a category.
+- **My take:** _to fill after review_
+
+### v12 — One-page brief
+- **Claude built:** a Swiss-style one-page memo (TO / FROM / RE / DATE) with numbered sections: 01 the answer, 02 small multiples Northfold vs industry, 03 stacked bars today vs after (checkbox adds the industry bar), 04 three numbers, 05 vendor table, 06 next step. Print / save-as-PDF button with a print stylesheet.
 - **My take:** _to fill after review_
