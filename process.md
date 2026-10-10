@@ -132,3 +132,7 @@ back, and what I decided myself.
 ### v13 — Deck + real map
 - **Claude built:** v05's deck unchanged in structure; the cover's stacked-bar card is replaced by a real map card (v02's geography restyled: muted land, white borders, navy Northfold bubbles, gray in the industry view, teal/amber shift arrows matching Exhibit 3). Fixed a class clash (map 'ghost' ring hid the 'See the exhibits' button).
 - **My take:** _to fill after review_
+
+### v14 — Deck + map + label
+- **Claude built:** v13 plus a full-width 'Made in' composition ribbon under the cover: each origin's % in serif numerals, small caps name, a navy bar and an industry tick; it re-weaves with the map toggle. On phones the names become ISO codes.
+- **My take:** _to fill after review_
