@@ -157,3 +157,7 @@ back, and what I decided myself.
 ### v18 — Report navigation
 - **Claude built:** v17 with the side dots replaced by a sticky contents bar naming every section (active section highlighted via the existing observer, reading-progress line), scroll padding so anchors clear the bar, and ←/→ (or j/k) paging between slides. Hidden in print.
 - **My take:** _to fill after review_
+
+### v19 — Visual system
+- **Claude built:** v18 plus: per-slide headers hidden on screen (kept as running headers in print), tighter slide height/padding, a single :focus-visible style, unified label/h2/source sizes, table headers allowed to wrap so the market table stays inside the frame, and muted country + sea labels on the cover map. PDF still exactly 6 pages.
+- **My take:** _to fill after review_
