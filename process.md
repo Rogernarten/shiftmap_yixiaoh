@@ -7,7 +7,7 @@ back, and what I decided myself.
 - [x] Bill of lading — the page is a shipping document (v01)
 - [x] Flow map — bubbles on a real map + pie charts (v02, from v01 feedback)
 - [ ] Antique atlas / nautical chart — shift drawn as sea routes
-- [ ] Departure board — origins as departures, shift targets as destinations
+- [x] Departure board — split-flap rows with tile bars (v04)
 - [ ] Care label — "Made in ___" garment tags
 - [ ] Passport — each country a visa stamp
 - [ ] Trading terminal — dense, dark, monospaced
@@ -54,4 +54,10 @@ back, and what I decided myself.
 - **Claude built:** a port yard. 100 containers (1 = 1% of units) stacked by origin;
   "Run the shift" lifts 20 boxes off China with a crane path and lands 12 in Vietnam,
   8 in Cambodia, recoloring them on arrival. Industry view re-stacks the same 100.
+- **My take:** _to fill after review_
+
+### v04 — Departure board
+- **Claude built:** a dark split-flap departures board. Each origin is a row with its
+  share, a tile bar (1 tile = 4%) and an action/status column; the three views re-flip
+  the board (ACTION → VS NORTHFOLD → STATUS: DEPARTED 20 / ARRIVED +12).
 - **My take:** _to fill after review_
