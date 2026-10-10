@@ -6,7 +6,7 @@ back, and what I decided myself.
 ## Direction backlog (go wide, v01–v12)
 - [x] Bill of lading — the page is a shipping document (v01)
 - [x] Flow map — bubbles on a real map + pie charts (v02, from v01 feedback)
-- [ ] Antique atlas / nautical chart — shift drawn as sea routes
+- [x] Antique sea chart — waterlined coasts, sea routes, sailing ships (v07)
 - [x] Departure board — split-flap rows with tile bars (v04)
 - [x] Care label — woven composition label + flipping hang tag (v06)
 - [ ] Passport — each country a visa stamp
@@ -80,4 +80,10 @@ back, and what I decided myself.
 - **Claude built:** a woven care label lists the origin mix as a fabric composition with bars and
   industry ticks; a kraft hang tag flips (click or toggle) from today's pie to the
   after-shift pie; reasons are care symbols (wash tub 31%, triangle 14, iron −5%).
+- **My take:** _to fill after review_
+
+### v07 — Sea chart
+- **Claude built:** the real map redrawn as a 19th-century sea chart: waterlines, graticule, rhumb
+  lines, compass rose, cartouche. Red-ink circles (Northfold) / blue-ink (the trade);
+  "The new route" adds dashed sea lanes CN→VN, CN→KH with ships sailing them.
 - **My take:** _to fill after review_
