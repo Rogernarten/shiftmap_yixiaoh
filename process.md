@@ -161,3 +161,14 @@ back, and what I decided myself.
 ### v19 — Visual system
 - **Claude built:** v18 plus: per-slide headers hidden on screen (kept as running headers in print), tighter slide height/padding, a single :focus-visible style, unified label/h2/source sizes, table headers allowed to wrap so the market table stays inside the frame, and muted country + sea labels on the cover map. PDF still exactly 6 pages.
 - **My take:** _to fill after review_
+
+### Style bake-off (2026-10-10)
+- **I raised:** v11 (product UI) and v12 (Swiss one-page brief) also look professional;
+  should the final use one of those styles instead?
+- **Claude proposed / I decided:** keep v19's content and structure fixed and re-skin it:
+  v20 in v12's Swiss memo style, v21 in v11's product style. Compare v19/v20/v21 side
+  by side, pick one, and polish it in v22–v25.
+
+### v20 — Bake-off A: Swiss
+- **Claude built:** v19 re-skinned in v12's Swiss style via tokens and one override block: Helvetica throughout (bold headlines), black/grey palette with red reserved for China (map bubble, slope line, table gaps, answer), square corners, red top rule on the cover, black buttons with red hover. Print block untouched, so the 6-page PDF still works.
+- **My take:** _to fill after review_
