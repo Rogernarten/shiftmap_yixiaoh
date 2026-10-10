@@ -172,3 +172,7 @@ back, and what I decided myself.
 ### v20 — Bake-off A: Swiss
 - **Claude built:** v19 re-skinned in v12's Swiss style via tokens and one override block: Helvetica throughout (bold headlines), black/grey palette with red reserved for China (map bubble, slope line, table gaps, answer), square corners, red top rule on the cover, black buttons with red hover. Print block untouched, so the 6-page PDF still works.
 - **My take:** _to fill after review_
+
+### v21 — Bake-off B: Product
+- **Claude built:** v19 re-skinned in v11's product style: dark hero cover with light text, the map card as an app window (traffic-light chrome), exhibits as white rounded cards on #eef0f3, pill segmented controls, rounded buttons, system sans throughout. Print falls back to plain paper; PDF still 6 pages.
+- **My take:** _to fill after review_
