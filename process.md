@@ -14,7 +14,7 @@ back, and what I decided myself.
 - [x] Consulting exhibit — answer-first cover + 4 exhibits (v05)
 - [ ] Magazine long-read — "The great sweater migration"
 - [x] Container stack — 1 container = 1%, crane moves the shift (v03)
-- [ ] Brutalist manifesto — "STOP SOURCING BLIND."
+- [x] Brutalist type-as-chart — font size = share (v08)
 - [ ] Win95 app — "Shiftmap.exe"
 - [ ] Calm single column — one number, one sentence
 
@@ -86,4 +86,10 @@ back, and what I decided myself.
 - **Claude built:** the real map redrawn as a 19th-century sea chart: waterlines, graticule, rhumb
   lines, compass rose, cartouche. Red-ink circles (Northfold) / blue-ink (the trade);
   "The new route" adds dashed sea lanes CN→VN, CN→KH with ships sailing them.
+- **My take:** _to fill after review_
+
+### v08 — Type is the chart
+- **Claude built:** black-and-white brutalist page; each country name's font size is proportional
+  to its share (plus a bar), China in red when over-weight; switching views animates
+  the type sizes, and gainers invert to black.
 - **My take:** _to fill after review_
