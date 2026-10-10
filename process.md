@@ -144,3 +144,7 @@ back, and what I decided myself.
 ### v16 — Deck + live product
 - **Claude built:** v15 plus a 'Try it' slide (new nav dot) before the recommendation: a compact live window in the deck's palette with scope chips, four category tabs from the brief, KPI row, origin bars with industry ticks, recommendation badge and vendors, plus the fake ask box with progress steps (English/Chinese routing).
 - **My take:** _to fill after review_
+
+### v17 — Printable deck
+- **Claude built:** v16 plus a TO/FROM/RE memo line on the cover, 'Print / save PDF' buttons (cover and recommendation), and a print stylesheet: one slide per A4-landscape page, colours kept, interactive parts hidden. Found that Chrome's print width trips the phone breakpoint, so the print block pins the desktop layout; verified the export is exactly 6 pages.
+- **My take:** _to fill after review_
