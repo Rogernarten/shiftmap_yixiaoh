@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v10 · Front Page</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --paper: #f3f0e8;
+    --ink: #121212;
+    --ink-2: #4a4a48;
+    --ink-3: #6a6965;
+    --rule: #121212;
+    --hair: #c9c4b8;
+    --down: #b3261e;    /* losing share */
+    --up: #121212;      /* gaining share */
+    --flat: #9a968c;    /* unchanged */
+    --mast: Didot, "Bodoni 72", "Times New Roman", serif;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--serif); }
+  a { color: inherit; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 0 28px 30px; }
+
+  .ear { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0 8px; font: 12px var(--sans); color: var(--ink-2); }
+  .ear a { text-decoration: none; border-bottom: 1px solid var(--ink-3); }
+  .ear a:hover, .ear a:focus-visible { color: var(--down); border-color: var(--down); }
+  .mast { text-align: center; border-top: 4px double var(--rule); padding: 10px 0 6px; }
+  .mast h1 { font: 400 clamp(40px, 7.5vw, 96px)/1 var(--mast); margin: 0; letter-spacing: -.01em; }
+  .dateline { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--rule); border-bottom: 3px solid var(--rule); padding: 5px 0; font: 600 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; }
+
+  .front { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 0; margin-top: 18px; }
+  .lead { padding-right: 24px; border-right: 1px solid var(--hair); }
+  .kicker { font: 700 12px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--down); margin: 0 0 6px; }
+  .lead h2 { font: 700 clamp(30px, 4.2vw, 54px)/1.04 var(--serif); letter-spacing: -.015em; margin: 0 0 12px; }
+  .deck { font-size: 20px; line-height: 1.35; color: var(--ink-2); margin: 0 0 10px; max-width: 46ch; }
+  .byline { font: 12px var(--sans); color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; margin: 0 0 16px; }
+
+  figure.slope { margin: 0; border-top: 1px solid var(--rule); padding-top: 10px; }
+  .fig-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .fig-head b { font: 700 15px var(--sans); }
+  .seg { display: inline-flex; border: 1px solid var(--ink); }
+  .seg span { font: 12px var(--sans); color: var(--ink-2); padding: 6px 8px; }
+  .seg button { font: 600 12px var(--sans); border: 0; border-left: 1px solid var(--ink); background: transparent; color: var(--ink); padding: 6px 10px; cursor: pointer; }
+  .seg button:hover { background: rgba(0,0,0,.06); }
+  .seg button:focus-visible { outline: 2px solid var(--down); outline-offset: 1px; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .slope svg { display: block; width: 100%; max-width: 600px; height: auto; margin: 0 auto; }
+  .slope .ax { font: 600 12px var(--sans); fill: var(--ink-3); letter-spacing: .08em; }
+  .slope .axis { stroke: var(--hair); stroke-width: 1; }
+  .slope .ln { stroke-width: 2.5; fill: none; transition: opacity .2s; }
+  .slope .pt { stroke: var(--paper); stroke-width: 2; }
+  .slope .lb { font: 13px var(--sans); fill: var(--ink); }
+  .slope .lb tspan.n { font-weight: 700; }
+  .slope g.s { cursor: pointer; }
+  .slope.dim g.s { opacity: .25; } .slope.dim g.s.on { opacity: 1; }
+  .key { display: flex; gap: 16px; flex-wrap: wrap; font: 12px var(--sans); color: var(--ink-2); margin-top: 4px; }
+  .key i { display: inline-block; width: 16px; height: 3px; vertical-align: 3px; margin-right: 6px; }
+  figcaption { font: 12px var(--sans); color: var(--ink-3); margin-top: 6px; }
+
+  .rail { padding-left: 24px; }
+  .box { border-top: 3px solid var(--rule); padding-top: 8px; margin-bottom: 22px; }
+  .box h3 { font: 700 13px var(--sans); letter-spacing: .12em; text-transform: uppercase; margin: 0 0 8px; }
+  .hb { display: grid; grid-template-columns: 82px 1fr 46px; gap: 6px 8px; align-items: center; font: 13px var(--sans); }
+  .hb i { display: block; height: 12px; background: var(--flat); }
+  .hb i.hl { background: var(--ink); }
+  .hb span:nth-child(3n) { text-align: right; font-variant-numeric: tabular-nums; }
+  .hb b { font-weight: 700; }
+  table.mkt { width: 100%; border-collapse: collapse; font: 13px var(--sans); font-variant-numeric: tabular-nums; }
+  .mkt th, .mkt td { padding: 4px 4px; border-bottom: 1px solid var(--hair); text-align: right; }
+  .mkt th:first-child, .mkt td:first-child { text-align: left; }
+  .mkt thead th { font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; border-bottom: 1px solid var(--rule); }
+  .mkt .dn { color: var(--down); font-weight: 700; }
+  .classified { border: 1px solid var(--rule); padding: 10px 12px; font: 13px/1.4 var(--sans); }
+  .classified h3 { text-align: center; border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+  .classified p { margin: 0 0 8px; }
+  .classified p b { text-transform: uppercase; letter-spacing: .04em; }
+  .classified small { color: var(--ink-3); }
+
+  .below { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 3px double var(--rule); margin-top: 26px; padding-top: 14px; }
+  .below article { padding: 0 20px; border-right: 1px solid var(--hair); }
+  .below article:first-child { padding-left: 0; } .below article:last-child { border-right: 0; padding-right: 0; }
+  .below .big { font: 700 clamp(46px, 5vw, 64px)/1 var(--serif); float: left; margin: 2px 10px 0 0; }
+  .below h4 { font: 700 20px/1.15 var(--serif); margin: 0 0 6px; }
+  .below p { margin: 0; color: var(--ink-2); }
+  .strip { margin-top: 26px; border-top: 1px solid var(--rule); border-bottom: 4px double var(--rule); padding: 12px 0; display: flex; gap: 14px 30px; justify-content: space-between; align-items: center; flex-wrap: wrap; font: 14px var(--sans); }
+  .strip ol { margin: 0; padding: 0; list-style: none; display: flex; gap: 6px 22px; flex-wrap: wrap; }
+  .strip li b { font-family: var(--serif); font-size: 18px; margin-right: 6px; }
+  .btn { display: inline-block; background: var(--ink); color: var(--paper); font: 700 14px var(--sans); text-decoration: none; padding: 11px 16px; letter-spacing: .04em; }
+  .btn:hover, .btn:focus-visible { background: var(--down); }
+  footer { font: 12px var(--sans); color: var(--ink-3); padding-top: 12px; text-align: center; }
+
+  @media (max-width: 900px) {
+    .front { grid-template-columns: 1fr; }
+    .lead { padding-right: 0; border-right: 0; }
+    .rail { padding-left: 0; margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+    .below { grid-template-columns: 1fr; }
+    .below article { padding: 12px 0; border-right: 0; border-bottom: 1px solid var(--hair); }
+  }
+  @media (max-width: 600px) {
+    .page { padding: 0 16px 24px; }
+    .rail { grid-template-columns: 1fr; }
+    .dateline span:nth-child(2) { display: none; }
+    .deck { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="ear"><a href="../">← Gallery · v10</a><span>Price: one question</span><a href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report</a></div>
+  <header class="mast">
+    <h1>The Sourcing Ledger</h1>
+  </header>
+  <div class="dateline"><span>Saturday, October 10, 2026</span><span>A Shiftmap edition · Women's knit sweaters</span><span>Vol. I · No. 1</span></div>
+
+  <div class="front">
+    <article class="lead">
+      <p class="kicker">Country of origin</p>
+      <h2>Northfold leans on China. The trade has already moved on.</h2>
+      <p class="deck">52% of its sweaters come from China, twice the industry's 27%. Moving 20 points to Vietnam and Cambodia closes most of the gap.</p>
+      <p class="byline">By Shiftmap Analysis · Northfold sourcing vs. US import records, last 12 months</p>
+      <figure class="slope" id="slope">
+        <div class="fig-head">
+          <b>Share of units, today →</b>
+          <div class="seg" role="group" aria-label="Compare today with"><span>compare with</span>
+            <button type="button" data-state="after" aria-pressed="true">After shift</button>
+            <button type="button" data-state="industry" aria-pressed="false">Industry</button>
+          </div>
+        </div>
+        <svg viewBox="0 0 400 300" role="img" aria-labelledby="slope-t"><title id="slope-t">Slope chart of each origin's share, today versus the comparison</title>
+          <line class="axis" x1="128" y1="16" x2="128" y2="276"/><line class="axis" x1="272" y1="16" x2="272" y2="276"/>
+          <text class="ax" x="128" y="292" text-anchor="middle">TODAY</text><text class="ax" x="272" y="292" text-anchor="middle" id="ax-r">AFTER SHIFT</text>
+          <g id="series"></g>
+        </svg>
+        <div class="key" aria-hidden="true"><span><i style="background:var(--down)"></i><span id="k1">Losing share</span></span><span><i style="background:var(--up)"></i><span id="k2">Gaining share</span></span><span><i style="background:var(--flat)"></i><span id="k3">Unchanged</span></span></div>
+        <figcaption>Hover a line to isolate it. Figures fictional.</figcaption>
+      </figure>
+    </article>
+
+    <aside class="rail">
+      <section class="box">
+        <h3>The trade</h3>
+        <div class="hb" aria-label="US imports of HTS 6110.20 by origin">
+          <span><b>Vietnam</b></span><i class="hl" style="width:100%"></i><span><b>$1.30B</b></span>
+          <span>China</span><i style="width:87%"></i><span>$1.13B</span>
+          <span>Bangladesh</span><i style="width:51.5%"></i><span>$0.67B</span>
+          <span>Other</span><i style="width:45.4%"></i><span>$0.59B</span>
+          <span>Cambodia</span><i style="width:38.5%"></i><span>$0.50B</span>
+        </div>
+      </section>
+      <section class="box">
+        <h3>Market data</h3>
+        <table class="mkt">
+          <thead><tr><th>Origin</th><th>Northfold</th><th>Industry</th><th>Gap</th></tr></thead>
+          <tbody>
+            <tr><td>China</td><td>52%</td><td>27%</td><td class="dn">+25</td></tr>
+            <tr><td>Vietnam</td><td>18%</td><td>31%</td><td>−13</td></tr>
+            <tr><td>Bangladesh</td><td>12%</td><td>16%</td><td>−4</td></tr>
+            <tr><td>Cambodia</td><td>8%</td><td>12%</td><td>−4</td></tr>
+            <tr><td>Other</td><td>10%</td><td>14%</td><td>−4</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="box classified">
+        <h3>Vendors wanted</h3>
+        <p><b>Red River Garment Co.</b> Vietnam. $86M to US brands, 412 shipments, 9 clients.</p>
+        <p><b>Saigon Pine Knit.</b> Vietnam. $54M, 268 shipments, 6 clients.</p>
+        <p><b>Mekong Stitch Works.</b> Cambodia. $38M, 190 shipments, 4 clients.</p>
+        <small>11 more in the full report. Leads from shipment records; verify before outreach.</small>
+      </section>
+    </aside>
+  </div>
+
+  <section class="below" aria-label="More stories">
+    <article><span class="big">31%</span><h4>Vietnam now leads US imports</h4><p>The industry's #1 origin for this code. Northfold buys 18% there.</p></article>
+    <article><span class="big">14</span><h4>Vendors ready to take volume</h4><p>Factories in Vietnam and Cambodia already ship it to US brands.</p></article>
+    <article><span class="big">−5%</span><h4>Landed cost set to fall</h4><p>Estimated per unit after the shift, mostly on freight.</p></article>
+  </section>
+
+  <div class="strip">
+    <ol><li><b>1</b>Ask one question</li><li><b>2</b>Match to US import records</li><li><b>3</b>Get the landscape and the shift</li></ol>
+    <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report for your category</a>
+  </div>
+  <footer>Shiftmap, Northfold, The Sourcing Ledger and every figure on this page are fictional · v10 of a design exercise for MPCS 51238.</footer>
+</div>
+
+<script>
+  const ORDER = ["CN", "VN", "BD", "KH", "OT"];
+  const NAMES = { CN: "China", VN: "Vietnam", BD: "Bangladesh", KH: "Cambodia", OT: "Other" };
+  const TODAY = { CN: 52, VN: 18, BD: 12, KH: 8, OT: 10 };
+  const RIGHT = { after: { CN: 32, VN: 30, BD: 12, KH: 16, OT: 10 }, industry: { CN: 27, VN: 31, BD: 16, KH: 12, OT: 14 } };
+  const XL = 128, XR = 272, y = (v) => 266 - v * (240 / 60);
+  const NS = "http://www.w3.org/2000/svg";
+  const series = document.getElementById("series");
+  const fig = document.getElementById("slope");
+
+  // Spread labels so they never overlap (min 15 units apart), keeping order.
+  function spread(vals) {
+    const items = ORDER.map((c) => ({ c, y: y(vals[c]) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < items.length; i++) if (items[i].y - items[i - 1].y < 15) items[i].y = items[i - 1].y + 15;
+    const out = {}; items.forEach((it) => (out[it.c] = it.y)); return out;
+  }
+  const colorOf = (a, b) => (b < a ? "var(--down)" : b > a ? "var(--up)" : "var(--flat)");
+
+  ORDER.forEach((c) => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "s"); g.dataset.c = c;
+    g.innerHTML = `<line class="ln"/><circle class="pt l" r="5"/><circle class="pt r" r="5"/>
+      <text class="lb l" text-anchor="end"></text><text class="lb r"></text>`;
+    g.addEventListener("pointerenter", () => { fig.classList.add("dim"); g.classList.add("on"); });
+    g.addEventListener("pointerleave", () => { fig.classList.remove("dim"); g.classList.remove("on"); });
+    series.appendChild(g);
+  });
+
+  let cur = { ...TODAY }, raf;
+  function draw(right) {
+    const ly = spread(TODAY), ry = spread(right);
+    series.querySelectorAll("g.s").forEach((g) => {
+      const c = g.dataset.c, a = TODAY[c], b = right[c], col = colorOf(a, b);
+      const ln = g.querySelector(".ln");
+      ln.setAttribute("x1", XL); ln.setAttribute("y1", y(a)); ln.setAttribute("x2", XR); ln.setAttribute("y2", y(b)); ln.setAttribute("stroke", col);
+      g.querySelector(".pt.l").setAttribute("cx", XL); g.querySelector(".pt.l").setAttribute("cy", y(a)); g.querySelector(".pt.l").setAttribute("fill", col);
+      g.querySelector(".pt.r").setAttribute("cx", XR); g.querySelector(".pt.r").setAttribute("cy", y(b)); g.querySelector(".pt.r").setAttribute("fill", col);
+      const L = g.querySelector(".lb.l"), R = g.querySelector(".lb.r");
+      L.setAttribute("x", XL - 12); L.setAttribute("y", ly[c] + 4); L.innerHTML = `${NAMES[c]} <tspan class="n">${a}%</tspan>`;
+      R.setAttribute("x", XR + 12); R.setAttribute("y", ry[c] + 4); R.innerHTML = `<tspan class="n">${Math.round(b)}%</tspan> ${NAMES[c]}`;
+    });
+  }
+  function animateTo(target) {
+    cancelAnimationFrame(raf);
+    const from = { ...cur }, t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
+    (function step(t) {
+      const p = dur ? Math.min(1, (t - t0) / dur) : 1, e = 1 - Math.pow(1 - p, 3);
+      ORDER.forEach((c) => (cur[c] = from[c] + (target[c] - from[c]) * e));
+      draw(cur);
+      if (p < 1) raf = requestAnimationFrame(step);
+    })(t0);
+  }
+  function render(state) {
+    document.getElementById("ax-r").textContent = state === "after" ? "AFTER SHIFT" : "INDUSTRY";
+    const k = state === "after" ? ["Losing share", "Gaining share", "Unchanged"] : ["Industry lower", "Industry higher", "Same"];
+    ["k1", "k2", "k3"].forEach((id, i) => (document.getElementById(id).textContent = k[i]));
+    document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === state)));
+    animateTo(RIGHT[state]);
+  }
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => render(b.dataset.state)));
+  draw(cur);
+  render(location.hash === "#industry" ? "industry" : "after");
+</script>
+</body>
+</html>

@@ -108,3 +108,7 @@ back, and what I decided myself.
 ### v09 — Terminal
 - **Claude built:** a dark data terminal: ticker, command line, five panels (mix bars Northfold amber vs industry cyan, diverging gap vs industry, key stats, shift scenario table, vendor leads). Views switch with buttons or keys 1/2/3; the gap panel animates from +25 to +5.
 - **My take:** _to fill after review_
+
+### v10 — Front page
+- **Claude built:** a fictional broadsheet front page (The Sourcing Ledger): lead story with a slope chart of each origin's share, today → after shift or → industry (toggle, animated; hover isolates a line); right rail with industry bars, a market-data table and a 'Vendors wanted' classified; three below-the-fold number stories.
+- **My take:** _to fill after review_
