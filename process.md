@@ -120,3 +120,15 @@ back, and what I decided myself.
 ### v12 — One-page brief
 - **Claude built:** a Swiss-style one-page memo (TO / FROM / RE / DATE) with numbered sections: 01 the answer, 02 small multiples Northfold vs industry, 03 stacked bars today vs after (checkbox adds the industry bar), 04 three numbers, 05 vendor table, 06 next step. Print / save-as-PDF button with a print stylesheet.
 - **My take:** _to fill after review_
+
+### Narrowing plan (2026-10-10)
+- **I decided:** v05 stays the lead. Must-haves from here on: a **real map**, clear
+  **data comparison**, and a **professional** style.
+- **Claude proposed / we agreed:** narrow cumulatively, one borrowed strength per
+  version: v13 = v05 + real map (v02) → v14 + composition label (v06) → v15 + slope
+  chart & market table (v10) → v16 + live product window (v11) → v17 + print/PDF
+  memo (v12); v18–v19 prune what doesn't earn its place.
+
+### v13 — Deck + real map
+- **Claude built:** v05's deck unchanged in structure; the cover's stacked-bar card is replaced by a real map card (v02's geography restyled: muted land, white borders, navy Northfold bubbles, gray in the industry view, teal/amber shift arrows matching Exhibit 3). Fixed a class clash (map 'ghost' ring hid the 'See the exhibits' button).
+- **My take:** _to fill after review_
