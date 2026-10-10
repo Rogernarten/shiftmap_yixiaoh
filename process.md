@@ -140,3 +140,7 @@ back, and what I decided myself.
 ### v15 — Deck + comparisons
 - **Claude built:** v14 plus: Exhibit 1 gets a 'The numbers' table (Northfold / industry / gap / after shift, plus freight/u and net margin vs peers); Exhibit 3's waterfall is replaced by v10's slope chart in the deck palette (China navy, Vietnam teal, Cambodia amber, others gray), animating in when the slide is seen, with a today-vs after/industry toggle and hover-to-isolate.
 - **My take:** _to fill after review_
+
+### v16 — Deck + live product
+- **Claude built:** v15 plus a 'Try it' slide (new nav dot) before the recommendation: a compact live window in the deck's palette with scope chips, four category tabs from the brief, KPI row, origin bars with industry ticks, recommendation badge and vendors, plus the fake ask box with progress steps (English/Chinese routing).
+- **My take:** _to fill after review_
