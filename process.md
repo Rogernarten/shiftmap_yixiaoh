@@ -148,3 +148,7 @@ back, and what I decided myself.
 ### v17 — Printable deck
 - **Claude built:** v16 plus a TO/FROM/RE memo line on the cover, 'Print / save PDF' buttons (cover and recommendation), and a print stylesheet: one slide per A4-landscape page, colours kept, interactive parts hidden. Found that Chrome's print width trips the phone breakpoint, so the print block pins the desktop layout; verified the export is exactly 6 pages.
 - **My take:** _to fill after review_
+
+### v18 — Report navigation
+- **Claude built:** v17 with the side dots replaced by a sticky contents bar naming every section (active section highlighted via the existing observer, reading-progress line), scroll padding so anchors clear the bar, and ←/→ (or j/k) paging between slides. Hidden in print.
+- **My take:** _to fill after review_
