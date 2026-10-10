@@ -10,7 +10,7 @@ back, and what I decided myself.
 - [x] Departure board — split-flap rows with tile bars (v04)
 - [x] Care label — woven composition label + flipping hang tag (v06)
 - [ ] Passport — each country a visa stamp
-- [ ] Trading terminal — dense, dark, monospaced
+- [x] Data terminal — dense panels, keyboard views (v09)
 - [x] Consulting exhibit — answer-first cover + 4 exhibits (v05)
 - [ ] Magazine long-read — "The great sweater migration"
 - [x] Container stack — 1 container = 1%, crane moves the shift (v03)
@@ -67,7 +67,7 @@ back, and what I decided myself.
   answer with a today-vs-after stacked bar; then Exhibit 1 dumbbell (Northfold vs
   industry), Exhibit 2 ranked industry bars, Exhibit 3 waterfall of China's share
   (52 → 32), Exhibit 4 vendor capacity bars; a recommendation slide closes it.
-- **My take:** _to fill after review_
+- **My take:** the most professional of the set, and it carries enough information (answer first, then the evidence).
 
 ### Round — v06–v08 (2026-10-10)
 - **Claude proposed:** three more directions that keep the visual rule but push the
@@ -80,7 +80,7 @@ back, and what I decided myself.
 - **Claude built:** a woven care label lists the origin mix as a fabric composition with bars and
   industry ticks; a kraft hang tag flips (click or toggle) from today's pie to the
   after-shift pie; reasons are care symbols (wash tub 31%, triangle 14, iron −5%).
-- **My take:** _to fill after review_
+- **My take:** also looks professional and carries enough information; second favourite after v05.
 
 ### v07 — Sea chart
 - **Claude built:** the real map redrawn as a 19th-century sea chart: waterlines, graticule, rhumb
@@ -92,4 +92,19 @@ back, and what I decided myself.
 - **Claude built:** black-and-white brutalist page; each country name's font size is proportional
   to its share (plus a bar), China in red when over-weight; switching views animates
   the type sizes, and gainers invert to black.
+- **My take:** _to fill after review_
+
+### Review after v08 (2026-10-10)
+- **I decided:** v05 (exhibit deck) is the strongest direction, with v06 (care label)
+  second: both look professional and carry enough information for a sourcing manager.
+  These become the lead candidates for narrowing.
+
+### Round — v09–v12 (2026-10-10)
+- **Claude proposed:** either start narrowing now, or spend the last four go-wide slots
+  on more *professional* genres so narrowing has more serious candidates.
+- **I decided:** explore four more professional styles (data terminal, broadsheet
+  front page, product UI, one-page brief), then narrow from v13 with v05 as the lead.
+
+### v09 — Terminal
+- **Claude built:** a dark data terminal: ticker, command line, five panels (mix bars Northfold amber vs industry cyan, diverging gap vs industry, key stats, shift scenario table, vendor leads). Views switch with buttons or keys 1/2/3; the gap panel animates from +25 to +5.
 - **My take:** _to fill after review_

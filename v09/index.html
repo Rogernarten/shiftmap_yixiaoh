@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v09 · Terminal</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --bg: #050607;
+    --panel: #0b0d0f;
+    --line: #23282e;
+    --text: #e8e6e1;
+    --muted: #8f959c;
+    --amber-t: #ffb648;   /* amber text */
+    --nf: #c47a0a;        /* Northfold marks */
+    --ind: #1f9fb0;       /* industry marks */
+    --ind-t: #5fd3e2;     /* cyan text */
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.45 var(--mono); }
+  a { color: inherit; }
+  .shell { max-width: 1320px; margin: 0 auto; padding: 0 16px 24px; }
+
+  .bar { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .bar .back { color: var(--muted); text-decoration: none; border: 1px solid var(--line); padding: 4px 8px; }
+  .bar .back:hover, .bar .back:focus-visible { color: var(--amber-t); border-color: var(--amber-t); }
+  .bar .logo { color: var(--amber-t); font-weight: 700; letter-spacing: .12em; }
+  .cmd { flex: 1; min-width: 220px; display: flex; gap: 8px; align-items: center; background: #000; border: 1px solid var(--line); padding: 5px 10px; color: var(--amber-t); }
+  .cmd b { color: #fff; background: #1a7f37; padding: 0 6px; font-weight: 700; }
+  .cmd .caret { width: 8px; height: 14px; background: var(--amber-t); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .bar time { color: var(--muted); }
+
+  .ticker { overflow: hidden; border-bottom: 1px solid var(--line); white-space: nowrap; padding: 6px 0; }
+  .ticker div { display: inline-block; animation: tick 38s linear infinite; padding-left: 100%; }
+  .ticker span { margin-right: 28px; }
+  .ticker .up { color: var(--amber-t); } .ticker .dn { color: var(--ind-t); }
+  @keyframes tick { to { transform: translateX(-100%); } }
+
+  header.intro { padding: 22px 0 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+  h1 { font: 700 clamp(20px, 2.6vw, 30px)/1.15 var(--mono); margin: 0; letter-spacing: -.01em; }
+  h1 span { color: var(--amber-t); }
+  .intro p { margin: 6px 0 0; color: var(--muted); }
+  .btn { display: inline-block; background: var(--amber-t); color: #000; font-weight: 700; padding: 10px 14px; text-decoration: none; letter-spacing: .06em; }
+  .btn:hover, .btn:focus-visible { background: #fff; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .tabs button { font: 700 12px/1 var(--mono); letter-spacing: .08em; color: var(--text); background: #14181c; border: 1px solid var(--line); padding: 9px 12px; cursor: pointer; }
+  .tabs button kbd { font: inherit; color: #000; background: var(--muted); padding: 1px 5px; margin-right: 8px; }
+  .tabs button:hover { border-color: var(--muted); }
+  .tabs button:focus-visible { outline: 2px solid var(--amber-t); outline-offset: 1px; }
+  .tabs button[aria-pressed="true"] { background: var(--amber-t); color: #000; border-color: var(--amber-t); }
+  .tabs button[aria-pressed="true"] kbd { background: #000; color: var(--amber-t); }
+  .tabs .hint { color: var(--muted); align-self: center; margin-left: 8px; }
+
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); padding: 10px 12px 12px; min-width: 0; }
+  .panel h2 { margin: 0 0 10px; font: 700 11px/1 var(--mono); letter-spacing: .14em; color: var(--amber-t); display: flex; justify-content: space-between; gap: 8px; }
+  .panel h2 span { color: var(--muted); font-weight: 400; letter-spacing: .06em; }
+  .a { grid-column: span 7; } .b { grid-column: span 5; } .c, .d, .e { grid-column: span 4; }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 8px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+  .mix { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; align-items: center; }
+  .mix .nm { color: var(--text); }
+  .mix .nm small { color: var(--muted); margin-left: 6px; }
+  .mix .bars { display: grid; gap: 2px; }
+  .mix .row { display: grid; grid-template-columns: 1fr 64px; gap: 8px; align-items: center; }
+  .mix .track { height: 11px; background: #12161a; position: relative; }
+  .mix .fill { position: absolute; left: 0; top: 0; bottom: 0; transition: width .7s cubic-bezier(.2,.8,.2,1); border-radius: 0 2px 2px 0; }
+  .mix .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .mix .v.nf { color: var(--amber-t); } .mix .v.ind { color: var(--ind-t); }
+
+  .div { display: grid; grid-template-columns: 70px 1fr 60px; gap: 8px 10px; align-items: center; }
+  .div .axis { position: relative; height: 14px; background: linear-gradient(90deg, transparent calc(50% - .5px), var(--muted) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px)); }
+  .div .seg { position: absolute; top: 1px; bottom: 1px; transition: left .7s cubic-bezier(.2,.8,.2,1), width .7s cubic-bezier(.2,.8,.2,1), background .3s; }
+  .div .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .div .scale { grid-column: 2; display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+  .div .note { grid-column: 1 / -1; color: var(--muted); margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #161a1e; white-space: nowrap; }
+  th { color: var(--muted); font-weight: 400; font-size: 11px; letter-spacing: .08em; }
+  td.r, th.r { text-align: right; }
+  .pos { color: var(--amber-t); } .neg { color: var(--ind-t); }
+  .scroll { overflow-x: auto; }
+  .mini { display: flex; height: 8px; gap: 1px; margin: 3px 0 0; }
+  .note2 { color: var(--muted); margin-top: 8px; }
+
+  .why { margin-top: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .why div { border: 1px solid var(--line); background: var(--panel); padding: 12px; }
+  .why b { display: block; font-size: clamp(30px, 3.6vw, 46px); line-height: 1; color: var(--amber-t); margin-bottom: 6px; }
+  .why p { margin: 0; color: var(--muted); }
+  .how { margin-top: 8px; border: 1px solid var(--line); padding: 10px 12px; display: flex; gap: 10px 24px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .how ol { margin: 0; padding: 0; list-style: none; display: flex; gap: 8px 22px; flex-wrap: wrap; }
+  .how li b { color: var(--amber-t); margin-right: 6px; }
+  footer { color: var(--muted); padding-top: 14px; font-size: 12px; }
+
+  @media (max-width: 980px) {
+    .a, .b { grid-column: span 12; } .c, .d, .e { grid-column: span 12; }
+    .why { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .mix { grid-template-columns: 1fr; }
+    .mix .nm { margin-top: 4px; }
+    .tabs .hint { display: none; }
+    .bar time { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ticker div, .cmd .caret { animation: none; } .ticker div { padding-left: 0; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="bar">
+    <a class="back" href="../">← GALLERY · v09</a>
+    <span class="logo">SHIFTMAP</span>
+    <div class="cmd" aria-hidden="true">NORTHFOLD WMN SWTR 6110.20 COO <b>GO</b><span class="caret"></span></div>
+    <time id="clock"></time>
+  </div>
+  <div class="ticker" aria-hidden="true"><div>
+    <span>CN 52.0 <i class="up">▲ +25.0 VS IND</i></span><span>VN 18.0 <i class="dn">▼ −13.0</i></span><span>BD 12.0 <i class="dn">▼ −4.0</i></span><span>KH 8.0 <i class="dn">▼ −4.0</i></span><span>OTHER 10.0 <i class="dn">▼ −4.0</i></span><span>IND #1 ORIGIN VN 31.0</span><span>SCENARIO CN→VN 12 · CN→KH 8 · LANDED/U −5%</span><span>VENDOR LEADS VN/KH 14</span>
+  </div></div>
+
+  <header class="intro">
+    <div>
+      <h1>The country-of-origin <span>terminal</span>.</h1>
+      <p>Where your category is made, how it compares, where it should move. One question.</p>
+    </div>
+    <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">REQUEST REPORT &lt;GO&gt;</a>
+  </header>
+
+  <div class="tabs" role="group" aria-label="Terminal view">
+    <button type="button" data-state="today" aria-pressed="true"><kbd>1</kbd>NORTHFOLD TODAY</button>
+    <button type="button" data-state="industry" aria-pressed="false"><kbd>2</kbd>INDUSTRY</button>
+    <button type="button" data-state="after" aria-pressed="false"><kbd>3</kbd>AFTER SHIFT</button>
+    <span class="hint">Press 1 · 2 · 3</span>
+  </div>
+
+  <div class="grid">
+    <section class="panel a" aria-labelledby="pa">
+      <h2 id="pa">ORIGIN MIX · % OF UNITS <span id="pa-sub">NORTHFOLD TODAY VS INDUSTRY</span></h2>
+      <div class="legend" aria-hidden="true"><span><i style="background:var(--nf)"></i><span id="lg-nf">Northfold today</span></span><span><i style="background:var(--ind)"></i>Industry imports</span></div>
+      <div class="mix" id="mix"></div>
+    </section>
+    <section class="panel b" aria-labelledby="pb">
+      <h2 id="pb">GAP VS INDUSTRY · PTS <span id="pb-sub">TODAY</span></h2>
+      <div class="div" id="gap"></div>
+    </section>
+    <section class="panel c" aria-labelledby="pc">
+      <h2 id="pc">KEY STATS <span>LAST 12M</span></h2>
+      <table>
+        <tbody>
+          <tr><th scope="row">SALES</th><td class="r">$29.8M</td><td class="r"></td></tr>
+          <tr><th scope="row">UNITS</th><td class="r">1.42M</td><td class="r"></td></tr>
+          <tr><th scope="row">NET MARGIN</th><td class="r">3.3%</td><td class="r neg">PEERS 7.4%</td></tr>
+          <tr><th scope="row">FREIGHT/U</th><td class="r">$1.85</td><td class="r pos">+$0.64 VS PEERS</td></tr>
+          <tr><th scope="row">IND. IMPORTS</th><td class="r">$4.2B</td><td class="r">HTS 6110.20</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="panel d" aria-labelledby="pd">
+      <h2 id="pd">SHIFT SCENARIO <span>REBALANCE</span></h2>
+      <table>
+        <thead><tr><th>ORIGIN</th><th class="r">NOW</th><th class="r">AFTER</th><th class="r">Δ</th></tr></thead>
+        <tbody>
+          <tr><td>CN CHINA</td><td class="r">52</td><td class="r">32</td><td class="r neg">−20</td></tr>
+          <tr><td>VN VIETNAM</td><td class="r">18</td><td class="r">30</td><td class="r pos">+12</td></tr>
+          <tr><td>KH CAMBODIA</td><td class="r">8</td><td class="r">16</td><td class="r pos">+8</td></tr>
+          <tr><td>GAP VS IND</td><td class="r">25</td><td class="r">5</td><td class="r">PTS</td></tr>
+          <tr><td>LANDED/U</td><td class="r"></td><td class="r"></td><td class="r pos">−5%</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="panel e" aria-labelledby="pe">
+      <h2 id="pe">VENDOR LEADS <span>VN · KH</span></h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>VENDOR</th><th>CTY</th><th class="r">US EXP</th><th class="r">SHPT</th><th class="r">CLI</th></tr></thead>
+          <tbody>
+            <tr><td>RED RIVER GARMENT</td><td>VN</td><td class="r">$86M</td><td class="r">412</td><td class="r">9</td></tr>
+            <tr><td>SAIGON PINE KNIT</td><td>VN</td><td class="r">$54M</td><td class="r">268</td><td class="r">6</td></tr>
+            <tr><td>MEKONG STITCH WKS</td><td>KH</td><td class="r">$38M</td><td class="r">190</td><td class="r">4</td></tr>
+            <tr><td colspan="5" style="color:var(--muted)">+11 MORE · VERIFY BEFORE OUTREACH</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="why">
+    <div><b>31%</b><p>VN = #1 origin of US imports for this code.</p></div>
+    <div><b>14</b><p>Vendors in VN + KH already ship it to US brands.</p></div>
+    <div><b>−5%</b><p>Estimated landed cost per unit after the shift.</p></div>
+  </div>
+  <div class="how">
+    <ol><li><b>1</b>ASK one question</li><li><b>2</b>MATCH to industry imports</li><li><b>3</b>SHIFT with vendor leads</li></ol>
+    <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">RUN FOR MY CATEGORY &lt;GO&gt;</a>
+  </div>
+  <footer>Shiftmap, Northfold and every figure on this screen are fictional · v09 of a design exercise for MPCS 51238.</footer>
+</div>
+
+<script>
+  const ORDER = ["CN", "VN", "BD", "KH", "OT"];
+  const NAMES = { CN: "CHINA", VN: "VIETNAM", BD: "BANGLADESH", KH: "CAMBODIA", OT: "OTHER" };
+  const DATA = {
+    today:    { CN: 52, VN: 18, BD: 12, KH: 8,  OT: 10 },
+    industry: { CN: 27, VN: 31, BD: 16, KH: 12, OT: 14 },
+    after:    { CN: 32, VN: 30, BD: 12, KH: 16, OT: 10 },
+  };
+  const LBL = { today: "NORTHFOLD TODAY", industry: "INDUSTRY", after: "AFTER SHIFT" };
+  const MAXV = 60, MAXG = 30;
+
+  const mix = document.getElementById("mix");
+  mix.innerHTML = ORDER.map((c) => `<div class="nm">${c}<small>${NAMES[c]}</small></div>
+    <div class="bars">
+      <div class="row"><div class="track"><i class="fill nf" style="background:var(--nf)"></i></div><span class="v nf"></span></div>
+      <div class="row"><div class="track"><i class="fill ind" style="background:var(--ind)"></i></div><span class="v ind"></span></div>
+    </div>`).join("");
+  const gap = document.getElementById("gap");
+  gap.innerHTML = ORDER.map((c) => `<span>${c}</span><div class="axis" title="${NAMES[c]}"><i class="seg"></i></div><span class="v"></span>`).join("")
+    + `<div class="scale"><span>−30</span><span>0</span><span>+30</span></div><div class="note">▶ over-weight vs industry · ◀ under-weight</div>`;
+
+  let state = "today";
+  function render(next) {
+    state = next;
+    // "Industry" view compares industry with itself on the bars, so the left lens stays Northfold today.
+    const nf = next === "after" ? DATA.after : DATA.today;
+    const ind = DATA.industry;
+    const rows = mix.querySelectorAll(".bars");
+    ORDER.forEach((c, i) => {
+      const r = rows[i];
+      r.querySelector(".fill.nf").style.width = (nf[c] / MAXV) * 100 + "%";
+      r.querySelector(".fill.ind").style.width = (ind[c] / MAXV) * 100 + "%";
+      r.querySelector(".v.nf").textContent = nf[c].toFixed(1);
+      r.querySelector(".v.ind").textContent = ind[c].toFixed(1);
+      r.style.opacity = next === "industry" ? (c === "VN" ? 1 : .55) : 1;
+    });
+    document.getElementById("lg-nf").textContent = next === "after" ? "Northfold after shift" : "Northfold today";
+    document.getElementById("pa-sub").textContent = (next === "after" ? "AFTER SHIFT" : "NORTHFOLD TODAY") + " VS INDUSTRY";
+    const segs = gap.querySelectorAll(".seg"), vals = gap.querySelectorAll(".v");
+    ORDER.forEach((c, i) => {
+      const g = nf[c] - ind[c], w = (Math.abs(g) / MAXG) * 50;
+      Object.assign(segs[i].style, { left: g >= 0 ? "50%" : 50 - w + "%", width: w + "%", background: g >= 0 ? "var(--nf)" : "var(--ind)" });
+      vals[i].textContent = (g > 0 ? "+" : g < 0 ? "−" : "") + Math.abs(g).toFixed(1);
+      vals[i].className = "v " + (g > 0 ? "pos" : g < 0 ? "neg" : "");
+    });
+    document.getElementById("pb-sub").textContent = next === "after" ? "AFTER SHIFT" : "TODAY";
+    document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === next)));
+  }
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => render(b.dataset.state)));
+  addEventListener("keydown", (e) => {
+    if (e.target.closest?.("input, textarea")) return;
+    const k = { "1": "today", "2": "industry", "3": "after" }[e.key];
+    if (k) render(k);
+  });
+  const clock = () => (document.getElementById("clock").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+  clock(); setInterval(clock, 1000);
+  const fromHash = location.hash.slice(1);
+  render(DATA[fromHash] ? fromHash : "today");
+</script>
+</body>
+</html>
