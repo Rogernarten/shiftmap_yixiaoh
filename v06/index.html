@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v06 · Care Label</title>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --knit: #c9bfae;
+    --cream: #f4efe5;
+    --weave: #faf8f2;
+    --ink: #23324d;     /* label thread */
+    --ink-2: #4b5468;
+    --text: #2a2722;
+    --text-2: #5a554c;
+    --kraft: #c8a274;
+    --kraft-2: #b89062;
+    --print: #f6f1e6;
+    --cn: #b23a2e;  --vn: #118a78;  --bd: #3c4f9a;  --kh: #d08a1a;  --ot: #9b968c;
+    --serif: "Bodoni 72", Didot, "Bodoni MT", Georgia, serif;
+    --label: "Avenir Next Condensed", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--cream); color: var(--text); font: 17px/1.5 var(--label); }
+  a { color: inherit; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+
+  .knit {
+    background-color: var(--knit);
+    background-image:
+      linear-gradient(60deg, rgba(0,0,0,.07) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,.07) 75.5%),
+      linear-gradient(-60deg, rgba(255,255,255,.12) 25%, transparent 25.5%, transparent 75%, rgba(255,255,255,.12) 75.5%);
+    background-size: 14px 22px;
+    padding-bottom: 64px;
+  }
+  .top { display: flex; align-items: center; gap: 18px; padding: 18px 0; }
+  .back { font: 600 12px/1 var(--label); letter-spacing: .14em; text-transform: uppercase; text-decoration: none; background: var(--weave); color: var(--ink); padding: 9px 12px; box-shadow: 0 1px 0 rgba(0,0,0,.15); }
+  .back:hover, .back:focus-visible { background: var(--ink); color: var(--weave); }
+  .brand { font: italic 400 26px/1 var(--serif); color: var(--text); }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: center; padding-top: 18px; }
+  h1 { font: italic 400 clamp(52px, 7.6vw, 104px)/.95 var(--serif); margin: 0 0 18px; letter-spacing: -.01em; }
+  .sub { font-size: 19px; color: #3d3a33; max-width: 30ch; margin: 0 0 28px; }
+  .toggle { display: inline-flex; background: var(--weave); padding: 4px; gap: 4px; box-shadow: 0 1px 0 rgba(0,0,0,.15); margin-bottom: 18px; }
+  .toggle button { font: 600 13px/1 var(--label); letter-spacing: .14em; text-transform: uppercase; border: 0; background: transparent; color: var(--ink); padding: 11px 14px; cursor: pointer; }
+  .toggle button:hover { background: rgba(35,50,77,.08); }
+  .toggle button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .toggle button[aria-pressed="true"] { background: var(--ink); color: var(--weave); }
+  .cap { font-size: 18px; font-weight: 600; min-height: 2.8em; max-width: 34ch; margin: 0; }
+
+  .rack { display: flex; align-items: flex-start; gap: 28px; position: relative; }
+  /* Woven label */
+  .woven {
+    width: 290px; background: var(--weave); color: var(--ink); text-align: center; padding: 22px 22px 18px;
+    background-image: repeating-linear-gradient(0deg, rgba(35,50,77,.035) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(35,50,77,.03) 0 1px, transparent 1px 3px);
+    box-shadow: 0 18px 30px -18px rgba(0,0,0,.45); position: relative; transform: rotate(-1.5deg);
+  }
+  .woven::before, .woven::after { content: ""; position: absolute; left: 0; right: 0; height: 12px; background: #ece8dd; border-bottom: 1px dashed rgba(35,50,77,.35); }
+  .woven::before { top: 0; } .woven::after { bottom: 0; border-bottom: 0; border-top: 1px dashed rgba(35,50,77,.35); }
+  .woven .brandline { font: italic 400 24px/1 var(--serif); margin: 8px 0 4px; }
+  .woven .small { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+  .woven hr { border: 0; border-top: 1px solid rgba(35,50,77,.3); margin: 14px 0; }
+  .woven .madein { font-size: 12px; letter-spacing: .22em; font-weight: 700; margin-bottom: 10px; }
+  .comp { list-style: none; margin: 0; padding: 0; text-align: left; display: grid; gap: 8px; }
+  .comp li { display: grid; grid-template-columns: 44px 1fr; gap: 0 8px; align-items: center; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+  .comp b { font-variant-numeric: tabular-nums; text-align: right; }
+  .comp .bar { grid-column: 2; position: relative; height: 6px; background: rgba(35,50,77,.08); margin-top: 3px; }
+  .comp .bar i { position: absolute; left: 0; top: 0; bottom: 0; transition: width .8s cubic-bezier(.2,.8,.2,1); border-radius: 0 2px 2px 0; }
+  .comp .bar u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); margin-left: -1px; }
+  .key { margin-top: 10px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); display: flex; justify-content: center; gap: 6px; align-items: center; }
+  .key u { display: inline-block; width: 2px; height: 10px; background: var(--ink); }
+  .care { display: flex; justify-content: center; gap: 12px; margin-top: 12px; }
+  .care svg { width: 22px; height: 22px; }
+
+  /* Hang tag */
+  .tagwrap { perspective: 1200px; margin-top: 46px; position: relative; }
+  .string { position: absolute; left: -40px; top: -52px; width: 160px; height: 80px; pointer-events: none; }
+  .tag { font: inherit; color: inherit; width: 250px; height: 372px; position: relative; cursor: pointer; border: 0; padding: 0; background: none; display: block; transform: rotate(3deg); }
+  .tag:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+  .tag .inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.3,.7,.2,1); }
+  .tag.flipped .inner { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 16px;
+    background: var(--kraft); background-image: radial-gradient(rgba(0,0,0,.06) 1px, transparent 1.2px); background-size: 5px 5px;
+    box-shadow: 0 18px 30px -18px rgba(0,0,0,.5); padding: 40px 18px 18px; text-align: center; color: #3b2a18;
+  }
+  .face::before { content: ""; position: absolute; top: 14px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--knit); box-shadow: inset 0 1px 2px rgba(0,0,0,.4), 0 0 0 3px #e7d6bb; }
+  .face.rear { transform: rotateY(180deg); }
+  .face .t1 { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; font-weight: 700; }
+  .face .t2 { font: italic 400 22px/1.1 var(--serif); margin: 4px 0 12px; }
+  .panel { background: var(--print); border-radius: 8px; padding: 14px 12px 12px; }
+  .pie { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 10px; position: relative; }
+  .pie::after { content: ""; position: absolute; inset: 25%; border-radius: 50%; background: var(--print); }
+  .pie span { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; font-weight: 700; font-size: 15px; color: var(--text); text-align: center; line-height: 1.1; }
+  .pie span small { display: block; font-weight: 500; font-size: 10px; letter-spacing: .14em; color: var(--text-2); }
+  .lg { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; text-align: left; font-size: 12px; color: var(--text); }
+  .lg i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+  .flipnote { margin-top: 10px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+
+  section.block { padding: 64px 0; }
+  h2 { font: italic 400 clamp(32px, 4vw, 52px)/1 var(--serif); margin: 0 0 28px; }
+  .symbols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .sym { background: #fff; border: 1px solid #e3dccd; padding: 22px; display: grid; grid-template-columns: 92px 1fr; gap: 18px; align-items: center; }
+  .sym svg { width: 92px; height: 92px; }
+  .sym svg text { font: 700 22px var(--label); fill: var(--ink); text-anchor: middle; }
+  .sym p { margin: 0; color: var(--text-2); font-size: 16px; }
+  .sym p b { display: block; color: var(--text); font-size: 18px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 16px; list-style: none; padding: 0; margin: 0; }
+  .steps li { background: var(--weave); color: var(--ink); padding: 14px 20px; border-top: 6px solid #ece8dd; border-bottom: 6px solid #ece8dd; box-shadow: 0 1px 0 rgba(0,0,0,.08); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; }
+  .steps b { font: italic 400 22px var(--serif); letter-spacing: 0; text-transform: none; margin-right: 8px; }
+  .cta { margin-top: 48px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; border-top: 1px solid #ddd5c5; padding-top: 34px; }
+  .cta p { margin: 0; font: italic 400 clamp(30px, 3.8vw, 48px)/1 var(--serif); }
+  .btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; background: var(--kraft); color: #2b1d0e; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 14px; padding: 14px 20px 14px 30px; border-radius: 4px 14px 14px 4px; position: relative; }
+  .btn::before { content: ""; position: absolute; left: 10px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--cream); box-shadow: inset 0 1px 2px rgba(0,0,0,.4); }
+  .btn:hover, .btn:focus-visible { background: var(--kraft-2); }
+  footer { padding: 26px 0 44px; font-size: 13px; color: var(--text-2); }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; }
+    .rack { justify-content: center; }
+    .symbols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 620px) {
+    .wrap { padding: 0 16px; }
+    .rack { flex-direction: column; align-items: center; gap: 8px; }
+    .woven { width: 100%; max-width: 320px; }
+    .tagwrap { margin-top: 30px; }
+    .string { display: none; }
+    .sym { grid-template-columns: 70px 1fr; padding: 16px; }
+    .sym svg { width: 70px; height: 70px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tag .inner, .comp .bar i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="knit">
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="../">← Gallery · v06</a>
+      <div class="brand">Shiftmap</div>
+    </header>
+
+    <div class="hero">
+      <div>
+        <h1>Read the label.</h1>
+        <p class="sub">Your category's country-of-origin mix, written the way every garment already says it.</p>
+        <div class="toggle" role="group" aria-label="Label view">
+          <button type="button" data-state="today" aria-pressed="true">Today</button>
+          <button type="button" data-state="after" aria-pressed="false">After shift</button>
+        </div>
+        <p class="cap" id="cap" aria-live="polite"></p>
+      </div>
+
+      <div class="rack">
+        <div class="woven" aria-labelledby="madein">
+          <div class="small">Northfold</div>
+          <div class="brandline">Women's knit sweater</div>
+          <div class="small">HTS 6110.20 · last 12 months</div>
+          <hr>
+          <div class="madein" id="madein">MADE IN · TODAY</div>
+          <ul class="comp" id="comp"></ul>
+          <div class="key"><u></u> industry share</div>
+          <hr>
+          <div class="care" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 7h18l-2.5 12h-13z M3 7 C6 5 8 9 12 7 C16 5 18 9 21 7" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 4 L21 20 H3 Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M4 17 H20 C20 11 16 8 10 8 H7 L4 17 Z M9 8 V5 H16" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+          </div>
+        </div>
+
+        <div class="tagwrap">
+          <svg class="string" viewBox="0 0 160 80" aria-hidden="true"><path d="M8 4 C 40 70, 110 10, 138 64" fill="none" stroke="#7d6040" stroke-width="2"/></svg>
+          <button class="tag" id="tag" type="button" aria-label="Flip the hang tag between today and after the shift">
+            <span class="inner">
+              <span class="face front">
+                <span class="t1">Northfold · today</span>
+                <span class="t2" style="display:block">Where it's made</span>
+                <span class="panel" style="display:block">
+                  <span class="pie" id="pie-today" style="display:block"></span>
+                  <span class="lg" id="lg-today" style="display:grid"></span>
+                </span>
+                <span class="flipnote" style="display:block">Flip the tag ↻</span>
+              </span>
+              <span class="face rear">
+                <span class="t1">Northfold · after shift</span>
+                <span class="t2" style="display:block;font-size:19px">CN→VN +12 · CN→KH +8</span>
+                <span class="panel" style="display:block">
+                  <span class="pie" id="pie-after" style="display:block"></span>
+                  <span class="lg" id="lg-after" style="display:grid"></span>
+                </span>
+                <span class="flipnote" style="display:block">Flip back ↻</span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="block" aria-labelledby="care-h">
+    <h2 id="care-h">Care instructions</h2>
+    <div class="symbols">
+      <div class="sym">
+        <svg viewBox="0 0 92 92" aria-hidden="true"><path d="M8 26 H84 L74 80 H18 Z M8 26 C22 18 32 34 46 26 C60 18 70 34 84 26" fill="none" stroke="var(--ink)" stroke-width="3"/><text x="46" y="62">31%</text></svg>
+        <p><b>Vietnam is the #1 origin</b>for US imports of this code. Northfold buys 18% there.</p>
+      </div>
+      <div class="sym">
+        <svg viewBox="0 0 92 92" aria-hidden="true"><path d="M46 10 L86 82 H6 Z" fill="none" stroke="var(--ink)" stroke-width="3"/><text x="46" y="68">14</text></svg>
+        <p><b>14 vendors are ready</b>in Vietnam and Cambodia, already shipping to US brands.</p>
+      </div>
+      <div class="sym">
+        <svg viewBox="0 0 92 92" aria-hidden="true"><path d="M8 70 H86 C86 44 70 32 44 32 H30 L8 70 Z M38 32 V20 H66" fill="none" stroke="var(--ink)" stroke-width="3"/><text x="52" y="60">−5%</text></svg>
+        <p><b>Landed cost falls</b>by about 5% per unit after the shift.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="how-h" style="padding-top:0">
+    <h2 id="how-h">How it's made</h2>
+    <ol class="steps">
+      <li><b>1</b>Ask one question</li>
+      <li><b>2</b>Match to industry imports</li>
+      <li><b>3</b>Re-source the label</li>
+    </ol>
+    <div class="cta">
+      <p>What does your label say?</p>
+      <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report</a>
+    </div>
+  </section>
+  <footer>Shiftmap, Northfold and every figure on this page are fictional · v06 of a design exercise for MPCS 51238.</footer>
+</div>
+
+<script>
+  const ORDER = ["CN", "VN", "BD", "KH", "OT"];
+  const NAMES = { CN: "China", VN: "Vietnam", BD: "Bangladesh", KH: "Cambodia", OT: "Other" };
+  const DATA = {
+    today:    { CN: 52, VN: 18, BD: 12, KH: 8,  OT: 10 },
+    industry: { CN: 27, VN: 31, BD: 16, KH: 12, OT: 14 },
+    after:    { CN: 32, VN: 30, BD: 12, KH: 16, OT: 10 },
+  };
+  const CAP = {
+    today: "52% China, nearly twice the industry's 27%. Flip the tag to see the shift.",
+    after: "After the shift: China 32%, Vietnam 30%, Cambodia 16%.",
+  };
+  const col = (c) => `var(--${c.toLowerCase()})`;
+
+  // Donut as a conic gradient with thin cream seams between slices.
+  function pie(el, d) {
+    let acc = 0;
+    const stops = ORDER.map((c) => { const a = acc, b = acc + d[c]; acc = b; return `${col(c)} ${a + 0.4}% ${b - 0.4}%, var(--print) ${b - 0.4}% ${b + 0.4}%`; });
+    el.style.background = `conic-gradient(var(--print) 0 0.4%, ${stops.join(", ")})`;
+    const top = ORDER.reduce((a, c) => (d[c] > d[a] ? c : a), "CN");
+    el.innerHTML = `<span><small>LARGEST</small>${top} ${d[top]}%</span>`;
+    el.setAttribute("role", "img");
+    el.setAttribute("aria-label", ORDER.map((c) => `${NAMES[c]} ${d[c]}%`).join(", "));
+  }
+  function legend(el, d) { el.innerHTML = ORDER.map((c) => `<span><i style="background:${col(c)}"></i>${NAMES[c]} ${d[c]}%</span>`).join(""); }
+  pie(document.getElementById("pie-today"), DATA.today);
+  pie(document.getElementById("pie-after"), DATA.after);
+  legend(document.getElementById("lg-today"), DATA.today);
+  legend(document.getElementById("lg-after"), DATA.after);
+
+  const comp = document.getElementById("comp");
+  comp.innerHTML = ORDER.map((c) => `<li data-c="${c}"><b>0%</b><span>${NAMES[c]}</span><span class="bar"><i style="background:${col(c)};width:0"></i><u style="left:${DATA.industry[c] / 52 * 100}%"></u></span></li>`).join("");
+
+  const tag = document.getElementById("tag");
+  const buttons = document.querySelectorAll(".toggle button");
+  let state = "today";
+  function render(next) {
+    state = next;
+    const d = DATA[next];
+    comp.querySelectorAll("li").forEach((li) => {
+      const c = li.dataset.c;
+      li.querySelector("b").textContent = d[c] + "%";
+      li.querySelector(".bar i").style.width = (d[c] / 52) * 100 + "%";
+    });
+    document.getElementById("madein").textContent = next === "today" ? "MADE IN · TODAY" : "MADE IN · AFTER SHIFT";
+    tag.classList.toggle("flipped", next === "after");
+    document.getElementById("cap").textContent = CAP[next];
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === next)));
+  }
+  buttons.forEach((b) => b.addEventListener("click", () => render(b.dataset.state)));
+  tag.addEventListener("click", () => render(state === "today" ? "after" : "today"));
+
+  const fromHash = location.hash.slice(1);
+  requestAnimationFrame(() => render(fromHash === "after" ? "after" : "today"));
+</script>
+</body>
+</html>

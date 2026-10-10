@@ -8,7 +8,7 @@ back, and what I decided myself.
 - [x] Flow map — bubbles on a real map + pie charts (v02, from v01 feedback)
 - [ ] Antique atlas / nautical chart — shift drawn as sea routes
 - [x] Departure board — split-flap rows with tile bars (v04)
-- [ ] Care label — "Made in ___" garment tags
+- [x] Care label — woven composition label + flipping hang tag (v06)
 - [ ] Passport — each country a visa stamp
 - [ ] Trading terminal — dense, dark, monospaced
 - [x] Consulting exhibit — answer-first cover + 4 exhibits (v05)
@@ -67,4 +67,17 @@ back, and what I decided myself.
   answer with a today-vs-after stacked bar; then Exhibit 1 dumbbell (Northfold vs
   industry), Exhibit 2 ranked industry bars, Exhibit 3 waterfall of China's share
   (52 → 32), Exhibit 4 vendor capacity bars; a recommendation slide closes it.
+- **My take:** _to fill after review_
+
+### Round — v06–v08 (2026-10-10)
+- **Claude proposed:** three more directions that keep the visual rule but push the
+  metaphor further: care label (origin mix as a fabric-composition label + hang-tag
+  pie), antique nautical chart (the shift as sea routes), brutalist type-as-chart
+  (font size = share).
+- **I decided:** go with all three.
+
+### v06 — Care label
+- **Claude built:** a woven care label lists the origin mix as a fabric composition with bars and
+  industry ticks; a kraft hang tag flips (click or toggle) from today's pie to the
+  after-shift pie; reasons are care symbols (wash tub 31%, triangle 14, iron −5%).
 - **My take:** _to fill after review_
