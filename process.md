@@ -190,3 +190,12 @@ back, and what I decided myself.
 ### v23 — Dark board
 - **Claude built:** v22 plus a dark theme: dark tokens applied for prefers-color-scheme and for a data-theme toggle (contents bar button, not persisted — no storage), screen-only so print stays light; hard-coded light fills (map land/sea, cards, bubble text, badges, buttons) re-mapped; badge colours moved to tokens; ?dark forces dark for previews. Verified toggle, phone width, and a 6-page light PDF exported from dark mode.
 - **My take:** _to fill after review_
+
+### Final decisions (2026-10-12)
+- **I decided:** the final defaults to the light theme; dark stays available through
+  the toggle only. v24 = polish (default light, table views / no-JS fallback, touch
+  details); v25 = final, pinned in the gallery.
+
+### v24 — Polished board
+- **Claude built:** v23 with the OS-following dark block removed (light by default, dark via toggle only), 'View as table' details under the board (all origins: share, units, sales, industry %, imports, after shift, freight, margin, top vendor, totals) and under the slope chart, a noscript note, touch-only hint tweaks; tables hidden in print. PDF still 6 pages.
+- **My take:** _to fill after review_
