@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftmap · v23 · Dark Board</title>
+<script>if (/[?&]dark\b/.test(location.search)) document.documentElement.dataset.theme = "dark";</script>
+<meta name="description" content="Shiftmap shows where your category is made today and where it should move next.">
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #1d1d1b;
+    --ink-2: #4c4b46;
+    --ink-3: #6b6a64;
+    --rule: #dcd9d1;
+    --grid: #ebe8e1;
+    --nf: #111111;     /* Northfold */
+    --cn: #d0021b;     /* China, the one signal colour */
+    --vn: #111111;     /* Vietnam */
+    --kh: #8a8a8a;     /* Cambodia */
+    --ctx: #cfcfcf;    /* context / industry */
+    --badge3: #4d4d4d;
+    --card: #ffffff;
+    --serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-snap-type: y proximity; scroll-behavior: smooth; scroll-padding-top: 46px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--sans); }
+  a { color: inherit; }
+
+  .slide { min-height: 100vh; scroll-snap-align: start; display: flex; flex-direction: column; padding: 28px 0; border-bottom: 1px solid var(--rule); }
+  .frame { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 40px; flex: 1; display: flex; flex-direction: column; }
+  .bar-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+  .bar-top .back { text-transform: none; letter-spacing: 0; font-size: 13px; text-decoration: none; color: var(--ink-2); }
+  .bar-top .back:hover, .bar-top .back:focus-visible { color: var(--ink); text-decoration: underline; }
+  .content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 36px 0; }
+  .label { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--nf); font-weight: 700; margin: 0 0 10px; }
+  h2 { font: 400 clamp(26px, 3.4vw, 40px)/1.15 var(--serif); margin: 0 0 30px; max-width: 30ch; letter-spacing: -.01em; }
+  .src { margin-top: 28px; font-size: 12px; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 10px; display: flex; justify-content: space-between; gap: 16px; }
+  .next { text-decoration: none; color: var(--nf); font-weight: 700; white-space: nowrap; }
+  .next:hover, .next:focus-visible { text-decoration: underline; }
+
+  /* Cover */
+  .cover h1 { font: 400 clamp(44px, 7vw, 88px)/1.02 var(--serif); letter-spacing: -.02em; margin: 0 0 18px; }
+  .cover .meta { font-size: 15px; color: var(--ink-2); margin: 0 0 40px; }
+  .answer { border-left: 4px solid var(--nf); padding: 6px 0 6px 20px; max-width: 40ch; }
+  .answer small { display: block; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .answer p { margin: 0; font: 400 clamp(22px, 2.6vw, 30px)/1.25 var(--serif); }
+  .answer b { color: var(--nf); font-weight: 600; }
+  .cover .content { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 40px; align-items: center; }
+  .cover h1 { font-size: clamp(40px, 5.6vw, 72px); }
+  .mini { border: 1px solid var(--rule); background: #fff; padding: 22px 22px 18px; }
+  .mini .label { margin-bottom: 4px; }
+  .mini h3 { font: 400 20px/1.25 var(--serif); margin: 0 0 18px; }
+  .mini .rowlbl { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px; }
+  .stack { display: flex; gap: 2px; height: 40px; margin-bottom: 16px; }
+  .stack div { display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; min-width: 0; transform-origin: left; transition: flex-grow .9s cubic-bezier(.2,.8,.2,1); }
+  .stack div:first-child { border-radius: 4px 0 0 4px; } .stack div:last-child { border-radius: 0 4px 4px 0; }
+  .stack .o { background: var(--ctx); color: var(--ink); }
+  .stack .k { color: var(--ink); }
+  .mini .legend { margin: 4px 0 0; font-size: 12px; gap: 14px; }
+  .mapcard { margin: 0; border: 1px solid var(--rule); background: #fff; padding: 18px 18px 14px; }
+  .mc-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .mc-head .label { margin: 0; }
+  .mseg { display: inline-flex; border: 1px solid var(--ink); }
+  .mseg button { font: 600 12px var(--sans); background: transparent; border: 0; border-left: 1px solid var(--ink); color: var(--ink); padding: 6px 9px; cursor: pointer; }
+  .mseg button:first-child { border-left: 0; }
+  .mseg button:hover { background: rgba(0,0,0,.05); }
+  .mseg button:focus-visible { outline: 2px solid var(--nf); outline-offset: 1px; }
+  .mseg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .mapcard h3 { font: 400 20px/1.25 var(--serif); margin: 4px 0 10px; min-height: 2.5em; }
+  .map { display: block; width: 100%; height: auto; background: #eef2f4; }
+  .map .land path { fill: #e4e2dc; stroke: #fff; stroke-width: 1.2; stroke-linejoin: round; }
+  .map .land path.cn, .map .land path.vn, .map .land path.kh, .map .land path.bd { fill: #d6d3ca; }
+  .bub circle { fill: var(--nf); stroke: #fff; stroke-width: 2.5; transform-box: fill-box; transform-origin: center; transition: transform .9s cubic-bezier(.2,.8,.2,1), fill .4s; }
+  .ind .bub circle { fill: var(--ctx); }
+  .bub text { font: 700 24px var(--sans); text-anchor: middle; fill: #fff; }
+  .bub .t { transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+  .bub .t.out text { text-anchor: start; fill: var(--ink); }
+  .ind .bub text { fill: var(--ink); }
+  .bub .code { font-size: 19px; letter-spacing: .04em; }
+  .map .was { fill: none; stroke: var(--nf); stroke-width: 2; stroke-dasharray: 5 6; opacity: 0; transition: opacity .5s; }
+  .arc { fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 520; stroke-dashoffset: 520; transition: stroke-dashoffset 1s ease .3s; }
+  .arc.vn, .head.vn { stroke: var(--vn); fill: none; } .head.vn { fill: var(--vn); stroke: none; }
+  .arc.kh { stroke: var(--kh); } .head.kh { fill: var(--kh); }
+  .head, .arc-lbl { opacity: 0; transition: opacity .3s ease 1.2s; }
+  .arc-lbl { font: 700 24px var(--sans); fill: var(--ink); }
+  .after .arc { stroke-dashoffset: 0; } .after .head, .after .arc-lbl { opacity: 1; } .after .was { opacity: .8; }
+  .mapcard .legend { margin: 10px 0 0; font-size: 12px; gap: 14px; }
+  .legend .ln { display: inline-block; width: 16px; height: 3px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) { .bub circle, .bub .t, .arc, .head, .arc-lbl, .map .was { transition: none; } }
+  @media (max-width: 760px) { .bub text { font-size: 30px; } .bub .code { font-size: 24px; } .arc-lbl { font-size: 30px; } }
+  .ribbon { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; margin: 4px 0 8px; padding: 14px 18px; background: #fff;
+    border-top: 1px dashed #b9b6ad; border-bottom: 1px dashed #b9b6ad; box-shadow: 0 -5px 0 -4px #fff, 0 5px 0 -4px #fff; }
+  .rb-tag { display: flex; flex-direction: column; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); border-right: 1px solid var(--rule); padding-right: 18px; }
+  .rb-tag b { color: var(--nf); letter-spacing: .14em; font-size: 12px; }
+  .rb-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; }
+  .rb-list li { min-width: 0; }
+  .rb-list b { display: block; font: 400 30px/1 var(--serif); font-variant-numeric: tabular-nums; }
+  .rb-list span { display: block; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); margin: 4px 0 6px; }
+  .rb-list em { font-style: normal; } .rb-list .short { display: none; }
+  .rb-bar { position: relative; height: 5px; background: #ecebe6; }
+  .rb-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--nf); transition: width .8s cubic-bezier(.2,.8,.2,1), background .3s; }
+  .rb-bar u { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); margin-left: -1px; }
+  .ind-view .rb-bar i { background: var(--ctx); }
+  .rb-key { font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .rb-key i { width: 2px; height: 12px; background: var(--ink); display: inline-block; }
+  @media (max-width: 760px) {
+    .ribbon { grid-template-columns: 1fr; gap: 12px; padding: 12px; }
+    .rb-tag { flex-direction: row; gap: 8px; border-right: 0; padding-right: 0; }
+    .rb-list { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .rb-list b { font-size: 20px; }
+    .rb-list span { font-size: 11px; letter-spacing: .1em; }
+    .rb-list .full { display: none; } .rb-list .short { display: inline; }
+  }
+  .ex1g { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+  table.mkt { width: 100%; border-collapse: collapse; font: 13.5px var(--sans); font-variant-numeric: tabular-nums; }
+  .mkt caption { text-align: left; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 8px; }
+  .mkt th, .mkt td { padding: 7px 6px; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
+  .mkt th[scope="row"] { text-align: left; font-weight: 600; }
+  .mkt thead th { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1.5px solid var(--ink); text-align: right; }
+  .mkt thead th:first-child { text-align: left; }
+  .mkt tfoot th, .mkt tfoot td { border-bottom: 0; border-top: 1.5px solid var(--ink); color: var(--ink-2); }
+  .mkt tfoot tr + tr th, .mkt tfoot tr + tr td { border-top: 1px solid var(--rule); }
+  .mkt .over { color: #a3341e; font-weight: 700; }
+  .mkt .up { color: var(--vn); font-weight: 700; }
+  .sl-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+  .sl-head .legend { margin: 0; }
+  .sseg { display: inline-flex; border: 1px solid var(--ink); align-items: stretch; }
+  .sseg span { font-size: 12px; color: var(--ink-3); padding: 6px 8px; }
+  .sseg button { font: 600 12px var(--sans); background: transparent; border: 0; border-left: 1px solid var(--ink); color: var(--ink); padding: 6px 10px; cursor: pointer; }
+  .sseg button:hover { background: rgba(0,0,0,.05); }
+  .sseg button:focus-visible { outline: 2px solid var(--nf); outline-offset: 1px; }
+  .sseg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  svg.slope { display: block; width: 100%; max-width: 620px; height: auto; margin: 0 auto; }
+  .slope .axis { stroke: var(--rule); stroke-width: 1; }
+  .slope .ax { font: 600 11px var(--sans); fill: var(--ink-3); letter-spacing: .1em; }
+  .slope .ln { stroke-width: 3; fill: none; }
+  .slope .pt { stroke: var(--paper); stroke-width: 2; }
+  .slope .lb { font: 13px var(--sans); fill: var(--ink); }
+  .slope .lb tspan { font-weight: 700; }
+  .slope g.s { cursor: pointer; transition: opacity .2s; }
+  .slope.dim g.s { opacity: .22; } .slope.dim g.s.on { opacity: 1; }
+  .ex1g > * { min-width: 0; }
+  @media (max-width: 760px) { .ex1g { grid-template-columns: 1fr; gap: 20px; } .mkt { font-size: 12px; } .mkt th, .mkt td { padding: 6px 3px; white-space: normal; } .mkt thead th { font-size: 10px; letter-spacing: .02em; } }
+  .tw { border: 1px solid var(--rule); background: #fff; }
+  .tw-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border-bottom: 1px solid var(--rule); }
+  .tw-chips { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
+  .tw-chips span { border: 1px solid var(--rule); border-radius: 999px; padding: 4px 10px; }
+  .tw-chips b { color: var(--ink); font-weight: 600; }
+  .tw-body { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 0; }
+  .tw-body > div { padding: 14px; min-width: 0; }
+  .tw-side { border-left: 1px solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
+  .tw-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .tw-kpis div { border-top: 2px solid var(--ink); padding-top: 6px; }
+  .tw-kpis small { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .tw-kpis b { display: block; font: 400 24px/1.1 var(--serif); }
+  .tw-kpis span { font-size: 12px; color: #a3341e; font-weight: 600; }
+  .tw-orig { display: grid; grid-template-columns: 90px 1fr 76px; gap: 7px 10px; align-items: center; font-size: 13px; }
+  .tw-orig .tr { position: relative; height: 12px; background: #f0efea; }
+  .tw-orig .tr i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--nf); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+  .tw-orig .tr u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); margin-left: -1px; transition: left .6s cubic-bezier(.2,.8,.2,1); }
+  .tw-orig .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+  .tw-orig .v b { color: var(--ink); }
+  .tw-key { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); margin-top: 10px; }
+  .tw-key i { display: inline-block; width: 10px; height: 10px; background: var(--nf); margin-right: 6px; vertical-align: -1px; }
+  .tw-key u { display: inline-block; width: 2px; height: 12px; background: var(--ink); margin-right: 6px; vertical-align: -2px; }
+  .tw-badge { align-self: flex-start; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 2px; }
+  .tw-side p { margin: 0; font: 400 17px/1.35 var(--serif); }
+  .tw-vend { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+  .tw-vend li { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--rule); padding: 7px 0; }
+  .tw-vend small { color: var(--ink-3); }
+  .tw-vend em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--vn); }
+  .tw-vend em.cur { color: var(--ink-3); }
+  .tw-ask { display: flex; gap: 8px; border-top: 1px solid var(--rule); padding: 10px 14px; }
+  .tw-ask input { flex: 1; min-width: 0; font: 14px var(--sans); border: 1px solid var(--rule); padding: 9px 10px; color: var(--ink); background: var(--paper); }
+  .tw-ask input:focus-visible { outline: 2px solid var(--nf); outline-offset: 0; }
+  .tw-ask button { font: 700 13px var(--sans); background: var(--nf); color: #fff; border: 0; padding: 0 16px; cursor: pointer; }
+  .tw-ask button:hover { background: #1f4278; }
+  .tw-ask button:disabled { background: #9fb0c9; cursor: default; }
+  .tw-steps { list-style: none; margin: 0; padding: 0 14px 10px; display: grid; gap: 3px; font-size: 13px; color: var(--ink-2); }
+  .tw-steps li { display: flex; align-items: center; gap: 8px; }
+  .tw-steps .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #c8d0dc; border-top-color: var(--nf); animation: twspin .8s linear infinite; }
+  .tw-steps li.done .dot { animation: none; background: var(--vn); border-color: var(--vn); }
+  .tw-steps .ok { color: var(--vn); font-weight: 700; }
+  @keyframes twspin { to { transform: rotate(360deg); } }
+  @media (max-width: 760px) {
+    .tw-body { grid-template-columns: 1fr; }
+    .tw-side { border-left: 0; border-top: 1px solid var(--rule); }
+    .tw-tabs { width: 100%; } .tw-tabs button { flex: 1; padding: 6px 4px; }
+    .tw-orig { grid-template-columns: 76px 1fr 66px; font-size: 12.5px; }
+    .tw-kpis b { font-size: 19px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tw-steps .dot { animation: none; } }
+  .bt-r { display: inline-flex; align-items: center; gap: 14px; }
+  .pdf { font: 600 12px var(--sans); letter-spacing: .02em; text-transform: none; background: transparent; color: var(--ink); border: 1px solid var(--ink); padding: 5px 10px; cursor: pointer; }
+  .pdf:hover, .pdf:focus-visible { background: var(--ink); color: var(--paper); }
+  button.btn { font: inherit; font-weight: 700; font-size: 15px; border: 0; cursor: pointer; }
+  dl.memo { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: -26px 0 30px; font-size: 13px; }
+  dl.memo div { display: flex; gap: 6px; }
+  dl.memo dt { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding-top: 1px; }
+  dl.memo dd { margin: 0; }
+  @page { size: A4 landscape; margin: 12mm; }
+  .toc { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule); }
+  .toc-in { max-width: 1080px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; gap: 20px; height: 45px; }
+  .toc-brand { font: 700 14px var(--sans); text-decoration: none; letter-spacing: .02em; }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+  .toc ol::-webkit-scrollbar { display: none; }
+  .toc ol a { display: block; white-space: nowrap; font: 13px var(--sans); color: var(--ink-2); text-decoration: none; padding: 6px 10px; border-radius: 2px; }
+  .toc ol a b { color: var(--nf); font-weight: 700; margin-right: 2px; }
+  .toc ol a:hover { color: var(--ink); background: rgba(0,0,0,.05); }
+  .toc ol a:focus-visible { outline: 2px solid var(--nf); outline-offset: -2px; }
+  .toc ol a.on { color: var(--paper); background: var(--ink); }
+  .toc ol a.on b { color: #9fbbe6; }
+  .toc-hint { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  .toc-hint kbd { font: 11px var(--sans); border: 1px solid var(--rule); border-bottom-width: 2px; padding: 0 5px; margin-right: 3px; background: #fff; }
+  .toc-prog { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--nf); }
+  @media (max-width: 760px) { .toc-in { padding: 0 8px; gap: 8px; } .toc-hint, .toc-brand { display: none; } }
+  /* v19 visual system: one focus style, quieter repeated headers, map context labels. */
+  :focus-visible { outline: 2px solid var(--nf); outline-offset: 2px; }
+  .slide:not(.cover) .bar-top { display: none; }
+  .slide { min-height: calc(100vh - 46px); }
+  .slide .content { padding: 28px 0; }
+  .label { letter-spacing: .16em; }
+  h2 { font-size: clamp(26px, 3.2vw, 38px); }
+  .src { font-size: 12px; }
+  .mkt thead th { white-space: normal; vertical-align: bottom; }
+  .ex1g { gap: 28px; }
+  .ctx-lbl text { font: 600 13px var(--sans); letter-spacing: .22em; fill: #9a978e; text-anchor: middle; }
+  .ctx-lbl text.sea { font: italic 400 15px var(--serif); letter-spacing: .06em; fill: #8c9aa3; }
+  @media (max-width: 760px) { .ctx-lbl text { font-size: 18px; } .ctx-lbl text.sea { font-size: 19px; } .ctx-lbl text:nth-child(4) { display: none; } }
+  .actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px; align-items: center; }
+  .btn { display: inline-block; background: var(--nf); color: #fff; text-decoration: none; padding: 13px 20px; font-weight: 700; font-size: 15px; border-radius: 2px; }
+  .btn:hover, .btn:focus-visible { background: #1f4278; }
+  .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .btn.ghost:hover, .btn.ghost:focus-visible { background: var(--ink); color: var(--paper); }
+
+  /* Shared chart bits */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin: -10px 0 20px; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* Exhibit 1: dumbbell */
+  .db { display: grid; grid-template-columns: 120px 1fr 90px; gap: 0 18px; align-items: center; }
+  .db .h { font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .1em; padding-bottom: 8px; }
+  .db .name { font-weight: 600; padding: 14px 0; }
+  .db .track { position: relative; height: 44px; background-image: linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: calc(100% / 3) 100%; border-right: 1px solid var(--grid); }
+  .db .link { position: absolute; top: 50%; height: 3px; margin-top: -1.5px; background: var(--ctx); border-radius: 2px; transform-origin: left; }
+  .db .pt { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 2px solid var(--paper); }
+  .db .pt.nf { background: var(--nf); }
+  .db .pt.ind { background: var(--ctx); }
+  .db .pt span { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .db .pt.ind span { color: var(--ink-3); font-weight: 600; bottom: auto; top: 18px; }
+  .db .gap { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .db .gap small { display: block; font-weight: 400; font-size: 12px; color: var(--ink-3); }
+  .db .axisrow { grid-column: 2; padding-top: 6px; }
+
+  /* Exhibit 2 & 4: horizontal bars */
+  .hb { display: grid; grid-template-columns: minmax(120px, 210px) 1fr; gap: 10px 18px; align-items: center; }
+  .hb .name { font-weight: 600; }
+  .hb .name small { display: block; font-weight: 400; font-size: 12px; color: var(--ink-3); }
+  .hb .track { position: relative; height: 24px; display: flex; align-items: center; gap: 10px; }
+  .hb .fill { height: 22px; border-radius: 0 4px 4px 0; background: var(--ctx); transform-origin: left; }
+  .hb .fill.vn { background: var(--vn); }
+  .hb .fill.kh { background: var(--kh); }
+  .hb .val { font-size: 14px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .hb .val small { font-weight: 400; color: var(--ink-3); }
+  .hb .more { grid-column: 1 / -1; font-size: 14px; color: var(--ink-3); border-top: 1px dashed var(--rule); padding-top: 10px; }
+
+  /* Exhibit 3: waterfall */
+  .wf { position: relative; height: 320px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-bottom: 1.5px solid var(--ink); background-image: linear-gradient(var(--grid) 1px, transparent 1px); background-size: 100% calc(100% / 3); }
+  .wf .col { position: relative; }
+  .wf .blk { position: absolute; left: 18%; right: 18%; border-radius: 4px 4px 0 0; transform-origin: bottom; }
+  .wf .blk.float { border-radius: 4px; }
+  .wf .blk span { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 6px); font-weight: 700; font-size: 18px; white-space: nowrap; }
+  .wf .ref { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--ink-3); }
+  .wf .ref span { position: absolute; left: 27%; top: 6px; font-size: 12px; color: var(--ink-2); background: var(--paper); padding: 0 4px; }
+  .wf-x { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 10px; font-size: 14px; text-align: center; color: var(--ink-2); }
+  .wf-x b { display: block; color: var(--ink); }
+
+  /* Recommendation */
+  .recs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 2px solid var(--ink); }
+  .recs li { padding: 20px 20px 22px 0; border-right: 1px solid var(--rule); margin-right: 20px; }
+  .recs li:last-child { border-right: 0; margin-right: 0; }
+  .recs b { display: block; font: 400 44px/1 var(--serif); color: var(--nf); margin-bottom: 10px; }
+  .recs p { margin: 0; font-size: 17px; }
+  .how { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 34px; font-size: 14px; color: var(--ink-2); }
+  .how span { border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; background: #fff; }
+  .how i { font-style: normal; color: var(--ink-3); }
+  .fineprint { font-size: 12px; color: var(--ink-3); margin-top: 26px; }
+
+  /* Side progress dots */
+  .dots { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+  .dots a { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink-3); display: block; }
+  .dots a.on { background: var(--nf); border-color: var(--nf); }
+  .dots a:focus-visible { outline: 2px solid var(--nf); outline-offset: 3px; }
+
+  /* Grow-in animation, only once JS confirms it's running */
+  .js .pre .fill, .js .pre .link { transform: scaleX(0); }
+  .js .pre .blk { transform: scaleY(0); }
+  .js .pre .pt { opacity: 0; }
+  .fill, .link { transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+  .blk { transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+  .pt { transition: opacity .4s ease .5s; }
+  @media (prefers-reduced-motion: reduce) { .fill, .link, .blk, .pt { transition: none; } }
+
+  @media (max-width: 760px) {
+    .frame { padding: 0 16px; }
+    .cover .content { grid-template-columns: 1fr; gap: 28px; }
+    .slide { min-height: auto; padding: 18px 0 8px; }
+    .dots { display: none; }
+    .db { grid-template-columns: 88px 1fr 46px; gap: 0 10px; }
+    .db .name { font-size: 14px; }
+    .db .gap small { display: none; }
+    .hb { grid-template-columns: 1fr; gap: 4px; }
+    .hb .track { margin-bottom: 10px; }
+    .wf { height: 240px; gap: 10px; }
+    .wf-x { gap: 10px; font-size: 12px; }
+    .wf .blk span { font-size: 15px; }
+    .recs { grid-template-columns: 1fr; }
+    .recs li { border-right: 0; margin-right: 0; border-bottom: 1px solid var(--rule); padding-right: 0; }
+    .src { flex-direction: column; gap: 6px; }
+  }
+
+  /* v20 Swiss skin (from v12): one sans family, black/grey + one red, hard rules, numbered sections. */
+  body { counter-reset: sec; }
+  h1, h2, .cover h1, .answer p, .mapcard h3, .tw-side p, .tw-kpis b, .rb-list b, .recs b {
+    font-family: var(--sans) !important; font-weight: 700 !important; letter-spacing: -.025em !important; }
+  .rb-list b, .tw-kpis b { font-weight: 600 !important; }
+  .cover .bar-top { border-top: 8px solid var(--cn); padding-top: 12px; }
+  .label { color: var(--cn) !important; }
+  .answer { border-left-color: var(--cn) !important; }
+  .answer b { color: var(--cn) !important; }
+  .btn { background: var(--ink); border-radius: 0; }
+  .btn:hover, .btn:focus-visible { background: var(--cn); }
+  .btn.ghost { background: transparent; }
+  .toc ol a b { color: var(--cn); }
+  .toc ol a.on b { color: #ff8a96; }
+  .toc-prog { background: var(--cn); }
+  .mapcard, .tw, .ribbon { border-radius: 0; }
+  .mapcard { border: 0; border-top: 2px solid var(--ink); padding-left: 0; padding-right: 0; }
+  .map { background: #f3f3f3; }
+  .map .land path { fill: #e3e3e3; }
+  .map .land path.cn, .map .land path.vn, .map .land path.kh, .map .land path.bd { fill: #d2d2d2; }
+  .map .was { stroke: var(--cn); }
+  .bub[data-c="CN"] circle { fill: var(--cn); }
+  .ind .bub[data-c="CN"] circle { fill: var(--ctx); }
+  .ctx-lbl text.sea { font-family: var(--sans) !important; font-style: normal !important; letter-spacing: .12em !important; text-transform: uppercase; font-size: 11px !important; }
+  .mkt .over { color: var(--cn) !important; }
+  .mkt .up { color: var(--ink) !important; }
+  .db .pt.nf { background: var(--ink); }
+  .wf .blk, .stack div { border-radius: 0 !important; }
+  .hb .fill { border-radius: 0; }
+  .recs b { color: var(--cn) !important; }
+  .mseg, .sseg { border-radius: 0; }
+
+  /* v22 board: one figure carries the whole landscape (KPIs, map, origin detail, structure). */
+  .cover .content.intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: end; padding: 16px 0 14px; }
+  .cover h1 { font-size: clamp(34px, 4.2vw, 54px); margin-bottom: 8px; }
+  .intro .answer p { font-size: clamp(19px, 1.9vw, 24px) !important; }
+  .intro .answer { padding: 2px 0 2px 16px; }
+  .intro .actions { flex-direction: row; }
+  .cover .bar-top { margin-bottom: 0; }
+  .cover dl.memo { margin: 0; }
+  .intro .answer { margin-bottom: 18px; }
+  .intro .actions { margin-top: 0; }
+  .board { margin: 0 0 18px; padding: 0 !important; border-top: 2px solid var(--ink) !important; }
+  .board .mc-head { padding: 12px 0 10px; }
+  dl.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0 0 14px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  dl.kpis div { padding: 10px 14px 10px 0; border-right: 1px solid var(--rule); margin-right: 14px; min-width: 0; }
+  dl.kpis div:last-child { border-right: 0; margin-right: 0; }
+  dl.kpis dt { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  dl.kpis dd { margin: 2px 0 0; font: 700 26px/1.1 var(--sans); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  dl.kpis span { font-size: 12px; color: var(--ink-2); }
+  dl.kpis span.bad { color: var(--cn); font-weight: 600; }
+  .bd-body { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  .bd-map h3 { margin: 0 0 8px !important; min-height: 0 !important; font-size: 17px !important; }
+  .bd-map .legend { margin-top: 8px; }
+  .detail { border-left: 1px solid var(--rule); padding-left: 20px; }
+  .dt-pick { display: flex; gap: 0; border: 1px solid var(--ink); width: max-content; max-width: 100%; margin-bottom: 14px; }
+  .dt-pick button { font: 700 12px var(--sans); background: transparent; color: var(--ink); border: 0; border-left: 1px solid var(--ink); padding: 6px 10px; cursor: pointer; }
+  .dt-pick button:first-child { border-left: 0; }
+  .dt-pick button:hover { background: rgba(0,0,0,.05); }
+  .dt-pick button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .dt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 6px; }
+  .dt-head h4 { margin: 0; font: 700 24px/1.1 var(--sans); letter-spacing: -.02em; }
+  .dt-tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border: 1.5px solid currentColor; white-space: nowrap; }
+  .dt-tag.over { color: var(--cn); } .dt-tag.under { color: var(--ink); } .dt-tag.flat { color: var(--ink-3); }
+  .dt-list { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0; font-size: 13.5px; }
+  .dt-list dt, .dt-list dd { padding: 7px 0; border-bottom: 1px solid var(--rule); margin: 0; }
+  .dt-list dt { color: var(--ink-3); font-size: 12px; padding-right: 14px; padding-top: 8px; }
+  .dt-list dd { font-variant-numeric: tabular-nums; }
+  .dt-list dd b { font-weight: 700; }
+  .dt-list dd small { color: var(--ink-3); }
+  .dt-list dd .neg { color: var(--cn); font-weight: 700; } .dt-list dd .pos { font-weight: 700; }
+  .dt-hint { font-size: 12px; color: var(--ink-3); margin: 10px 0 0; }
+  .actions .btn { padding: 11px 16px; font-size: 14px; }
+  .h-touch { display: none; }
+  @media (hover: none) { .h-hover { display: none; } .h-touch { display: inline; } }
+  .bub { cursor: pointer; outline: none; }
+  .bub:focus-visible circle { stroke: var(--cn); stroke-width: 5; }
+  .bub.sel circle { stroke: var(--cn); stroke-width: 6; }
+  .bub.sel[data-c="CN"] circle { stroke: var(--ink); }
+  .board .ribbon { margin: 16px 0 0; border-left: 0; border-right: 0; }
+  @media (max-width: 900px) {
+    .cover .content.intro { grid-template-columns: 1fr; gap: 18px; align-items: start; }
+    dl.kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    dl.kpis div:nth-child(3) { border-right: 0; margin-right: 0; }
+    dl.kpis div:nth-child(n+4) { border-top: 1px solid var(--rule); }
+    .bd-body { grid-template-columns: 1fr; }
+    .detail { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 14px; }
+  }
+  @media (max-width: 560px) { dl.kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } dl.kpis div:nth-child(3) { border-right: 1px solid var(--rule); margin-right: 14px; } dl.kpis div:nth-child(2n) { border-right: 0; margin-right: 0; } dl.kpis dd { font-size: 21px; } }
+
+  /* v23 dark theme: screen only (print always uses the light tokens). */
+  .theme { font: 600 12px var(--sans); background: transparent; color: var(--ink); border: 1px solid var(--rule); padding: 5px 10px; cursor: pointer; white-space: nowrap; }
+  .theme:hover { border-color: var(--ink); }
+  .tw-kpis span { color: var(--cn); }
+  @media screen {
+:root[data-theme="dark"] {
+  --paper: #111214; --card: #17181b; --ink: #f2f2f0; --ink-2: #c4c4c0; --ink-3: #9a9a96;
+  --rule: #34363a; --grid: #26282b; --nf: #f2f2f0; --vn: #f2f2f0; --kh: #8d8d92; --ctx: #4b4d52;
+  --cn: #ff4057; --badge3: #a0a0a4; color-scheme: dark;
+}
+:root[data-theme="dark"] .mapcard, :root[data-theme="dark"] .ribbon, :root[data-theme="dark"] .tw { background: var(--card); }
+:root[data-theme="dark"] .map { background: #1b1d20; }
+:root[data-theme="dark"] .map .land path { fill: #2a2c30; stroke: #17181b; }
+:root[data-theme="dark"] .map .land path.cn, :root[data-theme="dark"] .map .land path.vn, :root[data-theme="dark"] .map .land path.kh, :root[data-theme="dark"] .map .land path.bd { fill: #36383d; }
+:root[data-theme="dark"] .bub circle { stroke: #17181b; }
+:root[data-theme="dark"] .bub text { fill: #111214; }
+:root[data-theme="dark"] .ind .bub text, :root[data-theme="dark"] .bub .t.out text { fill: var(--ink); }
+:root[data-theme="dark"] .ctx-lbl text { fill: #75777d; }
+:root[data-theme="dark"] .ctx-lbl text.sea { fill: #6c7c86; }
+:root[data-theme="dark"] .btn { color: #111214; }
+:root[data-theme="dark"] .btn.ghost { color: var(--ink); }
+:root[data-theme="dark"] .tw-badge { color: #111214; }
+:root[data-theme="dark"] .tw-ask button { color: #111214; }
+:root[data-theme="dark"] .tw-orig .tr, :root[data-theme="dark"] .rb-bar { background: #26282b; }
+:root[data-theme="dark"] .toc-hint kbd { background: #1b1d20; }
+:root[data-theme="dark"] .toc ol a.on b { color: var(--cn); }
+:root[data-theme="dark"] .mseg button:hover, :root[data-theme="dark"] .sseg button:hover, :root[data-theme="dark"] .dt-pick button:hover, :root[data-theme="dark"] .toc ol a:hover { background: rgba(255,255,255,.08); }
+:root[data-theme="dark"] .theme { border-color: var(--ink-3); }
+:root[data-theme="dark"] .how span { background: var(--card); }
+  }
+  @media screen and (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+  --paper: #111214; --card: #17181b; --ink: #f2f2f0; --ink-2: #c4c4c0; --ink-3: #9a9a96;
+  --rule: #34363a; --grid: #26282b; --nf: #f2f2f0; --vn: #f2f2f0; --kh: #8d8d92; --ctx: #4b4d52;
+  --cn: #ff4057; --badge3: #a0a0a4; color-scheme: dark;
+}
+:root:not([data-theme="light"]) .mapcard, :root:not([data-theme="light"]) .ribbon, :root:not([data-theme="light"]) .tw { background: var(--card); }
+:root:not([data-theme="light"]) .map { background: #1b1d20; }
+:root:not([data-theme="light"]) .map .land path { fill: #2a2c30; stroke: #17181b; }
+:root:not([data-theme="light"]) .map .land path.cn, :root:not([data-theme="light"]) .map .land path.vn, :root:not([data-theme="light"]) .map .land path.kh, :root:not([data-theme="light"]) .map .land path.bd { fill: #36383d; }
+:root:not([data-theme="light"]) .bub circle { stroke: #17181b; }
+:root:not([data-theme="light"]) .bub text { fill: #111214; }
+:root:not([data-theme="light"]) .ind .bub text, :root:not([data-theme="light"]) .bub .t.out text { fill: var(--ink); }
+:root:not([data-theme="light"]) .ctx-lbl text { fill: #75777d; }
+:root:not([data-theme="light"]) .ctx-lbl text.sea { fill: #6c7c86; }
+:root:not([data-theme="light"]) .btn { color: #111214; }
+:root:not([data-theme="light"]) .btn.ghost { color: var(--ink); }
+:root:not([data-theme="light"]) .tw-badge { color: #111214; }
+:root:not([data-theme="light"]) .tw-ask button { color: #111214; }
+:root:not([data-theme="light"]) .tw-orig .tr, :root:not([data-theme="light"]) .rb-bar { background: #26282b; }
+:root:not([data-theme="light"]) .toc-hint kbd { background: #1b1d20; }
+:root:not([data-theme="light"]) .toc ol a.on b { color: var(--cn); }
+:root:not([data-theme="light"]) .mseg button:hover, :root:not([data-theme="light"]) .sseg button:hover, :root:not([data-theme="light"]) .dt-pick button:hover, :root:not([data-theme="light"]) .toc ol a:hover { background: rgba(255,255,255,.08); }
+:root:not([data-theme="light"]) .theme { border-color: var(--ink-3); }
+:root:not([data-theme="light"]) .how span { background: var(--card); }
+  }
+  @media print {
+    html { scroll-snap-type: none; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; }
+    .toc, .dots, .actions, .mseg, .sseg, .next, .pdf, .back, #try, .tw-ask { display: none !important; }
+    .slide { min-height: auto; display: block; border: 0; padding: 0; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    .frame { display: block; }
+    .slide:last-of-type { break-after: auto; }
+    .content { padding: 18px 0 0; justify-content: flex-start; }
+    .frame { max-width: none; padding: 0; }
+    .js .pre .fill, .js .pre .link { transform: none; }
+    .js .pre .blk { transform: none; }
+    .js .pre .pt { opacity: 1; }
+    .cover .content { grid-template-columns: 1fr 1.1fr; }
+    h2 { margin-bottom: 14px; font-size: 26px; }
+    .cover h1 { font-size: 44px; }
+    .cover .content { gap: 24px; }
+    .answer p { font-size: 22px; }
+    .mapcard { padding: 10px 12px; }
+    .mapcard h3 { min-height: 0; font-size: 16px; }
+    .map { max-height: 330px; }
+    .ribbon { padding: 8px 12px; margin-top: 10px; }
+    .rb-list b { font-size: 22px; }
+    svg.slope { max-width: 420px; }
+    .db .name { padding: 8px 0; } .db .track { height: 32px; }
+    .bar-top { padding-bottom: 6px; }
+    .src { margin-top: 14px; }
+      .slide:not(.cover) .bar-top { display: flex !important; }
+    /* Print width can fall under the phone breakpoint: pin the desktop layout. */
+    .cover .content { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) !important; gap: 24px !important; }
+    .ex1g { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr) !important; gap: 24px !important; }
+    .db { grid-template-columns: 110px 1fr 70px !important; } .db .gap small { display: block !important; }
+    .ribbon { grid-template-columns: auto 1fr auto !important; }
+    .rb-tag { flex-direction: column !important; border-right: 1px solid var(--rule) !important; padding-right: 14px !important; }
+    .rb-list { gap: 14px !important; } .rb-list .full { display: inline !important; } .rb-list .short { display: none !important; }
+    .rb-list span { font-size: 10px !important; }
+    .recs { grid-template-columns: repeat(3, 1fr) !important; }
+    .hb { grid-template-columns: minmax(120px, 210px) 1fr !important; }
+    .mkt th, .mkt td { white-space: nowrap !important; padding: 5px 5px !important; }
+    /* v22 board on paper: keep it on one page. */
+    .cover .content.intro { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important; gap: 24px !important; padding: 6px 0 8px !important; align-items: start !important; }
+    .cover h1 { font-size: 34px !important; }
+    .intro .answer p { font-size: 17px !important; }
+    .cover dl.memo { display: none !important; }
+    dl.kpis { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; margin-bottom: 8px !important; }
+    dl.kpis div { padding: 5px 10px 5px 0 !important; border-top: 0 !important; border-right: 1px solid var(--rule) !important; margin-right: 10px !important; }
+    dl.kpis div:last-child { border-right: 0 !important; }
+    dl.kpis dd { font-size: 20px !important; }
+    .bd-body { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) !important; gap: 16px !important; }
+    .detail { border-left: 1px solid var(--rule) !important; border-top: 0 !important; padding: 0 0 0 14px !important; }
+    .map { max-height: 250px; }
+    .bd-map h3 { font-size: 14px !important; }
+    .dt-pick, .dt-hint, .bd-map .legend { display: none !important; }
+    .dt-head h4 { font-size: 18px !important; }
+    .dt-list { font-size: 11.5px !important; }
+    .dt-list dt, .dt-list dd { padding: 3px 0 !important; }
+    .board .mc-head { padding: 6px 0 !important; }
+    .board .ribbon { margin-top: 8px !important; padding: 6px 10px !important; }
+  }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Report sections">
+  <div class="toc-in">
+    <a class="toc-brand" href="#cover">Shiftmap</a>
+    <ol>
+      <li><a href="#cover">Answer</a></li>
+      <li><a href="#ex1"><b>1</b> Gap</a></li>
+      <li><a href="#ex2"><b>2</b> Industry</a></li>
+      <li><a href="#ex3"><b>3</b> Shift</a></li>
+      <li><a href="#ex4"><b>4</b> Vendors</a></li>
+      <li><a href="#try">Try it</a></li>
+      <li><a href="#rec">Recommendation</a></li>
+    </ol>
+    <span class="toc-hint" aria-hidden="true"><kbd>←</kbd><kbd>→</kbd> to move</span>
+    <button type="button" class="theme" id="theme" aria-pressed="false">Dark</button>
+  </div>
+  <i class="toc-prog" id="prog" aria-hidden="true"></i>
+</nav>
+
+<section class="slide cover" id="cover">
+  <div class="frame">
+    <div class="bar-top"><a class="back" href="../">← Gallery · v23</a><span class="bt-r"><span>Shiftmap · Landscape report</span><button type="button" class="pdf" data-print>Print / save PDF</button></span></div>
+    <div class="content intro">
+      <div>
+        <p class="label">Country-of-origin landscape</p>
+        <h1>Women's knit sweaters</h1>
+        <p class="meta">Northfold · US · last 12 months · prepared October 2026</p>
+        <dl class="memo"><div><dt>To</dt><dd>Sourcing, Northfold Women</dd></div><div><dt>From</dt><dd>Shiftmap</dd></div><div><dt>Re</dt><dd>Country of origin · HTS 6110.20</dd></div></dl>
+      </div>
+      <div>
+        <div class="answer">
+          <small>The answer</small>
+          <p>Move <b>20 pts</b> of volume out of China: <b>+12</b> to Vietnam, <b>+8</b> to Cambodia.</p>
+        </div>
+        <div class="actions">
+          <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report for your category</a>
+          <a class="btn ghost" href="#ex1">See the exhibits ↓</a>
+        </div>
+      </div>
+    </div>
+
+    <figure class="board mapcard" aria-labelledby="mc-cap">
+      <div class="mc-head">
+        <p class="label">The landscape at a glance</p>
+        <div class="mseg" role="group" aria-label="Map view">
+          <button type="button" data-state="today" aria-pressed="true">Today</button>
+          <button type="button" data-state="industry" aria-pressed="false">Industry</button>
+          <button type="button" data-state="after" aria-pressed="false">After shift</button>
+        </div>
+      </div>
+      <dl class="kpis">
+        <div><dt>Sales</dt><dd>$29.8M</dd><span>last 12 months</span></div>
+        <div><dt>Units</dt><dd>1.42M</dd><span>ASP $20.99</span></div>
+        <div><dt>Net margin</dt><dd>3.3%</dd><span class="bad">peers 7.4% · −410 bps</span></div>
+        <div><dt>Freight / unit</dt><dd>$1.85</dd><span class="bad">peers $1.21 · +53%</span></div>
+        <div><dt>US imports, HTS 6110.20</dt><dd>$4.2B</dd><span>Vietnam #1 at 31%</span></div>
+      </dl>
+      <div class="bd-body">
+        <div class="bd-map">
+          <h3 id="mc-cap">China makes 52% of Northfold's sweaters.</h3>
+        <svg class="map" id="map" viewBox="80 165 760 600" role="img" aria-label="Map of origins; circle area is share of units">
+          <g class="land"><path class="vn" d="M478 731L478 735L477 737L477 739L475 734L473 732L476 730L478 731ZM571 455L567 455L564 458L563 459L560 459L557 461L557 463L556 465L556 466L552 469L549 468L547 469L545 469L542 468L540 468L541 473L542 475L537 480L537 483L536 486L533 488L528 493L525 494L523 495L519 504L519 507L519 509L519 511L517 515L515 517L515 519L517 524L519 527L520 529L521 531L525 536L527 537L529 538L534 542L536 545L535 547L535 551L532 550L536 552L541 559L546 563L550 567L552 571L556 574L561 578L562 579L565 581L567 583L567 585L570 585L572 585L574 587L575 589L576 591L578 593L581 597L582 599L585 604L587 606L589 608L591 609L593 614L594 618L596 623L597 625L597 629L598 633L600 636L600 639L601 641L602 646L602 649L601 646L601 653L602 656L602 660L603 662L604 667L605 668L605 674L606 677L604 675L603 673L602 674L600 676L603 682L600 682L600 690L601 692L601 694L600 691L599 694L599 696L600 697L599 700L598 701L596 702L596 705L595 708L591 708L588 711L585 712L581 715L578 718L576 718L574 718L571 723L568 723L561 727L559 728L557 729L554 731L552 729L550 728L548 727L548 725L547 729L545 731L543 730L541 727L538 729L540 729L542 731L542 733L539 733L535 733L538 735L541 735L543 737L541 739L540 740L539 743L538 744L534 742L527 735L528 737L536 744L537 747L537 749L535 751L533 751L529 748L522 741L520 740L526 748L528 750L529 752L528 755L512 762L510 765L508 769L505 771L503 773L497 774L495 774L498 770L496 769L496 760L496 750L498 745L500 743L502 743L502 740L501 739L499 738L497 737L495 735L492 736L490 734L488 732L486 730L488 729L490 728L493 728L496 728L498 726L500 724L501 723L501 721L501 719L504 718L507 719L509 717L511 717L514 717L517 716L519 718L520 719L522 719L526 721L527 718L528 716L526 714L521 710L520 707L520 704L520 702L520 701L522 700L524 698L526 698L529 699L532 699L534 699L534 694L536 692L539 692L540 692L542 690L546 690L549 687L551 685L554 684L557 685L560 683L560 681L561 678L561 674L560 671L559 669L559 666L561 662L562 657L562 654L560 651L559 647L557 643L556 641L556 635L558 632L559 629L560 627L560 623L560 620L559 619L561 617L562 615L563 613L563 612L561 609L559 607L556 604L554 603L553 601L552 600L552 597L556 595L557 594L556 592L553 590L549 587L548 586L546 585L544 581L541 582L539 581L538 579L537 577L537 573L536 570L534 569L532 565L530 563L524 558L522 555L519 553L516 550L515 548L514 546L514 544L512 542L511 540L508 539L507 538L504 535L503 533L502 531L503 529L504 527L500 525L493 524L491 522L489 520L487 519L479 514L476 513L474 512L474 510L477 508L478 506L477 504L477 502L479 501L482 501L489 503L494 500L495 497L496 496L498 493L498 491L497 489L496 488L493 488L492 486L491 484L488 483L486 483L488 480L490 478L489 476L487 475L484 472L481 470L479 469L473 471L471 473L469 475L468 476L466 475L463 473L457 472L455 471L450 463L449 461L449 459L450 457L450 455L451 453L451 450L449 449L448 447L447 450L445 451L444 450L443 446L440 443L439 442L436 438L433 435L432 433L434 430L436 428L438 426L438 424L440 423L443 424L446 426L448 427L449 429L451 430L453 431L454 429L456 428L457 426L459 424L460 422L464 427L466 423L467 422L474 428L476 427L477 425L477 423L480 422L481 421L483 424L485 424L489 422L491 421L494 420L495 419L496 416L496 414L498 412L500 412L504 409L506 408L508 409L510 410L512 412L513 413L516 416L519 417L520 419L523 418L525 417L527 417L530 420L532 420L535 419L537 419L539 420L542 422L541 424L541 426L539 427L537 429L537 432L538 434L539 436L540 439L539 442L541 442L543 443L545 444L547 444L548 447L552 450L554 450L556 452L558 451L563 452L566 451L569 454L571 455ZM552 731L550 732L551 730L552 731ZM544 473L543 472L543 470L544 471L544 473ZM562 462L559 466L558 462L561 462L562 462ZM560 470L557 470L559 469L560 468L560 470ZM548 474L546 472L549 472L549 474L548 474Z"/><path d="M443 700L443 702L441 701L442 699L443 700ZM439 692L436 692L435 689L438 690L439 692ZM343 791L343 792L341 794L340 790L340 785L344 786L343 789L343 791ZM384 485L384 487L386 485L388 483L390 485L391 487L393 489L394 490L393 493L392 496L390 499L391 502L393 505L396 506L399 506L401 504L404 503L408 504L410 506L409 510L410 513L411 516L412 519L410 524L409 528L407 530L406 532L406 533L407 535L408 536L408 538L408 540L407 543L405 549L403 554L404 555L406 556L407 557L412 553L415 551L418 548L421 546L422 545L423 543L426 543L427 542L429 539L431 538L434 540L437 543L439 544L442 545L443 547L444 548L446 546L448 545L450 544L452 544L454 543L455 540L456 538L459 537L458 534L461 533L464 533L467 534L471 536L474 536L477 538L481 544L484 548L486 551L489 553L492 555L494 557L496 561L494 567L494 571L494 577L496 582L499 585L501 588L501 589L504 591L508 593L510 594L509 596L510 598L511 599L513 600L515 601L515 604L515 606L514 608L512 609L512 612L512 615L513 617L513 620L512 622L512 627L512 628L510 631L508 633L506 634L504 635L503 636L502 637L500 637L499 634L497 633L495 632L490 633L486 634L482 633L477 634L476 634L474 634L472 634L470 634L467 632L463 633L460 634L457 635L453 637L450 639L449 641L448 643L446 647L443 650L442 651L442 653L439 653L437 654L436 660L437 663L439 665L440 667L440 671L440 675L444 678L445 680L447 681L445 685L446 689L450 698L447 694L447 691L444 688L443 687L441 689L439 687L437 685L435 682L434 684L432 681L429 679L427 678L425 676L422 675L415 677L407 675L404 676L402 674L402 672L402 666L403 663L403 660L404 657L397 655L395 653L394 655L387 655L384 657L381 659L381 661L382 663L383 666L381 673L380 675L381 683L381 688L379 691L377 693L376 698L374 700L372 705L370 711L369 713L369 719L364 726L363 731L361 732L362 736L361 742L361 747L362 749L364 754L363 758L365 759L374 757L377 757L378 760L379 762L380 772L381 774L382 776L384 778L385 776L386 778L388 782L392 802L393 804L394 807L391 806L391 801L390 799L388 799L389 797L388 795L387 794L385 795L385 798L386 800L390 806L391 808L393 809L395 808L398 810L400 813L405 816L408 815L412 815L414 815L417 816L419 818L424 825L431 831L430 834L427 837L427 838L426 841L424 842L422 842L420 841L419 839L414 840L411 841L409 844L407 845L405 843L405 840L407 837L407 836L407 832L406 831L402 830L400 828L400 826L398 825L396 826L394 825L389 823L387 820L385 820L384 825L378 818L374 815L374 810L373 809L370 807L371 804L370 804L367 804L366 803L364 799L363 798L361 795L359 795L358 791L357 789L354 788L352 787L350 782L348 781L347 780L345 781L345 782L343 784L341 783L339 778L339 775L339 770L341 765L342 757L344 752L345 751L347 744L350 736L350 734L351 732L352 730L352 727L351 725L352 723L354 721L358 718L362 713L366 707L368 702L369 701L371 699L372 698L370 689L368 687L367 684L367 682L367 680L367 678L364 676L362 674L361 670L361 668L360 666L360 665L360 663L361 662L361 655L361 653L360 650L359 647L357 644L356 642L351 637L347 634L345 631L343 628L341 626L339 623L338 619L338 615L339 612L341 611L344 609L346 610L346 604L347 599L347 595L347 592L353 589L354 588L354 585L353 583L350 586L347 581L346 578L345 575L345 571L344 569L339 565L337 563L335 559L332 555L328 552L327 549L327 545L327 543L325 539L324 537L322 536L320 535L319 531L321 531L323 530L325 530L327 529L326 520L327 519L329 515L328 512L329 507L331 504L333 502L334 500L336 499L339 501L342 501L344 501L351 499L354 499L356 498L357 497L358 492L359 491L362 490L364 491L367 491L369 489L369 487L368 484L370 485L372 485L374 485L377 484L378 483L381 484L384 485ZM383 747L381 746L383 746L383 747ZM383 750L382 753L380 754L379 751L382 750L383 750ZM373 824L372 822L373 819L374 823L373 824ZM347 790L346 786L348 787L347 790ZM359 798L360 801L358 799L358 797L359 798Z"/><path d="M881 426L880 429L879 433L878 436L878 439L878 441L877 444L875 443L874 441L873 438L872 434L869 431L866 430L865 428L864 426L863 424L861 417L860 416L859 414L859 411L860 409L861 406L860 403L860 400L872 378L875 374L877 372L879 369L880 366L882 364L890 360L892 358L893 357L895 357L896 358L897 360L901 362L903 363L903 365L901 367L900 369L900 371L901 374L901 377L899 383L896 387L896 389L895 394L893 399L892 406L890 412L889 415L888 417L885 422L881 426ZM819 377L820 379L817 379L819 377Z"/><path d="M-30 745L-30 749L-30 755L-30 762L-30 765L-30 772L-30 775L-30 777L-30 783L-30 785L-30 794L-30 795L-30 797L-30 801L-30 805L-30 812L-30 815L-30 818L-30 822L-30 824L-30 826L-30 831L-30 834L-30 837L-30 833L-30 828L-30 822L-30 816L-30 798L-30 793L-30 787L-30 784L-30 781L-30 787L-30 781L-30 778L-30 772L-30 768L-30 762L-30 759L-30 756L-30 753L-30 750L-30 752L-30 750L-30 747L-30 745L-30 745Z"/><path d="M1015 7L1016 5L1016 3L1018 1L1021 -3L1022 -5L1024 -7L1026 -9L1028 -9L1030 -9L1030 -13L1030 -16L1030 -18L1030 -5L1030 3L1030 10L1030 22L1030 28L1030 32L1030 38L1030 41L1030 46L1030 48L1030 50L1030 54L1030 56L1030 58L1030 61L1030 69L1030 74L1030 79L1030 84L1030 85L1030 88L1030 91L1030 93L1030 91L1030 88L1030 90L1030 92L1030 95L1030 97L1030 94L1030 96L1030 98L1030 100L1030 102L1030 104L1028 102L1028 100L1030 99L1030 97L1025 100L1021 105L1020 105L1018 103L1015 106L1014 109L1012 108L1012 105L1011 104L1008 101L1006 98L1007 97L1010 98L1013 98L1011 96L1013 95L1014 94L1011 94L1010 91L1008 88L1007 84L1009 83L1009 80L1011 76L1014 73L1013 72L1012 71L1013 69L1014 68L1017 66L1018 63L1015 62L1017 59L1014 57L1013 55L1013 53L1013 50L1013 47L1012 42L1012 39L1009 40L1005 39L1004 37L1005 34L1008 31L1010 31L1012 30L1014 29L1016 31L1019 32L1020 35L1023 33L1021 31L1019 27L1019 25L1019 21L1017 18L1016 14L1014 12L1013 9L1015 7L1015 7ZM1030 95L1030 97L1030 94L1030 91L1030 89L1030 95ZM1030 95L1030 97L1030 96L1030 93L1030 95ZM1006 107L1004 108L1003 106L1005 102L1008 102L1009 103L1008 106L1006 107ZM1012 8L1012 12L1010 11L1009 7L1010 5L1012 7L1012 8ZM1018 108L1016 109L1015 108L1017 106L1018 108ZM1010 45L1010 47L1008 46L1008 42L1009 43L1010 45ZM1004 97L1002 95L1001 94L1002 91L1004 94L1004 97ZM1008 140L1006 140L1004 138L1005 136L1008 133L1017 131L1021 132L1022 134L1022 135L1017 139L1014 140L1008 140Z"/><path d="M475 890L472 890L468 890L472 890L474 890L476 890L475 890Z"/><path d="M883 528L887 530L895 534L898 535L901 536L903 537L906 535L908 531L910 531L912 534L912 536L912 538L910 540L909 542L908 550L908 552L909 554L910 558L913 560L914 563L916 565L917 567L916 569L915 573L910 583L910 585L908 589L904 590L900 592L897 593L895 595L894 598L895 600L895 603L893 606L892 608L890 610L891 613L894 618L897 623L896 626L896 628L896 631L899 637L899 639L901 641L903 642L907 644L910 644L912 643L910 640L910 638L914 636L916 635L920 635L923 636L925 637L927 638L929 641L930 644L930 647L931 649L934 649L936 647L936 644L935 642L938 642L939 644L944 645L946 646L948 647L948 650L943 650L942 651L943 654L945 657L947 659L948 661L948 663L947 665L949 664L951 665L954 666L956 666L956 672L954 678L951 677L950 675L950 672L951 669L949 669L946 670L944 669L938 666L936 666L936 662L933 659L932 656L926 653L923 649L919 645L916 644L917 647L917 650L919 653L921 658L921 661L919 663L917 661L917 658L914 655L910 651L906 648L899 644L897 644L893 647L892 648L892 650L889 651L886 652L883 651L881 649L879 649L877 646L875 645L872 648L872 643L872 638L874 636L879 631L880 629L880 627L878 625L876 624L874 624L872 623L871 621L870 624L871 628L871 631L869 632L867 631L866 628L864 626L863 623L860 623L859 622L858 619L858 615L857 613L856 610L856 608L855 597L854 596L853 595L852 593L852 587L853 585L854 586L857 588L860 592L864 592L866 591L866 588L865 584L864 580L864 577L865 575L867 570L867 566L867 562L867 559L866 555L866 553L869 540L870 537L871 534L871 531L874 530L877 529L879 529L882 528L883 528ZM793 778L791 780L791 777L792 775L794 771L796 770L798 767L800 765L803 762L807 758L809 758L812 756L818 750L822 745L827 739L829 738L834 732L837 730L839 729L840 726L841 724L840 722L840 720L841 717L841 715L844 709L846 708L846 712L847 715L846 717L848 723L850 727L847 730L843 732L840 734L839 736L838 739L832 740L829 741L828 743L828 746L823 754L822 756L820 758L818 759L815 760L813 762L811 765L809 767L807 769L804 771L802 772L799 773L798 775L796 776L793 778ZM917 701L919 702L922 701L925 701L927 703L926 705L931 703L932 705L932 707L931 709L930 711L929 713L927 715L925 715L924 717L923 720L921 721L917 723L909 725L907 726L906 728L905 729L904 725L904 722L904 719L905 716L906 714L906 708L907 700L906 698L903 698L903 695L905 694L907 695L912 697L914 699L917 701ZM932 763L928 763L927 762L925 757L923 755L921 754L918 753L915 748L914 744L915 743L916 741L920 741L925 738L925 733L925 731L924 728L926 726L928 723L928 722L928 720L929 718L934 716L941 718L942 720L941 724L940 726L938 729L937 732L936 737L935 739L933 742L932 743L932 747L932 750L936 756L936 758L934 761L932 763ZM966 708L968 708L970 708L972 706L975 707L976 710L977 713L977 717L977 721L978 723L980 725L981 729L982 732L982 734L980 734L980 736L977 732L976 731L976 735L977 737L977 739L975 738L972 737L971 734L970 730L971 724L971 721L970 719L968 717L964 718L962 712L961 707L960 704L961 703L963 705L965 706L966 708ZM982 679L984 681L984 684L986 685L988 686L989 687L988 690L987 693L987 697L988 700L988 703L990 707L990 709L993 712L994 714L992 713L986 713L984 712L982 712L980 709L978 709L977 708L975 704L974 702L976 700L976 699L975 698L972 695L970 693L969 691L966 690L963 688L962 686L960 682L959 678L966 679L972 679L980 678L982 679ZM874 656L879 655L882 657L884 658L886 657L888 658L889 661L891 663L893 664L893 667L892 669L892 671L894 676L892 679L891 681L890 684L889 684L887 686L885 686L884 684L882 683L880 681L879 679L879 677L879 676L878 675L876 673L875 671L875 668L873 664L871 662L869 661L868 658L866 657L866 656L867 655L868 654L873 655L874 656ZM1000 757L1002 758L1005 758L1005 761L1007 765L1008 768L1006 770L1003 773L1004 775L1007 775L1009 777L1009 781L1011 783L1010 790L1010 792L1012 794L1014 796L1014 799L1014 805L1014 806L1013 808L1010 812L1007 815L1005 815L1006 819L1005 825L1005 829L1003 827L1003 825L1002 819L1001 816L1000 814L999 812L998 810L996 804L993 806L992 809L989 812L987 815L986 817L985 820L987 822L990 824L992 831L992 837L991 839L987 844L984 846L983 845L982 842L983 838L983 836L981 835L978 839L976 840L968 836L962 833L957 831L954 827L954 824L954 820L952 816L952 813L953 810L955 808L957 806L957 804L957 802L954 799L952 796L947 795L944 793L942 792L940 794L940 796L938 803L935 801L933 800L932 797L931 796L930 798L928 799L927 800L925 800L924 795L922 794L919 794L917 796L915 799L912 804L911 808L909 812L907 814L905 814L904 813L902 811L903 808L905 806L906 804L908 797L908 794L911 790L913 788L919 786L921 785L924 785L926 785L929 783L929 780L930 778L932 776L936 775L938 774L939 771L942 773L945 773L947 775L949 778L950 784L947 787L951 785L952 785L956 784L958 782L959 779L960 776L962 774L967 776L970 775L971 772L971 767L973 765L975 765L977 767L980 767L981 764L985 765L988 764L989 761L988 758L986 748L987 746L992 749L997 752L999 754L1000 757ZM937 753L936 752L936 750L938 743L938 741L941 737L943 733L945 729L946 727L948 722L951 717L951 715L952 713L953 709L953 713L954 715L954 718L953 722L954 726L953 730L951 733L949 734L947 735L945 737L944 740L944 742L940 750L937 753ZM903 521L901 523L901 521L902 519L905 520L903 521ZM893 509L894 512L890 510L890 509L893 509ZM904 484L903 482L906 481L904 484ZM902 473L901 476L901 472L902 473ZM885 835L886 836L888 836L890 836L888 839L886 838L883 839L881 838L879 839L878 837L882 834L885 835ZM788 791L786 793L785 791L785 788L788 787L788 791ZM855 728L852 729L852 727L854 725L856 726L857 726L855 728ZM860 688L862 688L863 688L865 690L865 691L863 692L861 691L860 692L857 691L856 690L855 687L854 686L855 684L856 685L859 687L860 688ZM858 699L856 700L856 698L854 693L856 693L858 694L859 695L859 697L858 699ZM920 729L918 730L917 728L918 725L920 723L921 722L922 724L921 728L920 729ZM967 745L964 746L962 749L955 750L951 749L949 748L948 746L949 743L954 740L955 739L957 737L960 736L962 737L964 739L966 740L966 743L967 745ZM863 854L862 856L860 855L857 857L856 858L854 859L853 857L857 855L859 854L861 852L863 853L863 854ZM907 826L905 826L902 824L900 822L903 820L906 819L912 821L911 822L910 825L907 826ZM1001 746L1000 744L1000 742L1002 739L1003 742L1003 743L1004 745L1001 746ZM993 742L990 740L989 738L989 736L989 733L990 731L992 730L992 734L993 738L992 741L993 742ZM864 649L864 651L860 648L860 646L862 647L864 649ZM903 654L905 654L908 656L908 658L906 661L905 662L902 660L900 657L902 653L903 654ZM907 683L905 689L904 687L903 685L903 682L905 681L905 677L907 676L908 679L907 683ZM920 684L917 682L915 681L916 680L919 680L921 681L920 684ZM935 671L937 675L935 672L933 670L930 667L928 666L928 665L930 665L933 670L935 671ZM947 681L947 683L943 678L943 676L945 677L947 681ZM946 685L950 688L953 692L954 696L952 696L949 694L947 693L946 692L945 690L943 689L941 687L939 687L936 691L932 693L934 689L934 684L935 682L934 680L934 677L937 678L940 679L942 681L946 685ZM961 652L960 653L958 653L957 654L954 652L955 648L955 643L957 641L960 644L962 646L962 649L962 651L961 652ZM909 642L904 639L904 637L909 642ZM906 618L904 621L905 624L905 626L903 626L903 625L903 623L902 620L901 617L904 617L906 618ZM960 725L960 723L962 725L960 725ZM983 741L980 739L979 736L982 737L983 741ZM927 803L925 805L924 803L926 803L927 803ZM995 813L993 811L993 808L995 809L995 813ZM967 704L964 704L963 703L961 700L963 699L965 699L966 700L967 703L967 704ZM972 761L968 761L968 759L970 758L971 760L972 761ZM887 516L887 518L885 516L886 514L887 516ZM854 703L854 706L851 705L853 703L854 703ZM947 709L948 712L946 712L945 710L947 709ZM999 750L999 746L1000 748L999 750ZM973 701L971 702L970 700L972 701L973 701ZM794 783L793 784L792 781L794 781L794 783ZM945 759L945 761L943 762L941 761L940 760L944 758L945 759Z"/><path d="M1030 -19L1030 -16L1030 -13L1030 -11L1030 -9L1028 -9L1026 -9L1024 -7L1022 -5L1021 -3L1018 1L1016 3L1016 5L1015 7L1009 4L1005 5L1004 7L1001 4L999 4L995 0L993 1L990 6L987 8L985 8L984 5L979 4L977 2L981 -1L980 -3L976 -2L974 -3L971 -3L969 -4L973 -7L973 -9L976 -15L978 -17L984 -20L986 -21L988 -20L986 -23L983 -23L980 -24L980 -26L986 -30L980 -30L979 -30L973 -30L971 -30L969 -30L967 -30L962 -30L964 -30L969 -30L974 -30L976 -30L978 -30L981 -30L984 -30L986 -30L989 -30L992 -30L994 -30L997 -30L1000 -30L1002 -30L1003 -30L1006 -30L1008 -30L1010 -30L1012 -30L1014 -30L1017 -30L1019 -30L1022 -30L1024 -30L1026 -30L1028 -30L1030 -30L1030 -27L1030 -25L1030 -23L1030 -21L1030 -19Z"/><path d="M98 288L99 290L98 294L97 296L96 300L95 308L98 313L99 317L99 319L98 322L97 327L95 328L92 326L89 327L87 327L84 327L81 327L78 328L75 328L74 327L72 324L66 326L61 325L57 323L53 322L51 322L48 321L44 322L41 321L41 319L40 317L39 316L37 316L35 317L31 318L28 318L27 316L24 315L22 313L16 310L16 306L15 303L11 302L5 300L2 298L1 299L-2 300L-4 301L-6 301L-11 299L-13 299L-15 299L-17 301L-19 301L-22 299L-25 299L-30 297L-30 295L-30 293L-30 291L-30 288L-30 285L-30 283L-30 280L-30 278L-30 275L-30 273L-30 270L-30 267L-30 265L-30 262L-30 258L-30 255L-30 252L-30 249L-30 246L-30 242L-30 238L-30 233L-30 230L-30 227L-30 225L-30 227L-30 229L-30 221L-30 223L-30 226L-30 228L-30 232L-30 235L-27 239L-23 241L-20 241L-18 242L-15 245L-13 249L-10 252L-8 252L-5 251L-2 250L1 251L2 251L3 253L4 256L5 260L7 261L10 263L11 264L15 267L17 268L19 269L25 268L28 269L27 271L26 275L27 276L29 277L34 277L40 277L42 279L44 281L46 285L46 287L49 286L49 285L49 282L51 281L53 284L55 286L57 286L59 286L61 282L64 282L66 284L68 285L70 285L72 286L75 289L78 289L82 289L85 289L86 290L92 288L94 287L96 288L98 288Z"/><path d="M91 -30L94 -30L96 -30L98 -30L100 -30L103 -30L106 -30L108 -30L110 -30L113 -30L115 -30L117 -30L118 -30L122 -30L123 -30L126 -30L128 -30L130 -30L133 -30L135 -30L137 -30L140 -30L142 -30L144 -30L148 -30L150 -30L155 -30L158 -30L161 -30L163 -30L165 -30L167 -30L172 -30L174 -30L177 -30L179 -30L181 -30L183 -30L186 -30L189 -30L193 -30L195 -30L197 -30L199 -30L201 -30L204 -30L207 -30L209 -30L211 -30L213 -30L214 -30L217 -30L220 -30L223 -30L226 -30L229 -30L233 -30L238 -30L240 -30L244 -30L246 -30L248 -30L250 -30L252 -30L254 -30L257 -30L260 -30L262 -30L265 -30L270 -30L272 -30L274 -30L279 -30L281 -30L283 -30L285 -30L287 -30L291 -30L293 -30L295 -30L297 -30L299 -30L301 -30L303 -30L309 -30L312 -30L315 -30L318 -30L322 -30L325 -30L327 -30L330 -30L332 -30L333 -30L336 -30L337 -30L339 -30L337 -30L335 -30L333 -30L331 -30L329 -30L331 -30L333 -30L336 -30L338 -30L340 -30L342 -30L349 -30L351 -30L354 -30L356 -30L358 -30L361 -30L367 -30L370 -30L372 -30L374 -30L376 -30L379 -30L382 -30L386 -30L392 -30L394 -30L398 -30L402 -30L407 -30L410 -30L412 -30L414 -30L416 -30L418 -30L424 -30L428 -30L431 -30L433 -30L435 -30L438 -30L442 -30L445 -30L447 -30L449 -30L453 -30L456 -30L458 -30L460 -30L462 -30L464 -30L467 -30L470 -30L471 -30L475 -30L478 -30L480 -30L482 -30L485 -30L487 -30L490 -30L492 -30L499 -30L502 -30L504 -30L506 -30L509 -30L513 -30L516 -30L521 -30L524 -30L526 -30L529 -30L533 -30L537 -30L541 -30L544 -30L546 -30L549 -30L551 -30L553 -30L556 -30L563 -30L566 -30L569 -30L572 -30L574 -30L576 -30L581 -30L584 -30L586 -30L589 -30L593 -30L601 -30L606 -30L608 -30L613 -30L619 -30L624 -30L627 -30L629 -30L632 -30L634 -30L636 -30L639 -30L648 -30L651 -30L653 -30L655 -30L660 -30L663 -30L665 -30L669 -30L676 -30L678 -30L683 -30L686 -30L688 -30L692 -30L694 -30L698 -30L701 -30L704 -30L708 -30L711 -30L716 -30L720 -30L721 -30L723 -30L727 -30L730 -30L732 -30L735 -30L738 -30L740 -30L745 -30L747 -30L752 -30L755 -30L757 -30L760 -30L765 -30L767 -30L770 -30L775 -30L777 -30L771 -30L768 -30L766 -30L763 -30L761 -30L758 -30L753 -30L751 -30L753 -30L755 -30L757 -30L759 -30L762 -30L764 -30L767 -30L769 -30L774 -30L777 -30L780 -30L783 -30L787 -30L790 -30L793 -30L795 -30L797 -30L799 -30L802 -30L804 -30L806 -30L809 -30L813 -30L815 -30L821 -30L823 -30L826 -30L828 -30L830 -30L832 -30L835 -30L837 -30L839 -30L841 -30L842 -30L846 -30L848 -30L850 -30L852 -30L854 -30L851 -30L848 -30L845 -30L841 -30L837 -30L834 -30L832 -30L830 -30L827 -30L825 -30L823 -30L819 -30L817 -30L813 -30L811 -30L807 -30L805 -30L803 -30L802 -30L799 -30L796 -30L794 -30L792 -30L789 -30L785 -30L782 -30L781 -30L778 -30L777 -30L774 -30L772 -30L770 -30L768 -30L767 -30L765 -30L763 -30L760 -30L757 -30L754 -30L751 -30L749 -30L743 -30L736 -30L732 -30L730 -30L728 -30L726 -30L724 -30L721 -30L718 -30L716 -30L713 -30L708 -30L706 -30L703 -30L698 -30L695 -30L692 -30L684 -30L681 -30L679 -30L676 -30L674 -30L669 -30L667 -30L664 -30L661 -30L659 -30L656 -30L653 -30L654 -30L657 -30L659 -30L663 -30L665 -30L661 -30L658 -30L656 -30L654 -30L647 -30L645 -30L643 -30L641 -30L639 -30L637 -30L634 -30L631 -30L629 -30L626 -30L624 -30L620 -30L616 -30L612 -30L609 -30L606 -30L603 -30L598 -30L592 -30L588 -30L584 -30L579 -30L576 -30L573 -30L567 -30L555 -30L550 -30L545 -30L542 -30L540 -30L538 -30L531 -30L521 -30L513 -30L507 -30L505 -30L503 -30L500 -30L497 -30L495 -30L488 -30L483 -30L476 -30L469 -30L463 -30L458 -30L454 -30L448 -30L442 -30L432 -30L428 -30L426 -30L422 -30L419 -30L417 -30L412 -30L407 -30L399 -30L393 -30L383 -30L381 -30L375 -30L368 -30L356 -30L350 -30L339 -30L327 -30L314 -30L306 -30L301 -30L295 -30L293 -30L290 -30L288 -30L284 -30L282 -30L278 -30L276 -30L273 -30L270 -30L263 -30L259 -30L255 -30L250 -30L247 -30L243 -30L237 -30L235 -30L232 -30L230 -30L227 -30L221 -30L212 -30L209 -30L204 -30L201 -30L195 -30L191 -30L187 -30L184 -30L181 -30L179 -30L177 -30L174 -30L172 -30L170 -30L168 -30L166 -30L164 -30L161 -30L159 -30L162 -30L164 -30L166 -30L167 -30L165 -30L162 -30L160 -30L158 -30L156 -30L154 -30L152 -30L150 -30L147 -30L145 -30L144 -30L142 -30L139 -30L136 -30L134 -30L132 -30L130 -30L127 -30L124 -30L122 -30L120 -30L118 -30L115 -30L111 -30L109 -30L105 -30L103 -30L99 -30L97 -30L95 -30L96 -30L94 -30L91 -30L89 -30L92 -30L91 -30Z"/><path d="M384 826L385 821L386 820L389 823L394 825L396 826L398 825L400 826L400 828L402 830L405 830L407 832L407 836L407 837L405 840L404 842L407 844L408 845L410 843L414 840L418 839L420 841L422 842L424 842L426 841L427 838L427 837L430 834L430 832L435 831L437 832L441 840L447 845L450 847L452 848L455 851L457 854L462 864L463 868L464 875L462 885L461 890L463 890L465 890L472 890L475 890L481 890L483 890L480 890L478 890L477 890L474 890L472 890L469 890L465 890L464 890L462 890L450 890L446 890L442 890L432 890L426 890L423 890L417 890L414 890L412 890L408 890L405 890L401 889L400 887L398 885L400 884L399 882L397 879L396 875L396 869L392 859L389 846L390 842L389 837L387 832L385 829L384 826ZM799 880L796 880L792 877L788 876L782 876L778 876L776 876L774 875L772 877L769 876L768 875L765 876L762 877L759 876L757 878L754 880L753 882L752 885L751 890L750 890L747 890L745 890L743 890L741 890L737 890L734 890L733 890L731 890L728 890L723 890L721 890L717 890L714 890L712 890L710 890L709 890L707 890L703 890L699 890L693 890L691 890L678 890L675 890L673 890L671 890L669 890L665 890L662 890L659 890L657 890L654 890L650 890L645 890L643 890L634 890L631 890L629 890L627 890L622 890L620 890L618 890L615 890L613 890L611 890L609 890L612 890L616 890L619 890L622 890L625 890L627 890L635 890L638 890L640 890L645 890L648 890L646 890L644 890L645 890L648 890L649 890L648 890L650 890L652 890L655 890L658 890L660 890L669 890L684 890L689 890L690 890L694 890L698 890L701 890L707 884L712 878L714 874L714 871L716 870L718 872L720 873L720 874L721 877L724 878L726 881L728 883L730 883L732 882L733 880L734 878L734 876L734 874L733 871L732 868L733 866L735 865L737 864L739 863L739 865L739 868L739 870L741 875L742 875L744 876L746 875L745 873L744 869L744 866L742 863L747 862L750 859L752 856L749 854L748 852L748 850L751 847L753 847L756 848L759 846L760 843L763 839L765 836L765 833L774 824L775 822L780 813L782 814L782 817L781 820L781 822L784 821L786 817L788 814L789 813L791 814L792 816L793 820L795 822L798 823L800 824L802 826L802 828L802 830L800 832L801 835L801 836L798 839L805 838L807 837L810 835L811 837L812 840L808 841L809 843L813 842L815 841L818 841L820 842L822 843L824 846L826 847L832 850L835 850L838 850L839 852L840 854L839 856L836 858L831 860L826 861L823 861L819 860L816 861L814 864L817 868L823 872L823 874L821 875L818 876L815 877L812 877L810 878L807 878L803 876L801 877L800 879L799 880ZM481 890L480 890L481 890L481 890ZM388 853L385 853L386 850L388 850L388 853ZM377 825L379 828L378 829L376 830L374 828L373 826L375 827L377 826L377 825ZM789 808L788 810L787 808L787 806L789 804L792 804L792 807L789 808ZM652 890L650 890L652 890L652 890ZM807 880L803 880L801 880L801 878L804 878L807 880Z"/><path d="M432 433L433 435L436 438L439 442L440 443L442 445L444 448L444 451L446 451L448 447L449 449L450 450L451 452L450 455L450 457L449 459L449 461L450 463L455 471L457 472L463 473L466 475L468 476L469 475L471 473L473 471L477 469L481 470L484 472L487 475L489 476L490 477L489 479L486 481L488 483L491 484L492 486L492 488L496 488L497 489L498 491L498 493L496 495L495 497L494 500L490 503L482 501L479 501L477 502L477 504L478 506L477 508L475 509L474 511L476 513L479 514L487 519L489 520L491 522L493 524L500 525L503 527L503 528L502 531L503 533L504 535L507 538L508 539L511 540L512 542L514 544L514 546L515 548L516 550L519 553L522 555L523 557L530 563L532 565L534 569L536 570L536 572L537 577L538 579L539 580L540 582L543 581L545 584L548 586L549 587L553 590L555 591L557 592L557 595L552 597L552 600L553 601L554 603L556 604L559 607L561 609L562 611L563 613L562 615L561 617L559 618L560 620L560 623L560 625L559 626L558 629L555 628L553 631L550 633L548 632L546 635L543 635L541 633L540 632L538 631L536 629L534 630L532 632L530 631L528 633L524 634L524 636L526 640L527 642L525 645L522 645L520 643L518 642L513 639L509 640L507 639L505 636L504 634L508 633L510 631L511 630L512 627L512 622L513 620L513 617L512 615L512 612L512 609L514 608L515 606L515 604L515 602L513 600L511 599L510 598L509 596L510 594L508 593L504 591L501 589L501 588L499 585L496 582L494 577L494 571L494 567L496 561L494 557L492 555L489 553L486 551L484 548L481 544L477 538L475 536L471 536L467 534L464 533L461 533L459 533L458 535L457 537L455 540L454 543L452 544L450 544L448 545L446 546L445 548L443 547L442 545L439 544L437 543L434 540L432 539L429 539L427 542L426 543L423 543L422 545L421 546L418 548L415 551L412 553L409 556L406 556L404 555L403 554L405 549L407 543L408 540L408 538L408 536L407 535L406 533L406 532L407 530L409 528L410 524L412 519L411 516L410 513L409 510L410 506L408 504L404 503L401 504L400 505L396 506L393 505L391 502L390 499L392 496L393 493L394 491L393 489L391 487L390 485L388 483L386 485L385 486L384 485L385 478L387 475L389 473L391 472L393 473L394 472L396 471L394 471L394 468L396 466L397 465L398 461L399 460L403 459L407 456L408 453L409 455L409 457L410 459L410 461L411 463L415 462L418 462L420 463L422 464L423 463L423 461L422 458L422 454L423 452L422 448L421 445L419 443L418 441L418 439L418 437L418 435L420 434L420 432L422 430L425 432L427 431L429 431L431 432L432 433Z"/><path d="M1030 168L1030 166L1030 161L1030 159L1030 165L1030 168ZM1030 114L1030 109L1030 111L1030 114ZM1030 108L1030 103L1030 101L1030 98L1030 100L1030 102L1030 106L1030 108ZM1030 152L1030 155L1030 158L1030 156L1030 152ZM1030 151L1030 149L1030 143L1030 144L1030 146L1030 148L1030 151ZM1030 184L1030 182L1030 181L1030 184ZM1030 129L1030 132L1030 135L1030 139L1030 141L1030 143L1030 145L1030 147L1030 150L1030 158L1030 161L1030 165L1030 168L1030 171L1030 174L1030 178L1030 181L1030 184L1030 191L1030 195L1030 199L1030 202L1030 200L1030 198L1030 195L1030 192L1030 188L1030 186L1030 184L1030 187L1030 190L1030 193L1030 195L1030 197L1030 195L1030 191L1030 189L1030 186L1030 183L1030 181L1030 179L1030 176L1030 172L1030 168L1030 166L1030 162L1030 157L1030 154L1030 151L1030 148L1030 144L1030 142L1030 146L1030 148L1030 151L1030 153L1030 156L1030 153L1030 157L1030 154L1030 150L1030 146L1030 145L1030 147L1030 149L1030 147L1030 144L1030 141L1030 137L1030 135L1030 133L1030 131L1030 129L1030 125L1030 122L1030 120L1030 124L1030 127L1030 129ZM959 377L958 381L956 381L954 379L956 379L960 375L959 377ZM950 383L946 383L945 383L947 381L947 380L951 381L950 383ZM987 371L985 372L983 371L983 368L984 370L986 370L987 371ZM1030 321L1030 323L1030 326L1030 328L1030 330L1030 331L1030 333L1030 335L1030 333L1030 330L1030 326L1030 323L1030 321L1030 320L1030 317L1030 315L1030 316L1030 319L1030 321ZM1030 292L1030 289L1030 287L1030 290L1030 292ZM1030 279L1030 281L1030 279L1030 277L1030 275L1030 273L1030 271L1030 273L1030 275L1030 276L1030 279Z"/><path d="M321 890L326 890L328 890L331 890L329 890L326 890L324 890L321 890L318 890L317 890L311 890L315 890L317 890L321 890ZM579 890L576 890L574 890L576 890L577 889L574 888L571 885L576 879L577 881L581 884L581 887L579 890ZM297 855L300 855L306 854L309 854L312 855L314 855L320 855L323 855L326 859L331 863L333 866L333 868L339 874L340 876L339 880L341 882L346 884L349 886L350 888L352 890L354 890L361 890L370 890L375 890L379 890L381 890L384 890L388 890L390 890L393 890L395 890L397 890L400 890L402 890L400 890L403 890L406 890L410 890L412 890L414 890L416 890L418 890L421 890L423 890L429 890L431 890L433 890L438 890L440 890L442 890L449 890L451 890L453 890L447 890L442 890L447 890L450 890L452 890L455 890L459 890L462 890L466 890L468 890L470 890L466 890L463 890L464 890L466 890L470 890L475 890L478 890L481 890L485 890L487 890L489 890L492 890L495 890L492 890L497 890L499 890L507 890L509 890L512 890L514 890L521 890L525 890L521 890L520 890L518 890L516 890L514 890L508 890L503 890L501 890L498 890L491 890L488 890L485 890L482 890L480 890L478 890L472 890L462 890L460 890L458 890L456 890L450 890L441 890L437 890L433 890L424 890L420 890L418 890L415 890L412 890L410 890L408 890L403 890L401 890L393 890L390 890L388 890L383 890L381 890L379 890L378 890L374 890L371 890L365 890L363 890L361 890L359 890L356 890L352 890L350 890L348 890L335 890L333 890L331 890L328 890L326 890L324 890L319 890L317 890L314 890L309 890L307 890L305 890L298 890L296 889L293 884L291 882L285 878L276 868L274 866L272 863L271 861L267 853L268 850L267 848L269 846L271 845L274 845L277 846L279 846L282 848L286 852L289 853L292 854L297 855ZM974 890L969 890L966 890L965 890L963 890L959 890L955 890L947 890L944 890L941 890L936 890L933 890L931 890L929 890L926 890L911 890L906 890L901 890L898 890L895 890L893 890L891 890L881 890L879 890L874 890L871 890L868 890L865 890L862 890L859 890L863 890L867 890L869 890L872 890L875 890L876 890L879 890L882 890L885 890L888 890L891 890L893 890L896 890L899 890L901 890L904 890L907 890L909 890L911 890L917 890L920 890L926 890L929 890L933 890L935 890L938 890L936 890L934 890L932 890L930 890L926 890L924 890L922 890L920 890L917 890L913 890L911 890L909 890L901 890L900 890L896 890L895 890L890 890L893 890L895 890L898 890L901 890L904 890L907 890L912 890L914 890L912 890L914 890L917 890L919 890L921 890L923 890L925 890L922 890L919 890L916 890L910 890L908 890L906 890L903 890L899 890L896 890L893 890L895 890L891 890L888 890L879 890L882 890L878 890L875 890L873 890L870 890L865 890L863 890L866 890L868 890L866 890L864 890L866 890L865 890L862 890L859 890L856 890L853 890L850 890L847 890L844 890L842 890L846 890L847 890L845 890L843 890L839 890L833 890L831 890L829 890L831 890L835 890L837 890L839 890L841 890L845 890L849 890L852 890L854 890L857 890L860 890L863 890L865 890L867 890L869 890L872 890L874 890L876 890L879 890L882 890L886 890L888 890L889 890L891 890L893 890L895 890L902 890L907 890L915 890L918 890L920 890L924 890L926 890L928 890L930 890L935 890L949 890L951 890L959 890L962 890L965 890L968 890L970 890L973 890L975 890L979 890L982 890L980 890L977 890L974 890ZM610 890L608 890L610 890L613 890L615 890L618 890L620 890L622 890L627 890L629 890L631 890L634 890L641 890L645 890L650 890L654 890L657 890L659 890L661 890L665 890L669 890L671 890L673 890L675 890L678 890L689 890L692 890L699 890L701 890L705 890L709 890L710 890L712 890L714 890L717 890L721 890L723 890L726 890L729 890L731 890L733 890L737 890L740 890L742 890L740 890L743 890L745 890L747 890L749 890L752 890L752 886L753 882L754 880L757 878L758 876L762 877L765 876L768 875L769 876L772 877L774 875L776 876L778 876L782 876L788 876L792 877L796 880L798 880L797 882L799 884L801 887L803 889L801 890L798 890L793 890L790 890L787 890L790 890L794 890L796 890L798 890L800 890L802 890L804 890L807 890L810 890L808 890L807 890L804 890L806 890L811 890L813 890L821 890L825 890L830 890L832 890L831 890L828 890L822 890L817 890L814 890L812 890L810 890L807 890L809 890L806 890L804 890L799 890L797 890L799 890L794 890L791 890L789 890L787 890L786 890L784 890L781 890L779 890L776 890L774 890L770 890L772 890L769 890L772 890L774 890L773 890L770 890L767 890L766 890L768 890L766 890L763 890L761 890L744 890L731 890L729 890L727 890L725 890L722 890L720 890L717 890L713 890L709 890L707 890L706 890L704 890L700 890L699 890L691 890L685 890L681 890L677 890L673 890L670 890L666 890L663 890L661 890L658 890L655 890L652 890L649 890L644 890L641 890L639 890L640 890L638 890L637 890L635 890L633 890L628 890L626 890L625 890L622 890L618 890L620 890L618 890L614 890L611 890L606 890L603 890L601 890L604 890L601 890L599 890L601 890L600 890L597 890L594 890L596 890L598 890L597 890L599 890L602 890L604 890L610 890ZM422 890L423 890L419 890L417 890L414 890L418 890L420 890L422 890ZM439 890L436 890L435 890L437 890L439 890L439 890ZM440 890L437 890L435 890L432 890L430 890L440 890L440 890ZM453 890L447 890L441 890L439 890L442 890L444 890L446 890L451 890L453 890ZM456 890L454 890L451 890L450 890L447 890L445 890L447 890L452 890L454 890L456 890ZM477 890L480 890L478 890L475 890L477 890ZM490 890L492 890L490 890L488 890L486 890L483 890L485 890L488 890L490 890ZM1019 883L1017 884L1018 880L1019 878L1017 876L1017 874L1018 871L1021 873L1021 875L1022 877L1020 880L1019 883ZM992 890L988 890L990 890L992 890ZM297 890L294 890L286 890L284 890L281 890L279 890L281 890L283 890L286 890L288 890L290 890L296 890L297 890ZM462 890L460 890L462 890L462 890ZM518 890L516 890L518 890L520 890L518 890ZM593 890L590 890L592 890L593 890ZM318 890L315 890L312 890L316 890L317 890L318 890ZM271 841L269 841L267 839L270 839L271 841ZM801 880L803 880L807 880L808 882L803 884L801 881L801 880ZM801 890L799 890L801 890L801 890ZM1017 887L1016 886L1015 883L1018 886L1017 887ZM1020 890L1019 889L1020 889L1020 890Z"/><path d="M-30 394L-30 392L-30 384L-30 386L-30 384L-30 381L-30 383L-30 382L-30 379L-30 377L-30 374L-30 373L-30 371L-30 367L-30 363L-30 359L-30 356L-30 353L-30 348L-30 346L-30 340L-30 338L-30 336L-30 332L-30 329L-30 326L-30 323L-30 321L-30 319L-30 318L-30 313L-30 308L-30 305L-30 303L-30 299L-30 293L-30 289L-30 286L-30 284L-30 286L-30 289L-30 291L-30 292L-30 289L-30 287L-30 283L-30 280L-30 275L-30 273L-30 269L-30 266L-30 260L-30 257L-30 255L-30 248L-30 242L-30 241L-30 236L-30 232L-30 229L-30 228L-30 226L-30 224L-30 222L-30 220L-30 218L-30 216L-30 209L-30 205L-30 204L-30 202L-30 199L-30 197L-30 195L-30 190L-30 188L-30 183L-30 180L-30 178L-30 176L-30 172L-30 168L-30 167L-30 164L-30 162L-30 160L-30 157L-30 153L-30 150L-30 148L-30 147L-30 144L-30 142L-30 140L-30 138L-30 135L-30 133L-30 131L-30 128L-30 126L-30 124L-30 121L-30 119L-30 118L-30 116L-30 114L-30 111L-30 108L-30 106L-30 104L-30 99L-30 97L-30 99L-30 102L-30 100L-30 98L-30 96L-30 93L-30 91L-30 87L-30 84L-30 82L-30 80L-30 78L-30 76L-30 80L-30 82L-30 85L-30 90L-30 96L-30 99L-30 102L-30 105L-30 107L-30 109L-30 111L-30 115L-30 117L-30 121L-30 123L-30 128L-30 132L-30 134L-30 136L-30 139L-30 141L-30 143L-30 146L-30 148L-30 150L-30 153L-30 159L-30 160L-30 164L-30 161L-30 159L-30 161L-30 163L-30 166L-30 168L-30 174L-30 176L-30 178L-30 180L-30 182L-30 184L-30 187L-30 189L-30 193L-30 191L-30 196L-30 200L-30 203L-30 205L-30 209L-30 211L-30 213L-30 216L-30 218L-30 220L-30 222L-30 226L-30 230L-30 233L-30 238L-30 242L-30 246L-30 249L-30 252L-30 254L-30 258L-30 261L-30 264L-30 267L-30 268L-30 267L-30 268L-30 272L-30 275L-30 278L-30 280L-30 283L-30 285L-30 287L-30 291L-30 293L-30 295L-30 297L-25 299L-22 299L-19 301L-17 301L-15 300L-13 299L-11 299L-6 301L-4 301L-2 300L1 299L2 298L5 300L11 302L15 303L16 306L16 309L22 313L24 315L26 315L28 317L30 318L35 317L37 316L39 316L40 317L41 319L41 321L43 322L48 321L51 322L53 322L56 323L61 325L64 326L72 323L74 327L75 328L78 328L81 327L84 327L87 327L89 327L92 326L95 328L97 327L98 322L99 319L99 317L98 313L95 309L96 300L97 296L98 294L99 291L99 289L98 287L102 285L105 284L108 283L110 282L113 283L115 287L115 291L113 297L113 300L115 302L116 303L113 306L113 308L115 310L116 312L117 313L120 315L123 316L127 315L130 317L132 317L134 318L136 319L141 319L146 318L148 315L151 314L154 315L156 317L160 318L163 317L170 317L174 317L177 315L179 317L183 317L185 316L187 315L189 315L192 315L192 312L191 310L190 309L191 306L192 304L192 302L190 299L187 300L184 300L182 298L181 296L181 293L182 292L184 291L186 291L188 292L190 292L193 290L196 289L199 289L200 289L202 289L204 288L206 286L207 284L206 282L207 281L211 278L215 276L217 274L218 271L219 269L223 267L230 266L232 265L236 263L237 261L238 259L241 258L243 256L245 254L249 252L253 249L256 251L256 253L261 254L265 255L269 256L270 257L272 256L274 254L274 252L279 249L283 247L287 245L289 247L290 250L294 250L292 253L290 254L289 255L289 258L294 257L296 256L297 259L299 262L300 264L295 268L294 270L292 273L294 275L296 274L300 272L304 275L309 275L311 275L313 275L316 278L317 280L317 282L318 284L318 286L315 288L313 289L311 291L309 293L307 294L307 296L307 298L307 300L312 307L310 309L308 308L307 307L305 303L303 303L292 304L290 304L287 306L285 308L283 310L282 311L279 313L273 318L269 320L267 321L265 322L264 324L263 329L264 333L264 336L264 338L263 340L262 344L261 346L259 349L257 351L254 352L253 354L252 356L251 358L253 360L254 361L255 363L254 366L252 371L250 374L248 377L245 382L243 388L242 391L241 394L238 393L235 392L232 391L231 390L228 391L226 391L223 389L222 390L223 396L224 399L224 403L224 408L223 413L222 416L219 416L218 419L217 422L216 424L216 426L217 428L218 433L218 435L218 436L216 437L215 439L213 442L211 442L209 440L207 439L206 441L204 443L204 441L203 432L203 429L202 425L201 421L200 419L199 415L198 410L198 408L197 404L196 399L194 398L192 399L189 399L189 401L189 403L185 407L185 409L185 411L185 414L183 416L181 417L179 416L178 413L177 411L175 413L175 415L173 407L171 401L171 399L171 397L172 393L175 390L175 388L179 388L181 387L183 386L185 385L187 386L188 384L189 382L190 381L192 380L193 378L195 373L196 370L196 368L200 368L202 368L202 366L199 364L195 361L192 360L185 360L178 361L176 360L174 360L168 360L160 360L157 360L153 360L149 360L146 359L143 358L140 357L138 356L139 350L138 342L139 340L136 333L134 332L133 334L133 336L132 338L130 338L128 338L126 337L123 335L122 333L121 330L121 328L119 327L117 328L119 330L117 331L115 331L113 331L111 330L111 329L110 327L108 324L105 323L103 325L106 326L106 328L104 330L103 331L101 333L99 336L98 338L98 339L97 341L99 343L101 344L104 346L106 349L109 351L114 351L115 355L118 357L117 359L115 360L113 360L111 360L109 359L106 359L104 365L103 368L100 366L96 372L96 374L97 376L99 378L101 379L103 379L105 380L107 382L111 382L112 383L113 386L112 389L112 390L110 395L109 399L109 401L110 402L112 404L113 405L112 409L114 411L117 411L115 415L116 418L117 421L117 425L118 429L120 435L120 437L120 440L120 444L118 444L120 447L120 449L120 451L118 451L116 449L115 451L113 453L112 451L112 449L113 442L111 441L109 447L109 450L106 452L103 449L101 452L98 452L97 450L98 448L100 441L100 439L97 437L95 435L94 433L94 436L96 437L97 438L99 439L98 441L96 442L94 447L91 449L88 451L76 454L74 455L70 459L68 462L68 465L69 469L70 474L70 478L67 480L66 483L66 484L60 489L58 491L57 493L55 492L55 494L54 495L53 496L44 499L37 501L36 501L37 500L37 497L35 496L30 499L28 503L29 503L33 501L34 502L29 506L18 515L18 517L16 519L15 521L11 526L4 534L3 536L-8 542L-10 544L-15 549L-19 553L-24 557L-30 562L-30 566L-30 569L-30 572L-30 574L-30 576L-30 580L-30 581L-30 585L-30 587L-30 594L-30 596L-30 598L-30 596L-30 599L-30 601L-30 610L-30 616L-30 623L-30 629L-30 631L-30 634L-30 638L-30 641L-30 646L-30 648L-30 650L-30 655L-30 652L-30 650L-30 652L-30 654L-30 657L-30 658L-30 675L-30 681L-30 684L-30 692L-30 699L-30 702L-30 705L-30 707L-30 709L-30 711L-30 722L-30 732L-30 736L-30 739L-30 748L-30 751L-30 753L-30 756L-30 758L-30 762L-30 765L-30 767L-30 772L-30 776L-30 779L-30 784L-30 786L-30 785L-30 781L-30 779L-30 768L-30 762L-30 760L-30 759L-30 753L-30 748L-30 742L-30 744L-30 747L-30 751L-30 742L-30 740L-30 738L-30 736L-30 732L-30 730L-30 721L-30 715L-30 707L-30 705L-30 699L-30 696L-30 693L-30 691L-30 678L-30 671L-30 668L-30 665L-30 655L-30 653L-30 651L-30 646L-30 642L-30 639L-30 633L-30 631L-30 629L-30 627L-30 621L-30 616L-30 611L-30 608L-30 606L-30 604L-30 602L-30 597L-30 592L-30 590L-30 582L-30 564L-30 555L-30 553L-30 546L-30 541L-30 537L-30 535L-30 529L-30 528L-30 524L-30 520L-30 518L-30 515L-30 518L-30 517L-30 513L-30 511L-30 508L-30 505L-30 499L-30 498L-30 491L-30 479L-30 476L-30 472L-30 469L-30 466L-30 463L-30 458L-30 456L-30 454L-30 452L-30 450L-30 445L-30 443L-30 438L-30 436L-30 440L-30 442L-30 444L-30 447L-30 449L-30 451L-30 454L-30 462L-30 464L-30 469L-30 471L-30 475L-30 472L-30 465L-30 463L-30 455L-30 451L-30 446L-30 442L-30 437L-30 435L-30 432L-30 435L-30 432L-30 428L-30 421L-30 417L-30 415L-30 417L-30 420L-30 422L-30 420L-30 415L-30 412L-30 407L-30 402L-30 397L-30 394L-30 397L-30 401L-30 398L-30 394ZM235 816L234 818L231 812L230 809L234 807L236 813L235 816ZM232 804L229 806L228 805L230 803L232 804ZM218 782L216 782L217 780L218 782ZM225 791L223 791L222 789L223 788L225 790L225 791ZM227 787L226 788L225 786L226 783L226 785L227 787ZM209 761L208 760L208 759L210 760L209 761ZM202 727L199 727L199 724L199 722L201 719L203 718L204 721L204 723L202 727ZM207 707L205 707L206 704L207 706L207 707ZM208 703L204 698L204 696L204 693L205 691L206 689L207 687L209 686L209 684L208 683L208 678L208 677L208 673L210 670L210 667L211 662L211 659L213 655L215 654L216 657L215 659L216 661L215 663L214 665L212 668L213 671L214 679L213 681L211 681L211 686L210 690L208 692L209 694L209 697L209 700L208 703ZM215 691L216 694L214 693L214 691L215 691ZM208 671L207 672L207 669L208 671Z"/><path class="cn" d="M814 378L813 379L812 378L812 376L814 377L814 378ZM902 189L900 190L893 187L889 185L886 181L889 180L892 181L893 183L895 185L900 187L902 189ZM912 231L909 230L905 230L904 228L904 226L907 226L912 228L912 231ZM909 239L907 238L908 236L909 238L909 239ZM914 233L913 232L914 231L914 233ZM853 352L851 354L850 351L850 349L852 347L853 348L853 351L853 352ZM628 466L631 466L632 467L629 468L627 468L625 467L626 466L628 466ZM887 282L885 283L884 281L886 279L887 281L887 282ZM704 422L702 421L701 420L703 420L704 422ZM685 453L684 451L685 449L687 448L686 450L685 453ZM682 452L680 452L682 450L682 452ZM571 455L569 454L567 451L563 452L559 453L556 452L554 450L552 450L549 448L548 445L546 444L543 443L541 442L540 443L540 439L539 436L538 434L537 432L537 429L538 428L541 426L541 424L542 422L539 420L537 419L535 419L532 420L530 420L528 418L525 417L524 417L522 418L519 417L516 416L513 415L512 412L510 410L508 409L507 408L504 409L500 412L498 412L496 414L496 416L495 419L494 420L493 421L490 421L485 424L483 424L482 423L480 422L477 423L477 425L476 427L475 428L468 422L466 423L465 427L461 423L459 424L457 426L456 427L454 429L453 431L451 430L449 429L448 427L446 426L443 424L441 423L439 423L438 426L436 428L434 430L433 432L431 432L429 431L427 431L425 432L423 430L421 430L420 434L418 435L418 437L418 439L418 441L419 443L421 445L422 447L423 452L422 454L422 458L422 460L424 462L422 464L420 463L418 462L415 462L411 463L410 462L410 459L409 457L409 455L408 453L408 450L407 449L401 451L397 455L395 456L394 456L392 456L389 455L386 456L384 456L383 454L383 451L380 450L380 449L379 447L379 445L380 443L377 441L371 440L366 439L364 440L363 439L361 438L362 435L363 433L365 429L365 427L365 425L366 421L368 418L369 416L367 415L365 414L362 414L358 413L354 412L354 409L354 407L354 405L352 403L353 400L352 397L351 396L350 395L349 393L350 391L353 388L352 388L347 389L345 388L342 387L338 388L334 389L329 391L328 392L326 393L323 393L323 391L326 387L326 385L325 382L325 381L323 379L322 374L323 370L325 369L327 368L326 365L327 364L328 360L329 358L331 358L334 357L335 355L336 353L337 349L340 349L343 347L344 344L347 343L349 342L347 338L347 336L349 334L349 330L350 327L351 323L351 319L351 317L351 315L350 310L349 306L349 300L349 296L345 294L343 294L342 297L340 295L339 294L336 285L336 283L336 281L334 279L332 276L331 275L329 275L327 274L326 272L324 271L321 272L320 275L318 278L316 278L313 275L311 275L309 275L306 275L301 272L296 274L294 275L292 273L294 272L295 268L300 264L299 262L297 259L297 257L294 257L290 260L289 255L290 254L292 253L294 252L291 251L289 247L288 246L283 247L279 249L274 252L274 254L272 256L270 257L269 256L265 255L262 253L256 253L256 251L254 249L249 252L245 254L243 256L241 258L238 259L237 261L236 263L232 265L230 266L223 267L220 268L218 271L217 274L215 276L211 278L207 281L206 282L207 284L206 286L204 288L202 289L200 289L199 289L197 289L194 290L190 292L188 292L186 291L184 291L182 291L182 287L178 285L175 284L174 283L172 283L170 284L169 285L166 285L164 284L160 283L158 282L154 283L151 282L151 280L151 278L148 277L145 276L142 276L140 277L138 278L137 279L135 280L132 282L130 283L128 286L126 289L123 292L121 296L120 298L118 299L116 303L115 302L113 300L113 297L115 291L115 288L114 284L110 282L108 283L105 284L102 285L99 286L98 288L96 288L94 287L92 288L88 289L85 289L82 289L78 289L75 289L72 286L70 285L68 285L66 284L64 282L62 282L60 286L57 286L55 286L53 284L52 282L49 282L49 285L49 286L48 287L46 285L44 281L42 279L40 277L34 277L29 277L27 276L26 275L27 271L28 269L25 268L20 270L18 269L16 268L11 264L10 263L7 261L5 260L4 256L3 253L2 251L1 251L-2 250L-5 251L-8 252L-10 252L-13 249L-15 245L-18 242L-20 241L-23 241L-27 239L-30 235L-30 232L-30 228L-30 226L-30 223L-30 221L-30 219L-30 228L-30 226L-30 224L-30 220L-30 218L-30 216L-30 214L-30 211L-30 209L-30 206L-30 203L-30 201L-30 196L-30 191L-30 193L-30 190L-30 187L-30 185L-30 182L-30 180L-30 178L-30 176L-30 174L-30 168L-30 166L-30 163L-30 161L-30 159L-30 161L-30 164L-30 161L-30 159L-30 155L-30 152L-30 148L-30 146L-30 143L-30 141L-30 139L-30 136L-30 134L-30 132L-30 128L-30 123L-30 121L-30 117L-30 115L-30 112L-30 110L-30 108L-30 105L-30 103L-30 100L-30 96L-30 90L-30 85L-30 82L-30 80L-30 76L-30 74L-30 71L-30 69L-30 66L-30 63L-30 65L-30 61L-30 59L-30 57L-30 55L-30 48L-30 46L-30 44L-30 42L-30 39L-30 37L-30 33L-30 31L-30 29L-30 26L-30 23L-30 21L-30 23L-30 21L-30 18L-30 17L-30 14L-30 12L-30 9L-30 7L-30 5L-30 2L-30 -1L-30 -3L-30 -6L-30 -8L-30 -12L-30 -14L-30 -18L-30 -20L-30 -16L-30 -18L-30 -21L-30 -25L-30 -27L-30 -29L-29 -30L-24 -30L-22 -30L-19 -30L-13 -30L-9 -30L-7 -30L-4 -30L0 -30L3 -30L5 -30L8 -30L13 -30L16 -30L18 -30L20 -30L24 -30L26 -30L29 -30L32 -30L35 -30L38 -30L39 -30L38 -30L40 -30L44 -30L49 -30L54 -30L57 -30L59 -30L61 -30L63 -30L66 -30L69 -30L73 -30L77 -30L79 -30L81 -30L84 -30L87 -30L90 -30L91 -30L89 -30L91 -30L94 -30L96 -30L99 -30L103 -30L105 -30L108 -30L111 -30L115 -30L117 -30L120 -30L122 -30L124 -30L127 -30L130 -30L132 -30L134 -30L136 -30L139 -30L141 -30L144 -30L145 -30L147 -30L150 -30L152 -30L154 -30L156 -30L158 -30L160 -30L162 -30L164 -30L166 -30L165 -30L167 -30L164 -30L162 -30L160 -30L163 -30L166 -30L168 -30L170 -30L172 -30L174 -30L177 -30L179 -30L181 -30L184 -30L187 -30L191 -30L195 -30L201 -30L204 -30L209 -30L212 -30L221 -30L227 -30L230 -30L232 -30L235 -30L237 -30L243 -30L247 -30L250 -30L255 -30L259 -30L263 -30L270 -30L273 -30L275 -30L278 -30L282 -30L284 -30L288 -30L290 -30L293 -30L295 -30L301 -30L306 -30L314 -30L327 -30L339 -30L350 -30L356 -30L368 -30L375 -30L381 -30L383 -30L393 -30L399 -30L407 -30L412 -30L417 -30L419 -30L420 -30L426 -30L428 -30L432 -30L442 -30L448 -30L454 -30L458 -30L463 -30L469 -30L476 -30L483 -30L488 -30L495 -30L497 -30L500 -30L501 -30L505 -30L507 -30L512 -30L521 -30L531 -30L536 -30L540 -30L542 -30L545 -30L550 -30L555 -30L565 -30L573 -30L576 -30L579 -30L584 -30L588 -30L592 -30L598 -30L603 -30L606 -30L609 -30L612 -30L616 -30L620 -30L624 -30L626 -30L629 -30L631 -30L634 -30L636 -30L639 -30L641 -30L643 -30L645 -30L647 -30L654 -30L656 -30L658 -30L660 -30L664 -30L659 -30L657 -30L655 -30L653 -30L655 -30L658 -30L661 -30L664 -30L667 -30L669 -30L674 -30L676 -30L679 -30L681 -30L684 -30L692 -30L695 -30L698 -30L701 -30L704 -30L708 -30L711 -30L715 -30L718 -30L721 -30L724 -30L726 -30L728 -30L730 -30L732 -30L736 -30L742 -30L749 -30L751 -30L754 -30L757 -30L760 -30L763 -30L765 -30L767 -30L768 -30L770 -30L772 -30L774 -30L777 -30L778 -30L781 -30L782 -30L785 -30L789 -30L792 -30L794 -30L796 -30L799 -30L801 -30L803 -30L805 -30L807 -30L811 -30L813 -30L817 -30L819 -30L823 -30L825 -30L827 -30L830 -30L832 -30L834 -30L837 -30L841 -30L845 -30L848 -30L850 -30L854 -30L852 -30L850 -30L848 -30L846 -30L842 -30L841 -30L839 -30L837 -30L835 -30L832 -30L830 -30L828 -30L826 -30L823 -30L821 -30L815 -30L813 -30L811 -30L806 -30L804 -30L802 -30L799 -30L797 -30L795 -30L793 -30L790 -30L787 -30L785 -30L780 -30L777 -30L774 -30L771 -30L767 -30L764 -30L762 -30L759 -30L757 -30L755 -30L753 -30L751 -30L753 -30L757 -30L761 -30L762 -30L764 -30L768 -30L771 -30L776 -30L778 -30L783 -30L786 -30L792 -30L797 -30L802 -30L805 -30L814 -30L820 -30L828 -30L833 -30L837 -30L840 -30L842 -30L838 -30L840 -30L844 -30L847 -30L850 -30L851 -30L856 -30L859 -30L863 -30L869 -30L873 -30L875 -30L873 -30L870 -30L866 -30L861 -30L859 -30L862 -30L867 -30L874 -30L881 -30L891 -30L899 -30L907 -30L913 -30L917 -30L923 -30L928 -30L932 -30L936 -30L939 -30L941 -30L943 -30L946 -30L952 -30L956 -30L958 -30L959 -30L961 -30L963 -30L968 -30L972 -30L973 -30L975 -30L978 -30L982 -30L986 -30L989 -30L992 -30L994 -30L997 -30L999 -30L1001 -30L1004 -30L1006 -30L1007 -30L1009 -30L1011 -30L1016 -30L1018 -30L1020 -30L1022 -30L1024 -30L1029 -30L1027 -30L1025 -30L1023 -30L1020 -30L1018 -30L1014 -30L1012 -30L1010 -30L1008 -30L1006 -30L1003 -30L1002 -30L1000 -30L997 -30L995 -30L993 -30L990 -30L986 -30L984 -30L981 -30L978 -30L976 -30L974 -30L971 -30L964 -30L962 -30L959 -30L955 -30L947 -30L944 -30L942 -30L940 -30L937 -30L935 -30L929 -30L928 -30L925 -30L913 -30L910 -30L908 -30L906 -30L903 -30L900 -30L897 -30L897 -27L893 -25L889 -25L887 -23L885 -22L884 -25L884 -28L885 -29L887 -29L897 -30L899 -30L893 -30L889 -30L888 -30L891 -30L893 -30L900 -30L902 -30L904 -30L909 -30L911 -30L909 -30L901 -30L899 -30L895 -30L885 -30L883 -30L881 -30L879 -30L877 -30L876 -30L869 -30L866 -30L854 -30L847 -30L843 -30L841 -30L839 -30L834 -30L831 -30L829 -30L827 -30L824 -30L821 -30L817 -30L813 -30L810 -30L806 -30L804 -30L800 -26L799 -21L799 -19L801 -13L804 -9L810 -6L822 -3L825 -4L829 -4L832 -1L834 3L834 6L835 8L834 10L832 15L832 20L833 22L836 24L840 26L844 26L851 25L854 22L854 20L861 15L865 11L863 10L866 9L875 5L882 8L886 12L890 13L893 15L896 16L900 16L904 17L905 15L907 14L909 16L913 18L917 18L919 17L921 18L918 21L919 25L917 26L915 28L916 29L917 32L916 33L913 35L911 35L910 34L909 31L906 31L903 31L897 35L891 38L884 40L882 42L878 41L876 41L878 44L879 45L877 47L876 46L874 47L873 50L873 55L870 56L867 58L865 56L865 54L864 53L861 54L860 55L861 59L863 59L862 62L858 64L858 66L857 67L855 69L854 70L850 72L848 75L846 78L844 80L842 86L838 89L837 93L838 96L842 96L843 97L847 101L852 103L856 105L862 108L864 110L865 113L867 122L869 126L869 128L872 132L875 140L878 146L879 151L877 153L878 156L881 159L888 162L891 164L891 169L892 170L897 173L899 175L901 177L901 180L902 183L899 183L897 183L889 179L887 178L884 179L880 178L876 174L873 172L870 172L862 176L860 175L858 176L862 177L865 176L869 174L874 175L875 177L876 180L879 182L882 182L886 185L889 189L897 194L900 198L901 201L902 205L899 206L897 206L894 207L891 208L888 211L881 215L879 217L879 219L877 220L872 219L868 219L863 222L862 223L863 223L866 223L869 222L872 226L879 226L885 222L887 222L889 222L891 224L897 231L900 231L903 233L905 233L907 234L903 236L897 242L895 243L893 244L897 244L901 241L902 240L904 244L903 254L900 251L898 250L897 251L894 251L893 252L892 254L893 254L897 257L896 260L894 259L897 262L896 264L893 265L892 267L894 270L895 275L896 277L893 276L889 278L887 279L886 275L884 276L882 280L880 284L878 284L876 284L877 286L873 291L873 293L871 296L872 299L872 300L870 303L868 305L866 307L864 309L860 314L860 317L859 320L856 322L854 322L854 320L853 318L853 317L850 319L847 317L848 320L851 322L852 324L853 326L854 328L852 330L850 332L847 335L844 337L842 337L839 335L837 335L840 339L841 339L843 339L845 338L848 338L849 340L848 343L846 346L846 349L848 353L847 355L845 354L843 352L841 353L840 352L838 353L837 355L839 356L840 358L834 359L831 361L832 364L831 366L829 367L826 368L825 369L826 370L825 374L823 375L819 375L817 376L814 374L812 374L810 376L810 378L808 378L806 378L807 380L810 381L811 384L807 388L806 390L803 390L802 392L801 395L797 395L797 397L796 400L794 400L794 398L791 400L789 401L788 402L786 400L784 400L782 405L780 407L777 407L779 409L776 411L774 416L773 418L770 418L768 417L767 419L763 420L758 422L756 421L753 420L751 421L751 423L747 424L745 422L743 421L740 422L738 424L736 425L735 426L732 426L731 423L728 424L727 426L727 429L724 427L722 427L721 428L719 428L717 428L715 429L713 429L710 427L708 423L706 422L705 420L705 417L705 415L703 414L701 415L701 418L698 419L701 422L701 424L704 427L704 432L705 433L704 437L702 437L700 438L698 439L697 440L694 440L693 437L691 439L690 444L688 445L686 444L684 445L682 446L681 448L678 447L677 445L677 443L675 443L676 444L676 447L674 449L671 448L669 447L667 446L665 446L665 448L664 450L661 449L660 451L657 454L652 454L650 455L648 455L646 456L644 455L643 457L640 458L637 458L635 461L633 462L630 462L629 460L628 462L628 463L624 467L623 469L623 471L628 472L628 474L627 476L631 480L631 482L630 484L627 486L622 487L618 486L616 484L619 483L618 481L616 480L614 477L614 475L613 473L613 472L611 470L612 467L611 465L613 462L614 459L617 458L617 456L615 456L613 454L612 454L609 451L608 450L608 454L606 456L603 456L600 457L599 457L598 455L598 454L596 452L593 452L592 452L590 452L588 449L586 448L586 446L583 445L583 447L583 449L584 451L582 452L581 451L579 452L577 454L575 453L573 454L571 455ZM640 493L642 496L643 499L643 502L641 504L639 504L634 511L633 513L632 515L631 519L630 523L630 525L629 526L627 527L625 527L623 529L620 531L619 533L615 534L613 535L612 537L609 538L608 538L605 537L600 536L596 534L593 533L588 530L588 525L587 522L587 512L588 510L590 508L593 506L597 503L600 502L602 499L599 499L600 497L603 496L605 496L607 496L609 494L611 494L617 494L621 493L623 492L627 492L628 494L628 492L633 494L633 491L635 490L637 492L638 493L640 493Z"/><path d="M715 429L717 428L719 428L721 428L721 431L722 432L721 434L718 433L715 433L713 433L712 431L714 430L715 429ZM720 437L718 435L720 436L720 437ZM714 437L711 437L711 435L715 434L714 435L714 437Z"/><path class="kh" d="M560 625L559 629L558 632L556 634L555 640L556 642L559 647L560 651L562 654L562 657L561 662L559 666L559 669L560 671L561 674L561 678L560 681L560 683L558 684L555 684L553 684L549 687L546 690L542 690L540 692L539 692L536 692L534 693L534 698L532 699L529 699L526 698L524 698L523 699L521 700L520 701L520 704L520 707L520 709L526 714L528 715L527 718L528 721L524 720L521 719L519 718L518 716L514 717L511 717L509 717L507 720L504 718L501 718L501 721L501 722L500 724L498 726L496 727L493 728L490 728L488 729L486 730L482 727L475 726L474 725L472 726L468 728L466 727L465 726L466 723L469 722L470 719L468 715L467 713L465 712L463 714L462 716L461 718L459 718L456 718L455 714L455 711L455 707L455 705L453 702L452 699L451 697L451 699L446 689L445 685L446 682L445 680L444 678L440 675L440 671L440 667L439 665L437 663L436 660L436 654L439 653L442 653L442 651L443 650L446 647L448 643L449 641L450 639L453 637L457 635L460 634L463 633L465 632L470 634L472 634L474 634L476 634L477 634L482 633L486 634L490 633L495 632L497 633L499 634L500 636L501 637L503 636L504 635L505 636L506 638L508 640L513 639L518 641L520 643L522 645L525 645L527 642L526 640L524 636L523 634L528 634L529 631L532 632L534 630L536 629L537 630L540 632L541 633L542 635L546 635L547 633L549 633L553 631L554 629L557 629L559 626L560 625Z"/><path d="M384 485L381 484L378 483L377 484L376 485L372 485L370 485L368 484L369 487L369 489L368 490L365 491L362 490L359 491L358 492L357 497L356 498L354 499L351 499L345 501L342 501L340 501L336 499L334 500L333 502L331 504L329 507L328 512L329 515L327 519L326 520L327 528L325 530L323 530L322 531L319 531L320 535L322 536L324 536L325 539L327 543L327 545L326 548L328 552L332 555L335 559L337 563L339 565L344 569L345 571L345 575L346 578L347 579L349 585L353 583L354 585L354 588L353 589L347 592L347 595L347 599L346 604L347 608L344 609L341 611L339 612L338 615L338 619L339 623L341 626L343 628L345 631L347 634L351 637L356 642L357 644L359 647L360 650L361 653L361 655L361 662L360 663L360 665L360 666L361 668L361 670L362 674L364 676L366 677L367 680L367 682L367 684L368 687L370 689L372 697L371 699L369 701L368 702L366 707L362 713L358 718L354 721L352 723L351 725L352 727L352 730L351 732L350 734L350 736L347 739L346 738L345 736L346 732L344 724L346 722L348 719L349 716L350 713L351 710L351 708L351 705L351 703L351 702L352 700L354 698L352 697L350 698L348 696L349 695L350 693L350 691L349 689L350 686L348 686L349 683L348 681L349 678L349 675L348 673L348 671L348 668L347 663L345 660L343 655L339 649L339 647L339 644L337 651L336 650L336 645L335 643L336 639L333 635L333 631L331 627L334 627L332 624L330 625L329 622L329 614L327 611L328 608L326 597L323 593L324 590L325 587L325 582L325 581L327 579L324 580L322 580L318 581L317 577L316 575L315 571L314 567L312 565L309 561L306 559L307 560L306 564L307 568L306 571L305 574L304 576L301 579L298 581L296 581L294 581L292 579L292 577L292 574L291 578L293 582L289 585L287 585L286 587L280 589L279 592L278 594L275 597L271 600L269 599L269 596L271 594L270 591L270 593L267 597L266 598L264 597L261 598L259 594L259 591L259 589L259 591L258 593L257 594L254 596L254 594L254 592L254 590L254 587L255 584L255 581L254 583L254 585L252 586L250 589L249 591L245 593L243 593L243 590L245 581L246 579L247 578L248 572L249 570L249 565L252 561L252 554L251 551L250 548L248 539L244 531L244 528L242 525L244 525L240 522L239 515L239 511L238 514L237 515L237 519L236 521L233 520L231 518L229 514L226 509L228 508L232 512L234 513L235 512L237 510L238 507L235 506L233 503L232 501L230 500L229 499L230 497L231 496L228 496L225 493L223 492L220 492L218 492L219 496L217 497L214 491L215 490L217 489L215 489L216 484L214 486L211 489L209 488L211 486L212 485L211 483L209 481L208 479L208 482L208 486L205 481L199 475L198 473L198 471L197 470L197 468L196 465L195 463L195 460L195 459L197 457L199 457L202 459L203 460L204 461L205 460L205 456L204 452L204 444L205 442L207 440L209 440L211 442L213 442L215 439L216 437L218 436L218 435L218 433L217 428L216 426L216 424L217 422L218 419L218 417L220 416L223 414L224 408L224 403L224 399L223 396L222 390L223 389L225 391L228 391L229 390L232 391L235 392L238 393L240 394L242 391L243 388L245 382L247 378L250 374L252 371L254 366L255 363L254 361L253 360L251 359L252 356L253 354L254 352L257 351L259 349L261 346L262 344L262 340L264 338L265 337L264 333L263 329L263 325L265 322L267 321L269 320L273 318L279 313L282 311L283 310L285 308L287 306L290 304L292 304L302 302L305 303L307 307L308 308L310 309L312 307L307 300L307 298L307 296L307 294L309 293L311 291L313 289L315 288L317 287L318 285L317 282L317 280L317 279L320 275L321 273L322 271L325 271L327 274L328 275L330 275L332 276L334 279L336 281L336 283L336 285L339 294L340 295L342 297L343 296L344 294L348 295L349 300L350 305L350 310L351 315L351 317L351 319L351 323L350 327L349 330L350 333L347 335L347 338L349 340L348 343L344 344L343 347L341 349L337 349L336 353L335 355L334 357L331 358L329 358L328 360L327 364L326 365L327 368L325 369L323 370L322 374L322 378L324 380L325 382L326 385L326 387L323 391L323 393L325 394L328 392L329 391L334 389L338 388L342 387L345 388L347 388L352 388L353 387L350 391L349 393L350 395L351 396L352 397L353 400L352 403L354 405L354 407L354 409L354 412L358 413L362 414L365 414L367 415L369 416L368 418L366 421L365 425L365 427L365 429L363 433L362 435L361 437L362 439L364 440L366 439L371 440L377 441L379 442L379 445L379 447L380 449L380 450L383 451L383 454L384 456L386 456L389 455L392 456L394 456L395 456L397 455L401 451L405 449L408 449L408 453L407 456L403 459L400 460L398 461L397 465L396 466L394 468L393 470L396 471L394 472L393 473L391 472L389 473L387 475L385 478L384 484L384 485ZM338 717L340 721L339 720L337 718L335 719L337 717L338 717ZM338 742L337 743L337 741L339 739L340 739L339 741L338 742ZM339 704L338 702L339 700L340 698L340 702L340 703L339 704ZM346 694L344 690L346 692L348 693L346 694ZM346 698L346 703L344 702L343 699L342 697L346 696L346 698ZM343 677L344 680L342 683L341 679L340 677L341 675L343 676L343 677ZM337 688L334 686L335 685L336 686L337 688ZM249 595L248 597L247 594L250 592L251 590L252 588L253 590L252 593L249 595ZM323 587L321 586L321 582L322 581L324 582L323 587ZM231 527L228 525L226 522L229 521L232 522L231 526L231 527ZM226 496L226 500L225 498L224 496L224 495L226 496ZM231 504L234 507L237 508L236 510L234 511L232 508L230 507L231 505L231 504ZM335 699L334 695L335 698L335 699ZM335 682L333 685L332 683L333 682L335 682L335 682ZM341 665L341 669L339 667L339 665L339 663L341 665ZM257 598L256 598L258 595L257 598ZM214 495L215 498L212 493L212 491L214 495Z"/><path d="M741 863L744 866L744 869L745 873L746 875L744 876L742 875L741 875L739 870L739 868L739 865L739 863L741 863ZM739 863L737 864L735 865L733 866L732 868L733 871L733 873L734 875L733 877L733 880L732 882L730 883L728 883L726 881L725 879L722 878L721 876L720 873L718 872L717 871L718 870L721 870L724 868L727 867L730 865L732 863L734 862L738 860L739 861L739 863Z"/><path d="M182 291L181 293L180 295L182 298L184 300L187 300L189 299L192 302L192 304L191 306L191 307L190 309L192 312L192 315L189 315L187 315L185 316L183 317L179 317L178 315L174 317L170 317L163 317L160 318L158 317L154 315L151 314L149 315L146 318L141 319L137 319L134 319L133 317L130 317L128 316L123 316L120 315L117 313L116 312L115 310L113 308L113 306L116 303L118 299L120 298L121 296L123 292L126 289L128 286L130 283L132 282L135 280L137 279L138 278L140 277L142 276L145 276L148 277L151 278L151 280L151 282L154 283L158 282L160 283L164 284L166 285L169 285L170 284L172 283L174 283L175 284L178 285L181 286L182 290L182 291Z"/><path class="bd" d="M120 440L120 437L120 435L118 429L117 426L117 421L116 418L115 415L117 412L114 411L112 410L113 405L112 404L110 402L109 401L109 399L110 395L112 390L112 389L113 386L112 383L111 382L107 382L105 380L103 379L101 379L99 378L97 376L96 374L96 372L99 367L102 367L104 365L106 359L109 359L111 360L113 360L115 360L116 359L118 358L116 356L114 352L109 351L107 350L104 346L101 344L99 343L97 341L98 339L98 338L99 336L101 333L103 331L104 330L106 328L106 326L104 325L104 323L108 324L110 327L111 329L111 330L113 331L115 331L117 331L118 331L118 329L118 327L120 327L121 330L122 333L123 335L126 337L128 338L130 338L132 338L133 336L133 334L134 332L136 333L139 340L138 342L139 350L138 355L138 356L143 358L146 359L149 360L153 360L156 360L160 360L168 360L174 360L176 360L178 361L185 360L192 360L195 361L199 364L202 366L202 368L200 368L196 367L196 370L195 373L193 378L193 380L190 381L189 382L188 384L188 385L185 385L183 386L181 387L179 388L176 388L175 390L172 393L171 397L171 399L171 401L173 407L174 414L175 411L178 413L179 416L181 417L183 416L185 415L185 411L185 409L185 407L189 404L189 401L189 399L192 399L193 398L195 399L197 404L198 408L198 410L199 415L199 418L201 421L202 423L203 429L203 432L204 441L204 443L204 452L205 456L205 459L205 461L203 460L202 459L199 457L197 457L195 459L195 460L195 463L196 465L197 466L197 470L198 471L198 473L196 471L195 468L192 463L191 455L191 450L188 445L187 438L186 436L187 434L184 432L183 429L179 424L178 422L178 420L176 422L174 423L172 426L170 426L165 427L163 424L159 416L158 414L158 409L157 405L157 403L156 404L153 405L149 405L152 407L155 408L157 410L157 411L157 413L155 414L154 415L154 417L156 419L154 420L153 423L154 425L154 427L156 428L157 431L157 433L157 436L155 438L151 441L150 445L148 447L147 447L145 445L145 443L148 438L146 439L144 440L142 442L141 439L140 437L140 434L142 430L140 432L139 435L140 438L139 440L138 443L137 444L135 445L134 447L133 448L133 446L132 443L131 435L130 437L131 441L131 444L130 447L127 449L126 450L123 448L121 446L121 442L120 440ZM170 438L168 440L169 429L170 433L171 435L170 438ZM180 432L178 433L176 430L177 427L179 430L180 431L180 432ZM161 440L157 441L155 441L159 434L159 431L158 428L156 426L155 423L155 421L157 420L159 421L159 424L160 426L163 430L163 432L163 438L161 440ZM187 447L187 449L187 445L187 447ZM189 455L187 454L187 450L189 449L190 452L189 455ZM158 417L156 417L157 416L158 417Z"/></g>
+          <g class="ctx-lbl" aria-hidden="true">
+            <text x="290" y="463">MYANMAR</text><text x="402" y="613">THAILAND</text><text x="443" y="503">LAOS</text><text x="128" y="322">INDIA</text>
+            <text class="sea" x="719" y="628">South China Sea</text><text class="sea" x="140" y="589">Bay of Bengal</text><text class="sea" x="400" y="736">Gulf of Thailand</text>
+          </g>
+          <circle class="was" cx="666.7" cy="271" r="64"/>
+          <path class="arc vn" d="M685.7 321.7Q730 440 610.6 555.9"/>
+          <path class="arc kh" d="M624.5 305.1Q470 430 492.2 629.3"/>
+          <path class="head vn" d="M-16 -9L0 0L-16 9Z" transform="translate(608.8 557.6) rotate(135.9)"/>
+          <path class="head kh" d="M-16 -9L0 0L-16 9Z" transform="translate(492.5 631.8) rotate(83.6)"/>
+          <text class="arc-lbl" x="706" y="448">+12</text>
+          <text class="arc-lbl" x="496" y="458" text-anchor="end">+8</text>
+          <g id="bubbles"></g>
+        </svg>
+          <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--nf)"></i>Northfold share</span><span><i class="dot" style="background:var(--cn)"></i>China</span><span><i class="dot" style="background:var(--ctx)"></i>Industry share</span><span><i class="ln" style="background:var(--vn)"></i>To Vietnam</span><span><i class="ln" style="background:var(--kh)"></i>To Cambodia</span></div>
+        </div>
+        <aside class="detail" aria-labelledby="dt-name">
+          <div class="dt-pick" role="group" aria-label="Choose an origin">
+            <button type="button" data-o="CN" aria-pressed="true">CN</button><button type="button" data-o="VN" aria-pressed="false">VN</button><button type="button" data-o="BD" aria-pressed="false">BD</button><button type="button" data-o="KH" aria-pressed="false">KH</button><button type="button" data-o="OT" aria-pressed="false">Other</button>
+          </div>
+          <div class="dt-head"><h4 id="dt-name">China</h4><span class="dt-tag" id="dt-tag"></span></div>
+          <dl class="dt-list" id="dt-list" aria-live="polite"></dl>
+          <p class="dt-hint"><span class="h-hover">Hover a country on the map, or pick one above.</span><span class="h-touch">Tap a country on the map, or pick one above.</span></p>
+        </aside>
+      </div>
+      <div class="ribbon" aria-live="polite">
+      <div class="rb-tag"><span>Made in</span><b id="rb-state">Today</b></div>
+      <ul class="rb-list" id="rb"></ul>
+      <div class="rb-key" aria-hidden="true"><i></i>industry share</div>
+    </div>
+    </figure>
+  </div>
+</section>
+
+<section class="slide" id="ex1" aria-labelledby="ex1-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 1 of 4 · Where it's made</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 1</p>
+      <h2 id="ex1-h">Northfold buys 52% from China, almost twice the industry's 27%.</h2>
+      <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--nf)"></i>Northfold</span><span><i class="dot" style="background:var(--ctx)"></i>Industry imports</span></div>
+      <div class="ex1g">
+      <div class="db" aria-label="Share of units by origin, Northfold vs industry">
+        <div class="h">Origin</div><div class="h">Share of units</div><div class="h" style="text-align:right">Gap</div>
+      </div>
+        <table class="mkt">
+          <caption>The numbers</caption>
+          <thead><tr><th scope="col">Origin</th><th scope="col">Northfold</th><th scope="col">Industry</th><th scope="col">Gap</th><th scope="col">After shift</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">China</th><td>52%</td><td>27%</td><td class="over">+25</td><td>32%</td></tr>
+            <tr><th scope="row">Vietnam</th><td>18%</td><td>31%</td><td>−13</td><td class="up">30%</td></tr>
+            <tr><th scope="row">Bangladesh</th><td>12%</td><td>16%</td><td>−4</td><td>12%</td></tr>
+            <tr><th scope="row">Cambodia</th><td>8%</td><td>12%</td><td>−4</td><td class="up">16%</td></tr>
+            <tr><th scope="row">Other</th><td>10%</td><td>14%</td><td>−4</td><td>10%</td></tr>
+          </tbody>
+          <tfoot><tr><th scope="row">Freight/u</th><td>$1.85</td><td>$1.21*</td><td class="over">+53%</td><td></td></tr>
+            <tr><th scope="row">Net margin</th><td>3.3%</td><td>7.4%*</td><td class="over">−410 bps</td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="src"><span>Source: Northfold sourcing records and US import records, HTS 6110.20, Oct 2025–Sep 2026. *Retail peers. Figures fictional.</span><a class="next" href="#ex2">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex2" aria-labelledby="ex2-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 2 of 4 · The industry</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 2</p>
+      <h2 id="ex2-h">The industry has already moved: Vietnam is the #1 origin for this code.</h2>
+      <div class="hb">
+        <div class="name">Vietnam</div><div class="track"><div class="fill vn" style="width:72%"></div><span class="val">$1.30B <small>· 31%</small></span></div>
+        <div class="name">China</div><div class="track"><div class="fill" style="width:62.8%"></div><span class="val">$1.13B <small>· 27%</small></span></div>
+        <div class="name">Bangladesh</div><div class="track"><div class="fill" style="width:37.2%"></div><span class="val">$0.67B <small>· 16%</small></span></div>
+        <div class="name">Other</div><div class="track"><div class="fill" style="width:32.8%"></div><span class="val">$0.59B <small>· 14%</small></span></div>
+        <div class="name">Cambodia</div><div class="track"><div class="fill" style="width:27.8%"></div><span class="val">$0.50B <small>· 12%</small></span></div>
+      </div>
+      <div class="src"><span>US imports of HTS 6110.20 by origin, last 12 months, $4.2B total. Figures fictional.</span><a class="next" href="#ex3">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex3" aria-labelledby="ex3-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 3 of 4 · The shift</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 3</p>
+      <h2 id="ex3-h">Moving 20 pts out of China closes most of the gap with the industry.</h2>
+      <div class="sl-head">
+        <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--cn)"></i>China</span><span><i class="dot" style="background:var(--vn)"></i>Vietnam</span><span><i class="dot" style="background:var(--kh)"></i>Cambodia</span><span><i class="dot" style="background:var(--ctx)"></i>Bangladesh, other</span></div>
+        <div class="sseg" role="group" aria-label="Compare today with"><span>Today vs</span><button type="button" data-cmp="after" aria-pressed="true">After shift</button><button type="button" data-cmp="industry" aria-pressed="false">Industry</button></div>
+      </div>
+      <svg class="slope" viewBox="0 0 400 300" role="img" aria-labelledby="sl-t"><title id="sl-t">Slope chart: each origin's share today versus after the shift or the industry</title>
+        <line class="axis" x1="128" y1="16" x2="128" y2="276"/><line class="axis" x1="272" y1="16" x2="272" y2="276"/>
+        <text class="ax" x="128" y="294" text-anchor="middle">TODAY</text><text class="ax" x="272" y="294" text-anchor="middle" id="sl-ax">AFTER SHIFT</text>
+        <g id="sl"></g>
+      </svg>
+      <div class="src"><span>Gap with the industry falls from 25 pts to 5 pts. Estimated landed cost per unit: about −5%. Figures fictional.</span><a class="next" href="#ex4">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ex4" aria-labelledby="ex4-h">
+  <div class="frame">
+    <div class="bar-top"><span>Exhibit 4 of 4 · Who can take it</span><span>Shiftmap</span></div>
+    <div class="content chart pre">
+      <p class="label">Exhibit 4</p>
+      <h2 id="ex4-h">The capacity exists: 14 vendors in Vietnam and Cambodia already ship this code to US brands.</h2>
+      <div class="legend" aria-hidden="true"><span><i class="dot" style="background:var(--vn)"></i>Vietnam</span><span><i class="dot" style="background:var(--kh)"></i>Cambodia</span></div>
+      <div class="hb">
+        <div class="name">Red River Garment Co.<small>VN · 412 shipments · 9 US clients</small></div><div class="track"><div class="fill vn" style="width:78%"></div><span class="val">$86M</span></div>
+        <div class="name">Saigon Pine Knit<small>VN · 268 shipments · 6 US clients</small></div><div class="track"><div class="fill vn" style="width:49%"></div><span class="val">$54M</span></div>
+        <div class="name">Mekong Stitch Works<small>KH · 190 shipments · 4 US clients</small></div><div class="track"><div class="fill kh" style="width:34.5%"></div><span class="val">$38M</span></div>
+        <div class="more">+ 11 more vendors in the full report, including current suppliers Lotus Bay Knitwear (VN) and Angkor Thread Ltd. (KH).</div>
+      </div>
+      <div class="src"><span>US exports of HTS 6110.20 by vendor, last 12 months, from shipment records. Leads must be verified before outreach. Names and figures fictional.</span><a class="next" href="#try">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="try" aria-labelledby="try-h">
+  <div class="frame">
+    <div class="bar-top"><span>Try it · every category</span><span>Shiftmap</span></div>
+    <div class="content">
+      <p class="label">Try it</p>
+      <h2 id="try-h">The same landscape for any category, from one question.</h2>
+      <div class="tw" role="region" aria-label="Live Shiftmap preview">
+        <div class="tw-top">
+          <div class="tw-chips"><span>Market <b>US</b></span><span>Line <b id="tw-line"></b></span><span>HTS <b id="tw-hts"></b></span></div>
+          <div class="sseg tw-tabs" role="group" aria-label="Category">
+            <button type="button" data-cat="sweaters" aria-pressed="true">Sweaters</button>
+            <button type="button" data-cat="leggings" aria-pressed="false">Leggings</button>
+            <button type="button" data-cat="tees" aria-pressed="false">Tees</button>
+            <button type="button" data-cat="jackets" aria-pressed="false">Jackets</button>
+          </div>
+        </div>
+        <div class="tw-body">
+          <div>
+            <div class="tw-kpis">
+              <div><small>Sales</small><b id="tw-sales"></b></div>
+              <div><small>Net margin</small><b id="tw-margin"></b><span id="tw-mgap"></span></div>
+              <div><small>Freight/u</small><b id="tw-fr"></b><span id="tw-frgap"></span></div>
+            </div>
+            <div class="tw-orig" id="tw-orig"></div>
+            <div class="tw-key" aria-hidden="true"><span><i></i>Northfold</span><span><u></u>Industry</span></div>
+          </div>
+          <div class="tw-side">
+            <span class="tw-badge" id="tw-badge"></span>
+            <p id="tw-rec"></p>
+            <ul class="tw-vend" id="tw-vend"></ul>
+          </div>
+        </div>
+        <form class="tw-ask" id="tw-ask">
+          <input id="tw-q" type="text" autocomplete="off" aria-label="Ask Shiftmap a question" placeholder="Ask in English or Chinese, e.g. 帮我分析男士羽绒服的原产地">
+          <button type="submit" id="tw-send">Ask</button>
+        </form>
+        <ul class="tw-steps" id="tw-steps" aria-live="polite"></ul>
+      </div>
+      <div class="src"><span>Four sample categories; every name and figure is fictional.</span><a class="next" href="#rec">Next ↓</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="rec" aria-labelledby="rec-h">
+  <div class="frame">
+    <div class="bar-top"><span>Recommendation</span><span>Shiftmap</span></div>
+    <div class="content">
+      <p class="label">Recommendation</p>
+      <h2 id="rec-h">Rebalance this season, starting with three vendor calls.</h2>
+      <ol class="recs">
+        <li><b>12 pts</b><p>China → Vietnam</p></li>
+        <li><b>8 pts</b><p>China → Cambodia</p></li>
+        <li><b>−5%</b><p>Estimated landed cost per unit</p></li>
+      </ol>
+      <div class="actions">
+        <a class="btn" href="mailto:reports@shiftmap.example?subject=Landscape%20report%20request">Request a report for your category</a>
+        <button type="button" class="btn ghost" data-print>Save this deck as PDF</button>
+      </div>
+      <div class="how" aria-label="How it works"><span>1 · Ask one question</span><i>→</i><span>2 · Match to industry imports</span><i>→</i><span>3 · Get this deck</span></div>
+      <p class="fineprint">Shiftmap, Northfold and every figure on this page are fictional · v23 of a design exercise for MPCS 51238.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.documentElement.classList.add("js");
+
+  // Exhibit 1 rows, built from one table of numbers (scale 0–60%).
+  const ROWS = [["China", 52, 27], ["Vietnam", 18, 31], ["Bangladesh", 12, 16], ["Cambodia", 8, 12], ["Other", 10, 14]];
+  const LABELLED = ["China", "Vietnam"];
+  const pct = (v) => (v / 60) * 100;
+  const db = document.querySelector(".db");
+  db.insertAdjacentHTML("beforeend", ROWS.map(([n, nf, ind]) => {
+    const lo = Math.min(nf, ind), hi = Math.max(nf, ind), gap = nf - ind;
+    const show = LABELLED.includes(n);
+    return `<div class="name">${n}</div>
+      <div class="track" title="${n}: Northfold ${nf}%, industry ${ind}%">
+        <div class="link" style="left:${pct(lo)}%;width:${pct(hi) - pct(lo)}%"></div>
+        <div class="pt ind" style="left:${pct(ind)}%">${show ? `<span>${ind}%</span>` : ""}</div>
+        <div class="pt nf" style="left:${pct(nf)}%">${show ? `<span>${nf}%</span>` : ""}</div>
+      </div>
+      <div class="gap">${gap > 0 ? "+" : "−"}${Math.abs(gap)}<small>pts ${gap > 0 ? "over" : "under"}</small></div>`;
+  }).join("") + `<div class="axisrow"><div class="axis"><span>0%</span><span>20%</span><span>40%</span><span>60%</span></div></div>`);
+
+  // Grow charts as each exhibit scrolls in; light up the matching dot.
+  const dots = [...document.querySelectorAll(".toc ol a")];
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.querySelector(".chart")?.classList.remove("pre");
+    e.target.dispatchEvent(new CustomEvent("seen"));
+    dots.forEach((d) => d.classList.toggle("on", d.getAttribute("href") === "#" + e.target.id));
+  }), { threshold: 0.35 });
+  document.querySelectorAll(".slide").forEach((s) => io.observe(s));
+
+  // Cover map: bubble area = share; same three views as the exhibits.
+  const MAPD = {
+    today:    { CN: 52, VN: 18, KH: 8,  BD: 12 },
+    industry: { CN: 27, VN: 31, KH: 12, BD: 16 },
+    after:    { CN: 32, VN: 30, KH: 16, BD: 12 },
+  };
+  const MCAP = {
+    today: "China makes 52% of Northfold's sweaters.",
+    industry: "The industry buys most from Vietnam: 31%.",
+    after: "After the shift: China 32%, Vietnam 30%, Cambodia 16%.",
+  };
+  const AT = { CN: [666.7, 271], VN: [566.7, 598.4], KH: [497.6, 677], BD: [150, 395.8] };
+  const R_MAX = 64, rad = (v) => R_MAX * Math.sqrt(v / 52);
+  const map = document.getElementById("map"), bub = document.getElementById("bubbles");
+  bub.innerHTML = Object.keys(AT).map((c) => `<g class="bub" data-c="${c}" transform="translate(${AT[c][0]} ${AT[c][1]})"><circle r="${R_MAX}"/><g class="t"><text class="code" y="-5">${c}</text><text class="pct" y="21"></text></g><title></title></g>`).join("");
+  function renderMap(state) {
+    const d = MAPD[state];
+    map.classList.toggle("after", state === "after");
+    map.classList.toggle("ind", state === "industry");
+    bub.querySelectorAll(".bub").forEach((g) => {
+      const c = g.dataset.c, r = rad(d[c]), inside = r >= 40, t = g.querySelector(".t");
+      g.querySelector("circle").style.transform = `scale(${r / R_MAX})`;
+      t.classList.toggle("out", !inside);
+      t.style.transform = inside ? "translate(0px, 0px)" : `translate(${r + 10}px, 0px)`;
+      g.querySelector(".pct").textContent = d[c] + "%";
+      g.querySelector("title").textContent = `${c}: Northfold today ${MAPD.today[c]}%, industry ${MAPD.industry[c]}%, after shift ${MAPD.after[c]}%`;
+    });
+    document.getElementById("mc-cap").textContent = MCAP[state];
+    renderRibbon(state);
+    document.querySelectorAll(".mseg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === state)));
+  }
+
+  // Composition ribbon (v06's label, kept quiet): same state as the map.
+  const RB = {
+    today:    { China: 52, Vietnam: 18, Bangladesh: 12, Cambodia: 8, Other: 10 },
+    industry: { China: 27, Vietnam: 31, Bangladesh: 16, Cambodia: 12, Other: 14 },
+    after:    { China: 32, Vietnam: 30, Bangladesh: 12, Cambodia: 16, Other: 10 },
+  };
+  const RB_LBL = { today: "Today", industry: "Industry", after: "After shift" };
+  const CODE = { China: "CN", Vietnam: "VN", Bangladesh: "BD", Cambodia: "KH", Other: "OT" };
+  const rb = document.getElementById("rb");
+  rb.innerHTML = Object.keys(RB.today).map((n) => `<li data-n="${n}"><b></b><span><em class="full">${n}</em><em class="short">${CODE[n]}</em></span><div class="rb-bar"><i></i><u style="left:${RB.industry[n] / 52 * 100}%"></u></div></li>`).join("");
+  function renderRibbon(state) {
+    document.getElementById("rb-state").textContent = RB_LBL[state];
+    rb.closest(".ribbon").classList.toggle("ind-view", state === "industry");
+    rb.querySelectorAll("li").forEach((li) => {
+      const v = RB[state][li.dataset.n];
+      li.querySelector("b").textContent = v + "%";
+      li.querySelector(".rb-bar i").style.width = (v / 52) * 100 + "%";
+    });
+  }
+
+  // Exhibit 3 slope chart: every origin, today vs after shift (or vs industry).
+  (function () {
+    const ORD = ["CN", "VN", "BD", "KH", "OT"];
+    const NM = { CN: "China", VN: "Vietnam", BD: "Bangladesh", KH: "Cambodia", OT: "Other" };
+    const COL = { CN: "var(--cn)", VN: "var(--vn)", KH: "var(--kh)", BD: "var(--ctx)", OT: "var(--ctx)" };
+    const TODAY = { CN: 52, VN: 18, BD: 12, KH: 8, OT: 10 };
+    const CMP = { after: { CN: 32, VN: 30, BD: 12, KH: 16, OT: 10 }, industry: { CN: 27, VN: 31, BD: 16, KH: 12, OT: 14 } };
+    const XL = 128, XR = 272, y = (v) => 266 - v * (240 / 60), NS = "http://www.w3.org/2000/svg";
+    const svg = document.querySelector("svg.slope"), g0 = document.getElementById("sl");
+    const spread = (vals) => { const it = ORD.map((c) => ({ c, y: y(vals[c]) })).sort((a, b) => a.y - b.y); for (let i = 1; i < it.length; i++) if (it[i].y - it[i - 1].y < 15) it[i].y = it[i - 1].y + 15; const o = {}; it.forEach((x) => (o[x.c] = x.y)); return o; };
+    ORD.forEach((c) => {
+      const g = document.createElementNS(NS, "g"); g.setAttribute("class", "s"); g.dataset.c = c;
+      g.innerHTML = `<line class="ln" stroke="${COL[c]}"/><circle class="pt l" r="5" fill="${COL[c]}"/><circle class="pt r" r="5" fill="${COL[c]}"/><text class="lb l" text-anchor="end"></text><text class="lb r"></text>`;
+      g.addEventListener("pointerenter", () => { svg.classList.add("dim"); g.classList.add("on"); });
+      g.addEventListener("pointerleave", () => { svg.classList.remove("dim"); g.classList.remove("on"); });
+      g0.appendChild(g);
+    });
+    let cur = { ...TODAY }, raf, mode = "after";
+    function draw(right) {
+      const ly = spread(TODAY), ry = spread(right);
+      g0.querySelectorAll("g.s").forEach((g) => {
+        const c = g.dataset.c, ln = g.querySelector(".ln");
+        ln.setAttribute("x1", XL); ln.setAttribute("y1", y(TODAY[c])); ln.setAttribute("x2", XR); ln.setAttribute("y2", y(right[c]));
+        const l = g.querySelector(".pt.l"), r = g.querySelector(".pt.r");
+        l.setAttribute("cx", XL); l.setAttribute("cy", y(TODAY[c])); r.setAttribute("cx", XR); r.setAttribute("cy", y(right[c]));
+        const L = g.querySelector(".lb.l"), R = g.querySelector(".lb.r");
+        L.setAttribute("x", XL - 12); L.setAttribute("y", ly[c] + 4); L.innerHTML = `${NM[c]} <tspan>${TODAY[c]}%</tspan>`;
+        R.setAttribute("x", XR + 12); R.setAttribute("y", ry[c] + 4); R.innerHTML = `<tspan>${Math.round(right[c])}%</tspan> ${NM[c]}`;
+      });
+    }
+    function animateTo(target) {
+      cancelAnimationFrame(raf);
+      const from = { ...cur }, t0 = performance.now(), dur = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 800;
+      (function step(t) { const p = dur ? Math.min(1, (t - t0) / dur) : 1, e = 1 - Math.pow(1 - p, 3); ORD.forEach((c) => (cur[c] = from[c] + (target[c] - from[c]) * e)); draw(cur); if (p < 1) raf = requestAnimationFrame(step); })(t0);
+    }
+    document.querySelectorAll(".sseg button").forEach((b) => b.addEventListener("click", () => {
+      mode = b.dataset.cmp;
+      document.getElementById("sl-ax").textContent = mode === "after" ? "AFTER SHIFT" : "INDUSTRY";
+      document.querySelectorAll(".sseg button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      animateTo(CMP[mode]);
+    }));
+    draw(cur);
+    document.getElementById("ex3").addEventListener("seen", () => animateTo(CMP[mode]), { once: true });
+  })();
+
+  // "Try it" window: four sample categories from the brief.
+  (function () {
+    const CATS = {
+      sweaters: { line: "Northfold Women", hts: "6110.20", sales: "$29.8M", margin: "3.3%", mgap: "peers 7.4%", fr: "$1.85", frgap: "peers $1.21",
+        own: { China: 52, Vietnam: 18, Bangladesh: 12, Cambodia: 8, Other: 10 }, ind: { China: 27, Vietnam: 31, Bangladesh: 16, Cambodia: 12, Other: 14 },
+        type: "Rebalance", rec: "Move 12 pts China → Vietnam and 8 pts China → Cambodia.",
+        vend: [["Red River Garment Co.", "VN", "Lead"], ["Saigon Pine Knit", "VN", "Lead"], ["Mekong Stitch Works", "KH", "Lead"]] },
+      leggings: { line: "Northfold Active", hts: "6104.63", sales: "$18.9M", margin: "6.8%", mgap: "peers 8.1%", fr: "$0.98", frgap: "peers $0.71",
+        own: { China: 38, Vietnam: 30, Cambodia: 17, Indonesia: 9, Other: 6 }, ind: { China: 26, Vietnam: 29, Cambodia: 15, Indonesia: 12, Other: 18 },
+        type: "Renegotiate freight", rec: "The mix is close to the industry; the gap is freight on the Vietnam lane, $1.08 vs $0.66 per unit.",
+        vend: [["Coral Line Mills", "ID", "Current"], ["Vietnam suppliers", "benchmark freight", "Current"]] },
+      tees: { line: "Northfold Basics", hts: "6109.10", sales: "$36.5M", margin: "9.2%", mgap: "peers 10.0%", fr: "$0.64", frgap: "peers $0.52",
+        own: { Bangladesh: 34, China: 28, Vietnam: 20, India: 12, Guatemala: 0, Other: 6 }, ind: { Bangladesh: 25, China: 15, Vietnam: 14, India: 11, Guatemala: 17, Other: 18 },
+        type: "Add origin", rec: "The industry buys 17% from Guatemala; Northfold buys none. Test about 10 pts.",
+        vend: [["Quetzal Cotton Mills", "GT · $61M", "Lead"], ["Delta Loom Industries", "BD", "Current"]] },
+      jackets: { line: "Northfold Men", hts: "6201.40", sales: "$22.1M", margin: "1.9%", mgap: "peers 6.6%", fr: "$4.40", frgap: "peers $3.05",
+        own: { China: 71, Vietnam: 19, Cambodia: 0, Other: 10 }, ind: { China: 48, Vietnam: 31, Cambodia: 9, Other: 12 },
+        type: "Rebalance", rec: "China is 71% vs 48% for the industry. Start with 12 pts China → Vietnam.",
+        vend: [["Seastar Textiles", "CN", "Current"], ["Vietnam leads", "full report", "Lead"]] },
+    };
+    const BADGE = { "Rebalance": "var(--cn)", "Renegotiate freight": "var(--ink)", "Add origin": "var(--badge3)" };
+    const $ = (id) => document.getElementById(id);
+    let cat = "sweaters";
+    function show(next) {
+      cat = next; const d = CATS[next];
+      $("tw-line").textContent = d.line; $("tw-hts").textContent = d.hts; $("tw-sales").textContent = d.sales;
+      $("tw-margin").textContent = d.margin; $("tw-mgap").textContent = d.mgap; $("tw-fr").textContent = d.fr; $("tw-frgap").textContent = d.frgap;
+      $("tw-orig").innerHTML = Object.keys(d.own).map((o) => `<span>${o}</span><div class="tr" title="${o}: Northfold ${d.own[o]}%, industry ${d.ind[o]}%"><i style="width:${d.own[o] / 75 * 100}%"></i><u style="left:${d.ind[o] / 75 * 100}%"></u></div><span class="v"><b>${d.own[o]}%</b> · ${d.ind[o]}%</span>`).join("");
+      $("tw-badge").textContent = d.type; $("tw-badge").style.background = BADGE[d.type];
+      $("tw-rec").textContent = d.rec;
+      $("tw-vend").innerHTML = d.vend.map(([n, m, st]) => `<li><span>${n} <small>${m}</small></span><em class="${st === "Current" ? "cur" : ""}">${st}</em></li>`).join("");
+      document.querySelectorAll(".tw-tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cat === next)));
+    }
+    document.querySelectorAll(".tw-tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.cat)));
+    const STEPS = ["Finding matching categories", "Building origin tables", "Comparing with industry imports", "Scanning shipment records for vendors"];
+    const guess = (q) => (/legging|裤/i.test(q) ? "leggings" : /tee|t-shirt|t ?恤/i.test(q) ? "tees" : /jacket|down|羽绒/i.test(q) ? "jackets" : /sweater|knit|毛衣|针织/i.test(q) ? "sweaters" : cat);
+    $("tw-ask").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = $("tw-q").value.trim() || "帮我分析男士羽绒服的原产地", target = guess(q), list = $("tw-steps");
+      $("tw-send").disabled = true; list.innerHTML = ""; let i = 0;
+      (function step() {
+        if (i > 0) list.children[i - 1].classList.add("done");
+        if (i === STEPS.length) { show(target); list.insertAdjacentHTML("beforeend", `<li class="ok">Report ready · ${CATS[target].line}</li>`); $("tw-send").disabled = false; return; }
+        list.insertAdjacentHTML("beforeend", `<li><span class="dot" aria-hidden="true"></span>${STEPS[i]}…</li>`); i++; setTimeout(step, 500);
+      })();
+    });
+    show("sweaters");
+  })();
+
+  document.querySelectorAll("[data-print]").forEach((b) => b.addEventListener("click", () => window.print()));
+
+  // Section navigation: progress bar, and arrow keys step through the slides.
+  const slides = [...document.querySelectorAll(".slide")];
+  const prog = document.getElementById("prog");
+  const onScroll = () => { const h = document.documentElement.scrollHeight - innerHeight; prog.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + "%"; };
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  function currentIndex() {
+    const y = scrollY + 60;
+    let i = 0; slides.forEach((s, k) => { if (s.offsetTop <= y) i = k; }); return i;
+  }
+  addEventListener("keydown", (e) => {
+    if (e.target.closest?.("input, textarea, button, select") || e.metaKey || e.ctrlKey || e.altKey) return;
+    const d = { ArrowRight: 1, ArrowDown: 0, ArrowLeft: -1, j: 1, k: -1 }[e.key];
+    if (!d) return;
+    e.preventDefault();
+    const next = slides[Math.min(slides.length - 1, Math.max(0, currentIndex() + d))];
+    next.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
+
+  // Origin detail panel: hover previews, click / tap / keyboard pins.
+  const DET = {
+    CN: { name: "China", units: "738K", sales: "≈$15.5M", nf: 52, ind: 27, indv: "$1.13B", after: 32, fr: "$2.05", frp: "$1.38", nm: "1.8%", vend: "Jade Harbor Apparel · 61% of China volume" },
+    VN: { name: "Vietnam", units: "256K", sales: "≈$5.4M", nf: 18, ind: 31, indv: "$1.30B", after: 30, fr: "$1.52", frp: "$1.05", nm: "6.2%", vend: "Lotus Bay Knitwear · 74%; leads Red River, Saigon Pine" },
+    BD: { name: "Bangladesh", units: "170K", sales: "≈$3.6M", nf: 12, ind: 16, indv: "$0.67B", after: 12, fr: "$1.71", frp: "$1.20", nm: "4.0%", vend: "Delta Loom Industries · 100%" },
+    KH: { name: "Cambodia", units: "114K", sales: "≈$2.4M", nf: 8, ind: 12, indv: "$0.50B", after: 16, fr: "$1.48", frp: "$1.10", nm: "6.9%", vend: "Angkor Thread Ltd. · 100%; lead Mekong Stitch Works" },
+    OT: { name: "Other origins", units: "142K", sales: "≈$3.0M", nf: 10, ind: 14, indv: "$0.59B", after: 10, fr: "$1.90", frp: "—", nm: "2.5%", vend: "—" },
+  };
+  let pinned = "CN";
+  const sgn = (n) => (n > 0 ? "+" : n < 0 ? "−" : "±") + Math.abs(n);
+  function showDetail(o) {
+    const d = DET[o], gap = d.nf - d.ind, mv = d.after - d.nf;
+    document.getElementById("dt-name").textContent = d.name;
+    const tag = document.getElementById("dt-tag");
+    tag.textContent = gap > 0 ? `Over-weight ${sgn(gap)} pts` : gap < 0 ? `Under-weight ${sgn(gap)} pts` : "In line";
+    tag.className = "dt-tag " + (gap > 0 ? "over" : gap < 0 ? "under" : "flat");
+    document.getElementById("dt-list").innerHTML = `
+      <dt>Northfold</dt><dd><b>${d.nf}%</b> of units · ${d.units} units · ${d.sales}</dd>
+      <dt>Industry</dt><dd><b>${d.ind}%</b> of US imports · ${d.indv}</dd>
+      <dt>After shift</dt><dd><b>${d.after}%</b> <span class="${mv < 0 ? "neg" : mv > 0 ? "pos" : ""}">${mv ? sgn(mv) + " pts" : "no change"}</span></dd>
+      <dt>Freight / unit</dt><dd><b>${d.fr}</b> <small>${d.frp !== "—" ? "vs peers " + d.frp : ""}</small></dd>
+      <dt>Net margin</dt><dd><b>${d.nm}</b> <small>category 3.3% · peers 7.4%</small></dd>
+      <dt>Top vendor</dt><dd>${d.vend}</dd>`;
+    document.querySelectorAll(".dt-pick button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.o === o)));
+    document.querySelectorAll(".bub").forEach((g) => g.classList.toggle("sel", g.dataset.c === o));
+  }
+  function wireDetail() {
+    document.querySelectorAll(".bub").forEach((g) => {
+      const c = g.dataset.c;
+      g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.setAttribute("aria-label", `${DET[c].name}: show details`);
+      g.addEventListener("pointerenter", () => showDetail(c));
+      g.addEventListener("pointerleave", () => showDetail(pinned));
+      g.addEventListener("click", () => { pinned = c; showDetail(c); });
+      g.addEventListener("focus", () => { pinned = c; showDetail(c); });
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pinned = c; showDetail(c); } });
+    });
+    const land = { cn: "CN", vn: "VN", bd: "BD", kh: "KH" };
+    document.querySelectorAll(".map .land path").forEach((path) => {
+      const c = land[path.getAttribute("class")]; if (!c) return;
+      path.style.cursor = "pointer";
+      path.addEventListener("pointerenter", () => showDetail(c));
+      path.addEventListener("pointerleave", () => showDetail(pinned));
+      path.addEventListener("click", () => { pinned = c; showDetail(c); });
+    });
+    document.querySelectorAll(".dt-pick button").forEach((b) => b.addEventListener("click", () => { pinned = b.dataset.o; showDetail(pinned); }));
+    showDetail(pinned);
+  }
+
+  // Theme: follows the OS until the visitor flips it; nothing is stored.
+  const themeBtn = document.getElementById("theme"), mq = matchMedia("(prefers-color-scheme: dark)");
+  const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : mq.matches;
+  const syncTheme = () => { const d = isDark(); themeBtn.textContent = d ? "Light" : "Dark"; themeBtn.setAttribute("aria-pressed", String(d)); themeBtn.setAttribute("aria-label", d ? "Switch to light theme" : "Switch to dark theme"); };
+  themeBtn.addEventListener("click", () => { document.documentElement.dataset.theme = isDark() ? "light" : "dark"; syncTheme(); });
+  mq.addEventListener("change", syncTheme); syncTheme();
+  document.querySelectorAll(".mseg button").forEach((b) => b.addEventListener("click", () => renderMap(b.dataset.state)));
+  renderMap(["today", "industry", "after"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "today");
+  wireDetail();
+</script>
+</body>
+</html>

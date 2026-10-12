@@ -186,3 +186,7 @@ back, and what I decided myself.
 ### v22 — Landscape board
 - **Claude built:** v20 with the cover rebuilt as one 'landscape board': compact title + answer row; KPI strip; map + origin detail panel (hover previews, click/tap/Enter pins; CN/VN/BD/KH/Other picker for touch and keyboard; land shapes are hoverable too); the Made-in ribbon folded in as the structure row. Per-origin numbers added to AGENTS.md. Print layout pinned so the board fits page 1; PDF 6 pages.
 - **My take:** _to fill after review_
+
+### v23 — Dark board
+- **Claude built:** v22 plus a dark theme: dark tokens applied for prefers-color-scheme and for a data-theme toggle (contents bar button, not persisted — no storage), screen-only so print stays light; hard-coded light fills (map land/sea, cards, bubble text, badges, buttons) re-mapped; badge colours moved to tokens; ?dark forces dark for previews. Verified toggle, phone width, and a 6-page light PDF exported from dark mode.
+- **My take:** _to fill after review_
