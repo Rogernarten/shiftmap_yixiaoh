@@ -45,9 +45,16 @@
   .brief p, .brief ol { margin: 0; font-size: 15px; }
   .brief ol { padding-left: 1.2em; }
 
-  .final { border: 1px dashed var(--line); border-radius: 12px; padding: 28px; margin-bottom: 56px; display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; }
-  .final h2 { font: 400 28px/1.1 var(--serif); margin: 0; }
-  .final p { margin: 0; color: var(--ink-3); }
+  .final { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px; align-items: start; border-top: 1px solid var(--ink); padding-top: 22px; margin-bottom: 64px; }
+  .final .eyebrow { margin: 0 0 8px; }
+  .final h2 { font: 400 clamp(28px, 3.4vw, 40px)/1.08 var(--serif); margin: 0 0 12px; }
+  .final h2 a { text-decoration: none; } .final h2 a:hover { text-decoration: underline; }
+  .final p { margin: 0 0 14px; color: var(--ink-2); }
+  .final .path { margin: 0 0 14px; padding-left: 1.2em; font-size: 14px; color: var(--ink-2); display: grid; gap: 4px; }
+  .final .path a { font-weight: 700; color: var(--ink); }
+  .final-links { font-size: 14px; }
+  .final-links a { color: var(--accent); }
+  .final-thumb { box-shadow: 0 24px 48px -28px rgba(0,0,0,.35); }
 
   section.phase { margin-bottom: 64px; }
   .phase-head { display: grid; grid-template-columns: 120px 1fr; gap: 0 24px; align-items: baseline; border-top: 1px solid var(--ink); padding-top: 16px; margin-bottom: 24px; }
@@ -74,6 +81,7 @@
 
   @media (max-width: 760px) {
     .wrap { padding: 0 16px; }
+    .final { grid-template-columns: 1fr; gap: 18px; }
     .brief { grid-template-columns: 1fr; }
     .phase-head { grid-template-columns: 1fr; }
     .phase-num { font-size: 32px; margin-bottom: 4px; }
@@ -107,9 +115,22 @@
     </div>
   </section>
 
-  <aside class="final" aria-label="Final choice">
-    <h2>Final choice</h2>
-    <p>v25 will be pinned here once the process converges.</p>
+  <aside class="final" aria-labelledby="final-h">
+    <a class="thumb final-thumb" href="v25/" aria-label="Open v25, the final version"><iframe src="v25/#after" title="Preview of v25" loading="lazy" tabindex="-1" scrolling="no"></iframe></a>
+    <div class="final-text">
+      <p class="eyebrow">Final choice</p>
+      <h2 id="final-h"><a href="v25/">v25 · The landscape board</a></h2>
+      <p>A report a sourcing manager can act on: one board shows every key number (sales, margin, freight, US imports, each origin's detail on hover), a real map shows where it's made and where it should move, and four exhibits carry the evidence. Swiss styling keeps it calm, with red reserved for the one problem: China.</p>
+      <ol class="path">
+        <li><a href="v01/">v01</a> a beautiful document, but too much text</li>
+        <li><a href="v02/">v02</a> map + pie charts: visual first becomes the rule</li>
+        <li><a href="v05/">v05</a> exhibit deck, chosen as most professional (v06 second)</li>
+        <li><a href="v13/">v13–v17</a> add the map, label, comparisons, live window, PDF</li>
+        <li><a href="v20/">v20</a> wins a style bake-off against <a href="v19/">v19</a> and <a href="v21/">v21</a></li>
+        <li><a href="v22/">v22–v25</a> one board with every number, dark option, polish</li>
+      </ol>
+      <p class="final-links"><a href="v25/">Open the final</a> · <a href="v23/?dark#after">Dark version</a> · <a href="process.md">Process notes</a></p>
+    </div>
   </aside>
 
   <section class="phase" aria-labelledby="p1">
@@ -255,7 +276,7 @@
       <div class="phase-num">03</div>
       <div>
         <h2 id="p3">Converge <span>v20–v25</span></h2>
-        <p>One direction, refined until it feels right.</p>
+        <p>A style bake-off first: the same report in v19's consulting style, v20's Swiss style and v21's product style. v20 won. Then the cover became one board with every key number (v22), gained a dark option (v23), went light by default with table views (v24), and was finished as v25.</p>
       </div>
     </div>
     <ol class="grid" start="20">
@@ -289,7 +310,12 @@
         <h3><a href="v24/">Polished board</a></h3>
         <p>Polish before the final. Light is the default, as decided, and dark only comes on through the toggle. The board and the slope chart each get a View as table option that lists every number, which also works for screen readers and without JavaScript. The arrow-key hint is hidden on touch screens.</p>
       </li>
-      <li class="card slot"><div class="thumb">v25</div><p>Next direction.</p></li>
+      <li class="card">
+        <a class="thumb" href="v25/" aria-label="Open v25, Final"><iframe src="v25/#after" title="Preview of v25" loading="lazy" tabindex="-1" scrolling="no"></iframe></a>
+        <div class="row"><span class="num">v25</span><span>the landscape board · Swiss · light</span></div>
+        <h3><a href="v25/">Final</a></h3>
+        <p>The final choice: v24, finished. It has a light Swiss report with one red for the problem, and a landscape board that carries every key number with hover detail. A real map shows the move, four exhibits carry the evidence, a live Try it window shows the product, and it prints as a clean six-page PDF. Dark mode is one click away.</p>
+      </li>
     </ol>
   </section>
 

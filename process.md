@@ -199,3 +199,7 @@ back, and what I decided myself.
 ### v24 — Polished board
 - **Claude built:** v23 with the OS-following dark block removed (light by default, dark via toggle only), 'View as table' details under the board (all origins: share, units, sales, industry %, imports, after shift, freight, margin, top vendor, totals) and under the slope chart, a noscript note, touch-only hint tweaks; tables hidden in print. PDF still 6 pages.
 - **My take:** _to fill after review_
+
+### v25 — Final
+- **Claude built:** v24 finished: print detail-panel spacing fixed, closing line links back to the gallery, final title. Pinned in the gallery as the final choice with the path that led to it.
+- **My take:** _to fill after review_
