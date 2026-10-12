@@ -42,7 +42,7 @@ back, and what I decided myself.
   and the shift is drawn as arrows CN→VN (+12) and CN→KH (+8). Below, three pie
   (donut) charts compare the mixes; "why" became three big numbers; "how it works" is
   three short steps. Country colors were checked for color-blind safety.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### Round — rule + v03–v05 (2026-10-10)
 - **Claude proposed:** turn my v01 feedback into a rule for every version: the mix and
@@ -54,13 +54,13 @@ back, and what I decided myself.
 - **Claude built:** a port yard. 100 containers (1 = 1% of units) stacked by origin;
   "Run the shift" lifts 20 boxes off China with a crane path and lands 12 in Vietnam,
   8 in Cambodia, recoloring them on arrival. Industry view re-stacks the same 100.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v04 — Departure board
 - **Claude built:** a dark split-flap departures board. Each origin is a row with its
   share, a tile bar (1 tile = 4%) and an action/status column; the three views re-flip
   the board (ACTION → VS NORTHFOLD → STATUS: DEPARTED 20 / ARRIVED +12).
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v05 — Exhibit deck
 - **Claude built:** a consulting-style deck on one scrolling page. The cover states the
@@ -86,13 +86,13 @@ back, and what I decided myself.
 - **Claude built:** the real map redrawn as a 19th-century sea chart: waterlines, graticule, rhumb
   lines, compass rose, cartouche. Red-ink circles (Northfold) / blue-ink (the trade);
   "The new route" adds dashed sea lanes CN→VN, CN→KH with ships sailing them.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v08 — Type is the chart
 - **Claude built:** black-and-white brutalist page; each country name's font size is proportional
   to its share (plus a bar), China in red when over-weight; switching views animates
   the type sizes, and gainers invert to black.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### Review after v08 (2026-10-10)
 - **I decided:** v05 (exhibit deck) is the strongest direction, with v06 (care label)
@@ -107,19 +107,19 @@ back, and what I decided myself.
 
 ### v09 — Terminal
 - **Claude built:** a dark data terminal: ticker, command line, five panels (mix bars Northfold amber vs industry cyan, diverging gap vs industry, key stats, shift scenario table, vendor leads). Views switch with buttons or keys 1/2/3; the gap panel animates from +25 to +5.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v10 — Front page
 - **Claude built:** a fictional broadsheet front page (The Sourcing Ledger): lead story with a slope chart of each origin's share, today → after shift or → industry (toggle, animated; hover isolates a line); right rail with industry bars, a market-data table and a 'Vendors wanted' classified; three below-the-fold number stories.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v11 — Product window
 - **Claude built:** a product-marketing page whose hero is a live app mock: sidebar history, scope chips, category tabs (sweaters / leggings / tees / jackets, all from the brief's sample data), KPI tiles, origin bars with industry ticks, a recommendation badge (Rebalance / Renegotiate freight / Add origin) and vendors. The ask box fakes the report steps and routes English or Chinese questions to a category.
-- **My take:** _to fill after review_
+- **My take:** later I felt this was also professional, which led to the style bake-off (v21).
 
 ### v12 — One-page brief
 - **Claude built:** a Swiss-style one-page memo (TO / FROM / RE / DATE) with numbered sections: 01 the answer, 02 small multiples Northfold vs industry, 03 stacked bars today vs after (checkbox adds the industry bar), 04 three numbers, 05 vendor table, 06 next step. Print / save-as-PDF button with a print stylesheet.
-- **My take:** _to fill after review_
+- **My take:** later I felt this was also professional, which led to the style bake-off (v20).
 
 ### Narrowing plan (2026-10-10)
 - **I decided:** v05 stays the lead. Must-haves from here on: a **real map**, clear
@@ -131,23 +131,23 @@ back, and what I decided myself.
 
 ### v13 — Deck + real map
 - **Claude built:** v05's deck unchanged in structure; the cover's stacked-bar card is replaced by a real map card (v02's geography restyled: muted land, white borders, navy Northfold bubbles, gray in the industry view, teal/amber shift arrows matching Exhibit 3). Fixed a class clash (map 'ghost' ring hid the 'See the exhibits' button).
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v14 — Deck + map + label
 - **Claude built:** v13 plus a full-width 'Made in' composition ribbon under the cover: each origin's % in serif numerals, small caps name, a navy bar and an industry tick; it re-weaves with the map toggle. On phones the names become ISO codes.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v15 — Deck + comparisons
 - **Claude built:** v14 plus: Exhibit 1 gets a 'The numbers' table (Northfold / industry / gap / after shift, plus freight/u and net margin vs peers); Exhibit 3's waterfall is replaced by v10's slope chart in the deck palette (China navy, Vietnam teal, Cambodia amber, others gray), animating in when the slide is seen, with a today-vs after/industry toggle and hover-to-isolate.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v16 — Deck + live product
 - **Claude built:** v15 plus a 'Try it' slide (new nav dot) before the recommendation: a compact live window in the deck's palette with scope chips, four category tabs from the brief, KPI row, origin bars with industry ticks, recommendation badge and vendors, plus the fake ask box with progress steps (English/Chinese routing).
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v17 — Printable deck
 - **Claude built:** v16 plus a TO/FROM/RE memo line on the cover, 'Print / save PDF' buttons (cover and recommendation), and a print stylesheet: one slide per A4-landscape page, colours kept, interactive parts hidden. Found that Chrome's print width trips the phone breakpoint, so the print block pins the desktop layout; verified the export is exactly 6 pages.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### Review after v17 (2026-10-10)
 - **I decided:** keep all four additions (composition ribbon, comparison table + slope
@@ -156,11 +156,11 @@ back, and what I decided myself.
 
 ### v18 — Report navigation
 - **Claude built:** v17 with the side dots replaced by a sticky contents bar naming every section (active section highlighted via the existing observer, reading-progress line), scroll padding so anchors clear the bar, and ←/→ (or j/k) paging between slides. Hidden in print.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v19 — Visual system
 - **Claude built:** v18 plus: per-slide headers hidden on screen (kept as running headers in print), tighter slide height/padding, a single :focus-visible style, unified label/h2/source sizes, table headers allowed to wrap so the market table stays inside the frame, and muted country + sea labels on the cover map. PDF still exactly 6 pages.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### Style bake-off (2026-10-10)
 - **I raised:** v11 (product UI) and v12 (Swiss one-page brief) also look professional;
@@ -171,11 +171,11 @@ back, and what I decided myself.
 
 ### v20 — Bake-off A: Swiss
 - **Claude built:** v19 re-skinned in v12's Swiss style via tokens and one override block: Helvetica throughout (bold headlines), black/grey palette with red reserved for China (map bubble, slope line, table gaps, answer), square corners, red top rule on the cover, black buttons with red hover. Print block untouched, so the 6-page PDF still works.
-- **My take:** _to fill after review_
+- **My take:** the best of the three; chosen as the final style.
 
 ### v21 — Bake-off B: Product
 - **Claude built:** v19 re-skinned in v11's product style: dark hero cover with light text, the map card as an app window (traffic-light chrome), exhibits as white rounded cards on #eef0f3, pill segmented controls, rounded buttons, system sans throughout. Print falls back to plain paper; PDF still 6 pages.
-- **My take:** _to fill after review_
+- **My take:** professional, but not the one; v20 reads more like a report.
 
 ### Bake-off result (2026-10-12)
 - **I decided:** v20 (Swiss) is the final style. Two requests: make a dark version, and
@@ -185,11 +185,11 @@ back, and what I decided myself.
 
 ### v22 — Landscape board
 - **Claude built:** v20 with the cover rebuilt as one 'landscape board': compact title + answer row; KPI strip; map + origin detail panel (hover previews, click/tap/Enter pins; CN/VN/BD/KH/Other picker for touch and keyboard; land shapes are hoverable too); the Made-in ribbon folded in as the structure row. Per-origin numbers added to AGENTS.md. Print layout pinned so the board fits page 1; PDF 6 pages.
-- **My take:** _to fill after review_
+- **My take:** this is what I asked for: the first figure should carry basically every key number, with hover.
 
 ### v23 — Dark board
 - **Claude built:** v22 plus a dark theme: dark tokens applied for prefers-color-scheme and for a data-theme toggle (contents bar button, not persisted — no storage), screen-only so print stays light; hard-coded light fills (map land/sea, cards, bubble text, badges, buttons) re-mapped; badge colours moved to tokens; ?dark forces dark for previews. Verified toggle, phone width, and a 6-page light PDF exported from dark mode.
-- **My take:** _to fill after review_
+- **My take:** the dark version I asked for; the final defaults to light.
 
 ### Final decisions (2026-10-12)
 - **I decided:** the final defaults to the light theme; dark stays available through
@@ -198,8 +198,53 @@ back, and what I decided myself.
 
 ### v24 — Polished board
 - **Claude built:** v23 with the OS-following dark block removed (light by default, dark via toggle only), 'View as table' details under the board (all origins: share, units, sales, industry %, imports, after shift, freight, margin, top vendor, totals) and under the slope chart, a noscript note, touch-only hint tweaks; tables hidden in print. PDF still 6 pages.
-- **My take:** _to fill after review_
+- **My take:** no individual comment; see the review rounds.
 
 ### v25 — Final
 - **Claude built:** v24 finished: print detail-panel spacing fixed, closing line links back to the gallery, final title. Pinned in the gallery as the final choice with the path that led to it.
-- **My take:** _to fill after review_
+- **My take:** final.
+
+---
+
+## Summary for class
+
+### 1. Design process: how I explored
+- One idea, held constant: **Shiftmap**, a fictional country-of-origin research tool for
+  sourcing managers. Every version uses the same sample category and the same numbers,
+  so only the design changes.
+- **v01–v12 went wide**: documents (bill of lading, care label), maps (flow map, antique
+  sea chart), physical metaphors (container yard), signage (departure board), type as
+  the chart (brutalist), and professional genres (exhibit deck, data terminal, front
+  page, product window, one-page brief).
+- My feedback on v01 (beautiful but not intuitive, too much text) became a rule for
+  every later version: show the mix and the shift **visually**, with minimal copy.
+
+### 2. How I narrowed down
+- After v08 I picked **v05 (exhibit deck)**, with v06 second, because both look
+  professional and carry enough information. I dropped the playful metaphors (container
+  yard, departure board, brutalist, sea chart): memorable, but they read as concepts,
+  not as something a sourcing manager would act on.
+- v09–v12 stress-tested that choice with four more professional genres.
+- Must-haves: a **real map**, clear **data comparison**, a **professional** tone. v13–v17
+  added one borrowed strength at a time (map ← v02, composition label ← v06, slope chart
+  and table ← v10, live product window ← v11, print/PDF ← v12). I kept all four.
+- v18–v19 integrated it into one report (navigation, one visual system).
+- **Style bake-off**: the same content in three styles (v19 consulting, v20 Swiss, v21
+  product). I chose **v20**: red is reserved for China, so the problem is obvious at a
+  glance, and it prints best. v21 looked like a generic software site.
+- v22 made the first figure carry every key number (KPIs, map, hover detail per origin);
+  v23 added a dark theme; v24 made light the default and added table views; v25 is
+  the final.
+
+### 3. How I used Claude
+- **Asked for:** a plan; turning my real-world idea into a fictional, safe brief; one
+  page per direction; checks on every version.
+- **Pushed back / redirected:** v01 was too text-heavy → visual-first rule; more
+  professional styles; reconsidering v11/v12 → bake-off instead of a blind switch; the
+  first figure must hold all key numbers; a dark version; light as the default.
+- **Decided myself:** the idea and audience; fictional data only; v05 as the lead; the
+  must-haves; keeping all four additions; the Swiss style; light by default.
+- **What Claude checked:** colour palettes for colour-blind safety; screenshots of
+  every version at desktop and phone width; interactions driven in headless Chrome; the
+  PDF page count. It also caught bugs on the way, such as CSS class-name collisions
+  and a print layout that tripped the phone breakpoint.
