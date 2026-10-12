@@ -33,6 +33,20 @@ Sample: **Northfold Apparel — Women's knit sweaters, HTS 6110.20, last 12 mont
 | Cambodia (KH) | 8% | 12% | −4 | 16% |
 | Other | 10% | 14% | −4 | 10% |
 
+By origin (Northfold, last 12 months; industry = US imports of HTS 6110.20):
+
+| Origin | Units | Sales | Freight/u (vs peers) | Net margin | Top vendor | Industry imports |
+|---|---|---|---|---|---|---|
+| CN | 738K | ≈$15.5M | $2.05 ($1.38) | 1.8% | Jade Harbor Apparel (61%) | $1.13B |
+| VN | 256K | ≈$5.4M | $1.52 ($1.05) | 6.2% | Lotus Bay Knitwear (74%) | $1.30B |
+| BD | 170K | ≈$3.6M | $1.71 ($1.20) | 4.0% | Delta Loom Industries (100%) | $0.67B |
+| KH | 114K | ≈$2.4M | $1.48 ($1.10) | 6.9% | Angkor Thread Ltd. (100%) | $0.50B |
+| Other | 142K | ≈$3.0M | $1.90 | 2.5% | — | $0.59B |
+
+Totals: sales $29.8M, 1.42M units, net margin 3.3% (peers 7.4%), freight/u $1.85
+(peers $1.21), US imports $4.2B. Leads: Red River Garment Co. (VN, $86M), Saigon Pine
+Knit (VN, $54M), Mekong Stitch Works (KH, $38M).
+
 Shift: move 20 pts out of China — CN→VN 12 pts, CN→KH 8 pts. Reasons: Vietnam is
 already the industry's #1 origin; 14 vendors in VN/KH already ship this code to US
 brands; est. landed cost per unit about −5%.
