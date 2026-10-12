@@ -176,3 +176,13 @@ back, and what I decided myself.
 ### v21 — Bake-off B: Product
 - **Claude built:** v19 re-skinned in v11's product style: dark hero cover with light text, the map card as an app window (traffic-light chrome), exhibits as white rounded cards on #eef0f3, pill segmented controls, rounded buttons, system sans throughout. Print falls back to plain paper; PDF still 6 pages.
 - **My take:** _to fill after review_
+
+### Bake-off result (2026-10-12)
+- **I decided:** v20 (Swiss) is the final style. Two requests: make a dark version, and
+  put basically every key number into the first figure (value, structure), using hover.
+- **Claude proposed:** v22 = the "landscape board" (KPIs + map + hover detail panel +
+  structure row); v23 = dark version of v22.
+
+### v22 — Landscape board
+- **Claude built:** v20 with the cover rebuilt as one 'landscape board': compact title + answer row; KPI strip; map + origin detail panel (hover previews, click/tap/Enter pins; CN/VN/BD/KH/Other picker for touch and keyboard; land shapes are hoverable too); the Made-in ribbon folded in as the structure row. Per-origin numbers added to AGENTS.md. Print layout pinned so the board fits page 1; PDF 6 pages.
+- **My take:** _to fill after review_
